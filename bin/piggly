@@ -4,8 +4,8 @@ require 'rubygems'
 $:.push File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'piggly'
 
-# Number of children to fork
-Piggly::Queue.children = 4
+# Number of children to fork for parallel tasks
+Piggly::Queue.children = 2
 
 STDOUT.sync  = true
 
@@ -16,7 +16,7 @@ def benchmark
 end
 
 def parse_options
-  search_paths = []
+  proc_paths = []
 
   opts = OptionParser.new do |opts|
     opts.on("-I", "--include PATHS", "Prepend paths to $: (colon separated list)") do |paths|
@@ -31,13 +31,13 @@ def parse_options
       Piggly::Config.cache_root = dir
     end
 
-    opts.on("-s", "--source-root PATH", "Source root directory") do |dir|
-      search_paths << dir
+    opts.on("-s", "--proc-files PATH", "Stored procedures source file list (may be specified many times)") do |dir|
+      proc_paths << dir
     end
 
-    opts.on("-T", "--trace-prefix PATH", "Trace prefix") do |str|
-      Piggly::Config.trace_prefix = str
-    end
+  # opts.on("-T", "--trace-prefix PATH", "Trace prefix") do |str|
+  #   Piggly::Config.trace_prefix = str
+  # end
     
     opts.on("-a", "--aggregate", "Aggregate data from previous runs") do
       Piggly::Config.aggregate = true
@@ -46,6 +46,11 @@ def parse_options
     opts.on("--version", "Show version") do
       puts "piggly #{Piggly::VERSION::STRING} #{Piggly::VERSION::RELEASE_DATE}"
       exit
+    end
+
+    opts.on("-h", "--help", "Show this message") do
+      puts opts
+      exit 0
     end
   end
 
@@ -57,7 +62,7 @@ def parse_options
 
   begin
     opts.parse! ARGV
-    raise OptionParser::MissingArgument if ARGV.empty?
+    raise OptionParser::MissingArgument, "no tests specified" if ARGV.empty?
   rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument
     puts opts
     puts
@@ -65,7 +70,12 @@ def parse_options
     exit -1
   end
 
-  return search_paths.map{|p| Dir[p] }.flatten.sort, ARGV
+  proc_paths = proc_paths.map{|p| Dir[p] }.flatten.sort
+  test_paths = ARGV.map{|p| Dir[p] }.flatten.sort
+
+  ARGV.clear
+
+  return proc_paths, test_paths
 end
 
 def load_tests(tests)
@@ -195,7 +205,6 @@ def create_reports(sources)
       end
     end
 
-    Piggly::Queue.children = 4
     Piggly::Queue.start
   end
 end
