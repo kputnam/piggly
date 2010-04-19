@@ -179,7 +179,7 @@ grammar Piggly
   rule stmtForLoop
     # loop coverage calculated by using exitStub
     label_open:tLabel tSpace
-    kwFOR tSpace tIdentifier tSpace
+    kwFOR tSpace identifierList tSpace
     kwIN
       condSpace:tSpace
       cond:( stmtForSql / expressionUntilLoop )
@@ -193,7 +193,7 @@ grammar Piggly
     tSpace? ';'
     exitStub:stubNode <ForLoop>
     /
-    kwFOR tSpace tIdentifier tSpace
+    kwFOR tSpace identifierList tSpace
     kwIN
       condSpace:tSpace
       cond:( stmtForSql / expressionUntilLoop )
@@ -235,7 +235,7 @@ grammar Piggly
   rule stmtReturn
     bodyStub:stubNode
     body:(kwRETURN ( tSpace? &';'
-                   / tSpace kwNEXT tSpace tIdentifier tSpace?
+                   / tSpace kwNEXT tSpace expressionUntilSemiColon tSpace?
                    / tSpace kwQUERY tSpace expressionUntilSemiColon
                    / expressionUntilSemiColon )) ';'
   end
@@ -306,6 +306,10 @@ grammar Piggly
                ( tSpace kwASSIGN tSpace? rval:expressionUntilSemiColon )?
     tSpace?
     ';' tSpace?
+  end
+
+  rule identifierList
+    tIdentifier ( tSpace? ',' tSpace? tIdentifier )*
   end
 
   rule blockExceptions
