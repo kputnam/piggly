@@ -1,20 +1,24 @@
 module Piggly
   class Installer
 
-    def self.trace_proc(path)
-      cache = Piggly::TraceCompiler.cache(path)
+    # Compiles the procedures in +file+ with instrumentation and installs them
+    def self.trace_proc(file)
+      # recompile with instrumentation if needed
+      cache = Piggly::TraceCompiler.cache(file)
 
       # install instrumented code
       connection.exec cache['code.sql']
 
       # map tag messages to tag objects
-      Profile.add(path, cache['tags'], cache)
+      Profile.add(file, cache['tags'], cache)
     end
 
+    # Reinstalls the original stored procedures in +file+
     def self.untrace_proc(file)
       connection.exec File.read(file)
     end
 
+    # Installs necessary instrumentation support
     def self.install_trace
       # record trace messages
       connection.set_notice_processor(&Profile.notice_processor)
@@ -73,6 +77,7 @@ module Piggly
       SQL
     end
 
+    # Uninstalls instrumentation support
     def self.uninstall_trace
       connection.set_notice_processor
       connection.exec "DROP FUNCTION IF EXISTS piggly_cond(varchar, boolean);"
@@ -81,6 +86,7 @@ module Piggly
       connection.exec "DROP FUNCTION IF EXISTS piggly_branch(varchar);"
     end
 
+    # Returns the active PGConn
     def self.connection
       ActiveRecord::Base.connection.raw_connection
     end

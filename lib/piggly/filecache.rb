@@ -1,12 +1,15 @@
 class File
+
+  # True if target file is older (by mtime) than any source file
   def self.stale?(target, *sources)
     if exists?(target)
       oldest = mtime(target)
-      sources.find{|x| mtime(x) > oldest }
+      sources.any?{|x| mtime(x) > oldest }
     else
       true
     end
   end
+
 end
 
 module Piggly
@@ -16,7 +19,8 @@ module Piggly
     end
 
     module ClassMethods
-      # map source path to cache file path
+
+      # Maps source path to cache path, like /home/user/foo.sql => piggly/cache/#{MD5('/home/user')}/#{BaseClass}/foo.sql
       def cache_path(file)
         # up to the last capitalized word of the class name
         subdir = name[/^(?:.+::)?(.+?)([A-Z][^A-Z]+)?$/, 1]
@@ -29,6 +33,7 @@ module Piggly
 
         Config.mkpath(File.join(Config.cache_root, hash, subdir), base)
       end
+
     end
 
   end

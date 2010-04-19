@@ -20,7 +20,9 @@ module Piggly
 
     def self.path(root, file=nil)
       if file
-        file[%r{^\.\.|^\/|^(?:[A-Z]:)?/}i] ? file : File.join(root, file)
+        file[%r{^\.\.|^\/|^(?:[A-Z]:)?/}i] ?
+          file : # ../path, /path, or D:\path that isn't relative to root
+          File.join(root, file)
       else
         root
       end

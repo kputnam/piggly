@@ -3,17 +3,17 @@ require 'rake/tasklib'
 
 module Piggly
   class Task < Rake::TaskLib
-    attr_accessor :name,          # name of the test task
-                  :libs,          # list of paths added to $LOAD_PATH before running tests
-                  :test_files,    # list of ruby test files to load
-                  :proc_files,    # list of pl/pgsql stored procedures to compile
+    attr_accessor :name,          # Name of the test task
+                  :libs,          # List of paths added to $LOAD_PATH before running tests
+                  :test_files,    # List of ruby test files to load
+                  :proc_files,    # List of pl/pgsql stored procedures to compile
                   :verbose,
-                  :warning,       # execute ruby -w if true
-                  :report_dir,    # where to store reports (default piggly/report)
-                  :cache_root,    # where to store compiler cache (default piggly/cache)
-                  :aggregate,     # accumulate coverage from the previous run (default false)
+                  :warning,       # Execute ruby -w if true
+                  :report_dir,    # Where to store reports (default piggly/report)
+                  :cache_root,    # Where to store compiler cache (default piggly/cache)
+                  :aggregate,     # Accumulate coverage from the previous run (default false)
                   :piggly_opts,
-                  :piggly_path    # path to bin/piggly (default searches with ruby -S)
+                  :piggly_path    # Path to bin/piggly (default searches with ruby -S)
 
     def initialize(name = :piggly)
       @name = name
