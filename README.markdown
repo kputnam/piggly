@@ -2,7 +2,7 @@
 
 ## What's Piggly?
 
-Piggly is like (RCov[1]) for PostgreSQL's PL/PgSQL stored procedures. It reports on code
+Piggly is like [RCov] [1] for PostgreSQL's PL/PgSQL stored procedures. It reports on code
 coverage to help you identify untested parts of your code.
 
 ## Features
@@ -20,15 +20,15 @@ coverage to help you identify untested parts of your code.
 
 ## Requirements
 * Stored procedures stored on the filesystem
-* (Treetop[2])
+* [Treetop] [2]
 * Ruby
 
 ## Usage
 
 Assume your stored procedures are in db/proc/, and the tests that should be exercising your
-stored procedures are in spec/proc/.
+stored procedures are in spec/.
 
-    $ piggly -I spec -s 'db/proc/*.sql' spec/proc/*.rb
+    $ piggly -I spec -s 'db/proc/*.sql' 'spec/**/*_spec.rb'
     Loading 7 test files
     > Completed in 4.32 seconds
     Compiling 110 files
@@ -67,7 +67,7 @@ Piggly can also be run from Rake, with a task like:
         t.libs.push 'spec'
 
         t.test_files = FileList['spec/*/*_spec.rb']
-        t.proc_files = 'db/{procs,functions}/*.sql'
+        t.proc_files = FileList['db/{procs,functions}/*.sql']
 
         # this can be used if piggly is frozen in a Rails application
         t.libs.concat Dir['vendor/gems/*/lib/'].sort.reverse
@@ -77,5 +77,5 @@ Piggly can also be run from Rake, with a task like:
 
     $ rake spec:piggly
 
-[1] http://github.com/relevance/rcov/
-[2] http://github.com/nathansobo/treetop
+  [1]: http://github.com/relevance/rcov/
+  [2]: http://github.com/nathansobo/treetop
