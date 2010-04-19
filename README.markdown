@@ -9,18 +9,22 @@ coverage to help you identify untested parts of your code.
 * Instrumenting source-to-source compiler
 * Low test execution overhead
 * Reduced compilation times by use of disk caching
-* Readable and easily navigable reports
+* Readable and easily navigable reports (see example/piggly/reports/index.html)
 * Able to aggregate coverage across multiple runs
 * Test::Unit and RSpec compatible
 
 ## Limitations
 * Cannot parse aggregate definitions (but helper functions are fine)
+* Cannot parse nested dollar-quoted strings, eg $A$ ... $B$ ... $B$ ... $A$
 * Report generation is resource intensive and slow
 
 ## Requirements
 * [Treetop] [2]
 * Stored procedures stored on the filesystem, defined with "CREATE OR REPLACE FUNCTION ..."
 * The [ruby-pg driver] [3], and for the time being, ActiveRecord (some workaround should be possible)
+
+## How to Install
+    $ gem install piggly
 
 ## Usage
 Assume your stored procedures are in proc/, and the tests that should be exercising your
@@ -59,13 +63,14 @@ Note the compilation can be slow on the first run, but on subsequent runs it sho
 to be compiled again. If a file is added or changed (based on mtime), it will be recompiled.
 
 Piggly can also be run from Rake, with a task like:
+    require 'piggly/task'
 
     namespace :spec do
       Piggly::Task.new(:piggly => 'db:test:prepare') do |t|
         t.libs.push 'spec'
 
         t.test_files = FileList['spec/**/*_spec.rb']
-        t.proc_files = FileList['procs/*.sql']
+        t.proc_files = FileList['proc/*.sql']
 
         # this can be used if piggly is frozen in a Rails application
         t.libs.concat Dir['vendor/gems/*/lib/'].sort.reverse
