@@ -9,14 +9,15 @@ coverage to help you identify untested parts of your code.
 * Instrumenting source-to-source compiler
 * Low test execution overhead
 * Reduced compilation times by use of disk caching
-* Readable and easily navigable reports (see example/piggly/reports/index.html)
-* Able to aggregate coverage across multiple runs
+* Readable and easily-navigable reports (see example/piggly/reports/index.html)
+* Possible to aggregate coverage across multiple runs
 * Test::Unit and RSpec compatible
 
 ## Limitations
 * Cannot parse aggregate definitions (but helper functions are fine)
 * Cannot parse nested dollar-quoted strings, eg $A$ ... $B$ ... $B$ ... $A$
 * Report generation is resource intensive and slow
+* SQL statements are not instrumented, so their branches (COALESCE, WHERE-clauses, etc) aren't tracked
 
 ## Requirements
 * [Treetop] [2]
@@ -80,9 +81,13 @@ Piggly can also be run from Rake, with a task like:
 
     $ rake spec:piggly
 
+## Bugs & Issues
+Please report any issues on the [github tracker] [4]
+
 ## Author
 * Kyle Putnam <putnam.kyle@gmail.com>
 
   [1]: http://github.com/relevance/rcov/
   [2]: http://github.com/nathansobo/treetop
   [3]: http://bitbucket.org/ged/ruby-pg/
+  [4]: http://github.com/kputnam/piggly/issues
