@@ -14,11 +14,12 @@ module Piggly
     # hash key) within the same directory. String objects are (usually) read
     # and written directly to disk, while all other objects are (un-)Marshal'd
     #
-    # Cache invalidation is done by comparing last-modified timestamps on the
-    # cached object's file to all the "source" files (ruby libs, input files,
-    # etc) required to regenerate the data.
+    # Cache invalidation is done by comparing mtime timestamps on the cached
+    # object's file to all the "source" files (ruby libs, input files, etc)
+    # required to regenerate the data.
     #
     class FileCache
+      # Non-printable ASCII char indicates data should be Marshal'd
       HINT = /[\000-\010\016-\037\177-\300]/
 
       class << self
@@ -76,6 +77,7 @@ module Piggly
         replace(data) unless data.empty?
       end
 
+      # Load +key+ from file system if needed
       def [](key)
         @data[key.to_s] ||= self.class.load(@dir, key)
       end

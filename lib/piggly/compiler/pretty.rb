@@ -12,11 +12,11 @@ module Piggly
       new(profile).send(:compile, path)
     end
 
-  private
-
     def initialize(profile)
       @profile = profile
     end
+
+  private
 
     def compile(path)
       lines = File.read(path).count("\n") + 1

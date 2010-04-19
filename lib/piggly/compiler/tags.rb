@@ -6,6 +6,9 @@ module Piggly
   # various parts of the recompiled stored procedure, and the output is then recognized by
   # Profile.notice_processor, which calls #ping on the tag corresponding to the printed string.
   #
+  # After test execution is complete, each AST is walked and Tag values attached to NodeClass
+  # values are used to produce the coverage report
+  #
   class Tag
     PATTERN = /[0-9a-f]{16}/
 
@@ -17,7 +20,7 @@ module Piggly
 
     alias to_s id
 
-    # defined here in case ActiveSupport hasn't defined it on Object
+    # Defined here in case ActiveSupport hasn't defined it on Object
     def tap
       yield self
       self
@@ -54,19 +57,21 @@ module Piggly
       @ran ? 'full coverage' : 'never evaluated'
     end
 
-    #
     # Resets code coverage
-    #
     def clear
       @ran = false
     end
   end
 
-  # tags a sequence of statements
+  #
+  # Sequence of statements
+  #
   class BlockTag < EvaluationTag
   end
 
-  # tags procedure calls, raise exception, exits, returns
+  #
+  # Procedure calls, raise exception, exits, returns
+  #
   class UnconditionalBranchTag < EvaluationTag
     # aggregate this coverage data with conditional branches
     def type
@@ -147,7 +152,7 @@ module Piggly
       self.class::STATES.fetch(n = state, "unknown tag state: #{n}")
     end
 
-    # covert bit sequence to integer
+    # Returns state represented as a 4-bit integer
     def state
       [@ends,@pass,@once,@twice].reverse.inject([0,0]){|(k,n), bit| [k + 1, n | (bit ? 1 : 0) << k] }.last
     end

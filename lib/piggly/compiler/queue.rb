@@ -1,4 +1,8 @@
 module Piggly
+
+  #
+  # Executes blocks in parallel subprocesses
+  #
   class Queue
 
     def self.children=(value)
@@ -26,6 +30,7 @@ module Piggly
           @active -= 1
         end
 
+        # enable enterprise ruby feature
         GC.copy_on_write_friendly = true if GC.respond_to?(:copy_on_write_friendly=)
 
         # use exit! to avoid auto-running any test suites

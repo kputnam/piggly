@@ -5,6 +5,7 @@ module Piggly
       Piggly::Config.mkpath(Config.report_root, ext ? File.basename(file).sub(/\.[^.]+$/i, ext) : file)
     end
 
+    # Copy each file to Config.report_root
     def self.install(*files)
       files.each do |file|
         src = File.join(File.dirname(__FILE__), 'reporter', file)

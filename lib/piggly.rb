@@ -14,4 +14,5 @@ require File.join(PIGGLY_ROOT, 'installer')
 require File.join(PIGGLY_ROOT, 'reporter')
 require File.join(PIGGLY_ROOT, 'util')
 
+# used to generate MD5 tags for AST nodes
 $PIGGLY_GENTAG = 0

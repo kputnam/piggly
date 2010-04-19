@@ -1,5 +1,8 @@
 module Piggly
 
+  #
+  # Markup DSL
+  #
   module HtmlTag
     unless defined? HTML_REPLACE
       HTML_REPLACE = { '&' => '&amp;', '"' => '&quot;', '>' => '&gt;', '<' => '&lt;' }
@@ -9,7 +12,6 @@ module Piggly
     def html(output = '')
       begin
         @htmltag_output, htmltag_output = output, @htmltag_output
-
         # TODO: doctype
         yield
       ensure
@@ -27,7 +29,6 @@ module Piggly
         k, v = pair
         string << %[ #{k}="#{v}"]
       end
-
 
       if content.nil?
         if block_given?
@@ -185,14 +186,13 @@ module Piggly
 
             tag :html do
               tag :head do
-                tag :title, 'PL/PgSQL Code Coverage'
+                tag :title, 'Piggly PL/pgSQL Code Coverage'
                 tag :link, :rel => 'stylesheet', :type => 'text/css', :href => 'piggly.css'
                 tag :script, '<!-- -->', :type => 'text/javascript', :src => 'sortable.js'
               end
 
               tag :body do
                 table(*sources.sort)
-
                 tag :br
                 timestamp
               end

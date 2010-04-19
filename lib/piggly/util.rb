@@ -1,5 +1,6 @@
 module Enumerable
 
+  # Count number of elements, optionally filtered by a block
   def count
     if block_given?
       inject(0){|count, x| count + (yield(x) ? 1 : 0) }
@@ -8,6 +9,7 @@ module Enumerable
     end
   end unless method_defined?(:count)
 
+  # Sum elements, optionally transformed by a block
   def sum(init = 0)
     if block_given?
       inject(init){|sum, e| sum + yield(e) }
