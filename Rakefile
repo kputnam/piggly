@@ -13,6 +13,7 @@ end
 
 require 'rake/gempackagetask'
 load './piggly.gemspec'
-Rake::GemPackageTask.new($gemspec) do |pkg|
-  pkg.need_tar = true
+Rake::GemPackageTask.new(Piggly.gemspec) do |pkg|
+  pkg.need_tar = false
+  pkg.need_zip = false
 end
