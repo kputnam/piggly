@@ -13,6 +13,7 @@ grammar Piggly
     procedureHeader
     name:tIdentifier tSpace?
     parameters:parameterList tSpace
+    procedureReturn tSpace
     return:tType tSpace kwAS tSpace
     procedureBody
     procedureFooter <Procedure>
@@ -23,7 +24,7 @@ grammar Piggly
   end
 
   rule procedureReturn
-    'returns' tSpace ( 'set' tSpace 'of' tSpace )? <TextNode>
+    'returns' tSpace 'setof'? <TextNode>
   end
 
   rule procedureBody
@@ -176,8 +177,8 @@ grammar Piggly
     tSpace? ';' <WhileLoop>
   end
   
+  # loop coverage calculated by using exitStub
   rule stmtForLoop
-    # loop coverage calculated by using exitStub
     label_open:tLabel tSpace
     kwFOR tSpace identifierList tSpace
     kwIN
@@ -254,7 +255,6 @@ grammar Piggly
     expr:expressionUntilSemiColon ';' <Raise>
   end
   
-  # todo stmt_execsql
   rule stmtExecSql
     sqlKeyword tSpace expressionUntilSemiColon ';' <Sql>
   end
@@ -428,6 +428,7 @@ grammar Piggly
     "'"  content:("''" / [^'])* "'" <TString>
   end
   
+  # beware this is quite broad and might match things it shouldn't
   rule tType
     [a-z\200-\377_]
     ( '(' rType ')' /
@@ -744,13 +745,3 @@ grammar Piggly
   end
   
 end
-
-# expr   -> term   '+' expr | term
-# term   -> factor '*' term | factor
-# factor -> digit | '(' expr ')'
-# digit  -> '0' | '1' | ...
-# 
-# expr   -> term   ( '+' expr | '' )
-# term   -> factor ( '*' term | '' )
-# factor -> digit | '(' expr ')'
-# digit  -> '0' | '1' | ...
