@@ -7,224 +7,239 @@ require 'piggly'
 # Number of children to fork for parallel tasks
 Piggly::Queue.children = 2
 
-STDOUT.sync  = true
+STDOUT.sync = true
 
-def benchmark
-  start = Time.now
-  yield
-  puts " > Completed in #{'%0.2f' % (Time.now - start)} seconds"
-end
+module Piggly
+  module Command
+    class << self
 
-def parse_options
-  proc_paths = []
+      def main
+        benchmark do
+          sources, tests = parse_options
+          load_tests(tests)
+          connect_to_database
+          compile_procs(sources)
+          install_procs(sources)
+          clear_coverage
+          execute_tests
+          store_coverage
+          uninstall_procs(sources)
+          create_index(sources)
+          create_reports(sources)
+        end
+      end
 
-  opts = OptionParser.new do |opts|
-    opts.on("-I", "--include PATHS", "Prepend paths to $: (colon separated list)") do |paths|
-      $:.concat paths.split(':')
-    end
+    private
 
-    opts.on("-o", "--output PATH", "Destination directory") do |dir|
-      Piggly::Config.report_root = dir
-    end
+      def benchmark
+        start = Time.now
+        yield
+        puts " > Completed in #{'%0.2f' % (Time.now - start)} seconds"
+      end
 
-    opts.on("-c", "--cache-root PATH", "Compiler cache directory") do |dir|
-      Piggly::Config.cache_root = dir
-    end
+      def parse_options
+        proc_paths = []
 
-    opts.on("-s", "--proc-files PATH", "Stored procedures source file list (may be specified many times)") do |dir|
-      proc_paths << dir
-    end
+        opts = OptionParser.new do |opts|
+          opts.on("-I", "--include PATHS", "Prepend paths to $: (colon separated list)") do |paths|
+            $:.concat paths.split(':')
+          end
 
-  # opts.on("-T", "--trace-prefix PATH", "Trace prefix") do |str|
-  #   Piggly::Config.trace_prefix = str
-  # end
-    
-    opts.on("-a", "--aggregate", "Aggregate data from previous runs") do
-      Piggly::Config.aggregate = true
-    end
+          opts.on("-o", "--output PATH", "Report output directory") do |dir|
+            Piggly::Config.report_root = dir
+          end
 
-    opts.on("--version", "Show version") do
-      puts "piggly #{Piggly::VERSION::STRING} #{Piggly::VERSION::RELEASE_DATE}"
-      exit
-    end
+          opts.on("-c", "--cache-root PATH", "Compiler cache directory") do |dir|
+            Piggly::Config.cache_root = dir
+          end
 
-    opts.on("-h", "--help", "Show this message") do
-      puts opts
-      exit 0
-    end
-  end
+          opts.on("-s", "--proc-files PATH", "Stored procedures file list (may be specified many times)") do |dir|
+            proc_paths << dir
+          end
 
-  if index = ARGV.index('--')
-    extra = ARGV.slice!(index..-1).slice(1..-1)
-  else
-    extra = []
-  end
+        # opts.on("-T", "--trace-prefix PATH", "Trace prefix") do |str|
+        #   Piggly::Config.trace_prefix = str
+        # end
+          
+          opts.on("-a", "--aggregate", "Aggregate data from the previous run") do
+            Piggly::Config.aggregate = true
+          end
 
-  begin
-    opts.parse! ARGV
-    raise OptionParser::MissingArgument, "no tests specified" if ARGV.empty?
-  rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument
-    puts opts
-    puts
-    puts $!.message
-    exit -1
-  end
+          opts.on("--version", "Show version") do
+            puts "piggly #{Piggly::VERSION::STRING} #{Piggly::VERSION::RELEASE_DATE}"
+            exit
+          end
 
-  proc_paths = proc_paths.map{|p| Dir[p] }.flatten.sort
-  test_paths = ARGV.map{|p| Dir[p] }.flatten.sort
+          opts.on("-h", "--help", "Show this message") do
+            puts opts
+            exit 0
+          end
+        end
 
-  ARGV.clear
+        if index = ARGV.index('--')
+          extra = ARGV.slice!(index..-1).slice(1..-1)
+        else
+          extra = []
+        end
 
-  return proc_paths, test_paths
-end
-
-def load_tests(tests)
-  puts "Loading #{tests.size} test files"
-
-  benchmark { tests.each{|file| load file } }
-
-  # TODO: this doesn't seem right, but workaround RSpec executing each spec twice
-  if defined? Spec::Runner::ExampleGroupRunner
-    Spec::Runner::ExampleGroupRunner.send(:define_method, :load_files) do |*args|
-      # don't do anything, we already loaded the files
-    end
-  end
-end
-
-def connect_to_database
-  ActiveRecord::Base.establish_connection
-end
-
-def compile_procs(sources)
-  stale = sources.select{|f| Piggly::TraceCompiler.stale?(f) }
-
-  # build the parser if needed
-  Piggly::Parser.parser
-
-  puts "Compiling #{stale.size} files"
-  benchmark do
-    stale.each do |file|
-      Piggly::Queue.child do
         begin
-          Piggly::TraceCompiler.cache(file)
-      # rescue Errno::ENOENT, Piggly::Parser::Failure
-      #   puts "! #{File.basename file}"
-        rescue
+          opts.parse! ARGV
+          raise OptionParser::MissingArgument, "no tests specified" if ARGV.empty?
+        rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument
+          puts opts
           puts
-          puts "#{$!.class}: #{$!.message}"
-          puts $!.backtrace.join("\n")
+          puts $!.message
+          exit -1
+        end
+
+        proc_paths = proc_paths.map{|p| Dir[p] }.flatten.sort
+        test_paths = ARGV.map{|p| Dir[p] }.flatten.sort
+
+        ARGV.clear
+
+        return proc_paths, test_paths
+      end
+
+      def load_tests(tests)
+        puts "Loading #{tests.size} test files"
+
+        benchmark { tests.each{|file| load file } }
+
+      # # TODO: this doesn't seem right, but workaround RSpec executing each spec twice
+      # if defined? Spec::Runner::ExampleGroupRunner
+      #   Spec::Runner::ExampleGroupRunner.send(:define_method, :load_files) do |*args|
+      #     # don't do anything, we already loaded the files
+      #   end
+      # end
+      end
+
+      def connect_to_database
+        ActiveRecord::Base.connection.active?
+      rescue
+        ActiveRecord::Base.establish_connection
+      end
+
+      def compile_procs(sources)
+        stale = sources.select{|f| Piggly::TraceCompiler.stale?(f) }
+
+        # build the parser if needed
+        Piggly::Parser.parser
+
+        puts "Compiling #{stale.size} files"
+        benchmark do
+          stale.each do |file|
+            Piggly::Queue.child do
+              begin
+                Piggly::TraceCompiler.cache(file)
+            # rescue Errno::ENOENT, Piggly::Parser::Failure
+            #   puts "! #{File.basename file}"
+              rescue
+                puts
+                puts "#{$!.class}: #{$!.message}"
+                puts $!.backtrace.join("\n")
+              end
+            end
+          end
+          Piggly::Queue.start
         end
       end
-    end
-    Piggly::Queue.start
-  end
-end
 
-# returns a hash of source => FileCache
-def install_procs(sources)
-  puts "Installing #{sources.size} proc files"
+      def install_procs(sources)
+        puts "Installing #{sources.size} proc files"
 
-  benchmark do
-    sources.each do |file|
-      begin
-        Piggly::Installer.trace_proc(file)
-      rescue Errno::ENOENT, Piggly::Parser::Failure
-      # puts "! #{File.basename file}"
-      rescue
-        puts
-        puts "#{$!.class}: #{$!.message}"
-        puts $!.backtrace.join("\n")
-      end
-    end
+        benchmark do
+          sources.each do |file|
+            begin
+              Piggly::Installer.trace_proc(file)
+            rescue Errno::ENOENT, Piggly::Parser::Failure
+            # puts "! #{File.basename file}"
+            rescue
+              puts
+              puts "#{$!.class}: #{$!.message}"
+              puts $!.backtrace.join("\n")
+            end
+          end
 
-    Piggly::Installer.install_trace
-  end
-end
-
-def clear_coverage
-  unless Piggly::Config.aggregate
-    puts "Clearing previous run's profile"
-    benchmark{ Piggly::Profile.clear }
-  end
-end
-
-def execute_tests
-  Test::Unit::AutoRunner.run
-end
-
-def store_coverage
-  puts "Storing coverage profile"
-  benchmark { Piggly::Profile.store }
-end
-
-def uninstall_procs(sources)
-  puts "Removing trace code"
-  benchmark do
-    sources.each do |file|
-      begin
-        Piggly::Installer.untrace_proc(file)
-      rescue Errno::ENOENT, Piggly::Parser::Failure
-      # puts "! #{File.basename file}"
-      rescue
-        puts
-        puts "#{$!.class}: #{$!.message}"
-        puts $!.backtrace.join("\n")
-      end
-    end
-
-    Piggly::Installer.uninstall_trace
-  end
-end
-
-def create_index(sources)
-  puts "Creating index"
-  benchmark do
-    Piggly::Reporter.install('piggly.css', 'sortable.js')
-    Piggly::HtmlReporter::Index.output(sources)
-  end
-end
-
-def create_reports(sources)
-  puts "Creating reports"
-  summary = Hash.new{|h,k| h[k] = Hash.new[:count => 0, :percent => 0]}
-
-  benchmark do
-    sources.each do |file|
-      Piggly::Queue.child do
-        begin
-          summary = Piggly::Profile.summary(file)
-          pretty  = Piggly::PrettyCompiler.compile(file, Piggly::Profile)
-
-          Piggly::HtmlReporter.output(file, pretty, summary)
-        rescue Errno::ENOENT, Piggly::Parser::Failure
-        # puts "! #{File.basename file}"
-        rescue
-          puts "#{$!.class}: #{$!.message}"
-          puts $!.backtrace.join("\n")
+          Piggly::Installer.install_trace
         end
       end
+
+      def clear_coverage
+        unless Piggly::Config.aggregate
+          puts "Clearing previous run's profile"
+          benchmark { Piggly::Profile.clear }
+        end
+      end
+
+      def execute_tests
+        if defined? Spec::Runner
+          Spec::Runner.run
+        else
+          Test::Unit::AutoRunner.run
+        end
+      end
+
+      def store_coverage
+        puts "Storing coverage profile"
+        benchmark { Piggly::Profile.store }
+      end
+
+      def uninstall_procs(sources)
+        puts "Removing trace code"
+        benchmark do
+          sources.each do |file|
+            begin
+              Piggly::Installer.untrace_proc(file)
+            rescue Errno::ENOENT, Piggly::Parser::Failure
+            # puts "! #{File.basename file}"
+            rescue
+              puts
+              puts "#{$!.class}: #{$!.message}"
+              puts $!.backtrace.join("\n")
+            end
+          end
+
+          Piggly::Installer.uninstall_trace
+        end
+      end
+
+      def create_index(sources)
+        puts "Creating index"
+        benchmark do
+          Piggly::Reporter.install('piggly.css', 'sortable.js')
+          Piggly::HtmlReporter::Index.output(sources)
+        end
+      end
+
+      def create_reports(sources)
+        puts "Creating reports"
+        summary = Hash.new{|h,k| h[k] = Hash.new[:count => 0, :percent => 0]}
+
+        benchmark do
+          sources.each do |file|
+            Piggly::Queue.child do
+              begin
+                summary = Piggly::Profile.summary(file)
+                pretty  = Piggly::PrettyCompiler.compile(file, Piggly::Profile)
+
+                Piggly::HtmlReporter.output(file, pretty, summary)
+              rescue Errno::ENOENT, Piggly::Parser::Failure
+              # puts "! #{File.basename file}"
+              rescue
+                puts "#{$!.class}: #{$!.message}"
+                puts $!.backtrace.join("\n")
+              end
+            end
+          end
+
+          Piggly::Queue.start
+        end
+      end
+
     end
-
-    Piggly::Queue.start
-  end
-end
-
-def main
-  benchmark do
-    sources, tests = parse_options
-    load_tests(tests)
-    connect_to_database
-    compile_procs(sources)
-    install_procs(sources)
-    clear_coverage
-    execute_tests
-    store_coverage
-    uninstall_procs(sources)
-    create_index(sources)
-    create_reports(sources)
   end
 end
 
 if __FILE__ == $0
-  main
+  Piggly::Command.main
 end
