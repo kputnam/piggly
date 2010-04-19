@@ -1,8 +1,7 @@
-# Piggly - PostgreSQL PL/PgSQL stored procedure code coverage
+# Piggly - PostgreSQL PL/pgSQL stored procedure code coverage
 
 ## What's Piggly?
-
-Piggly is like [RCov] [1] for PostgreSQL's PL/PgSQL stored procedures. It reports on code
+Piggly is like [RCov] [1] for PostgreSQL's PL/pgSQL stored procedures. It reports on code
 coverage to help you identify untested parts of your code.
 
 ## Features
@@ -19,46 +18,45 @@ coverage to help you identify untested parts of your code.
 * Report generation is resource intensive and slow
 
 ## Requirements
-* Stored procedures stored on the filesystem
 * [Treetop] [2]
-* Ruby
+* Stored procedures stored on the filesystem, defined with "CREATE OR REPLACE FUNCTION ..."
+* The [ruby-pg driver] [3], and for the time being, ActiveRecord (some workaround should be possible)
 
 ## Usage
-
-Assume your stored procedures are in db/proc/, and the tests that should be exercising your
+Assume your stored procedures are in proc/, and the tests that should be exercising your
 stored procedures are in spec/.
 
-    $ piggly -I spec -s 'db/proc/*.sql' 'spec/**/*_spec.rb'
-    Loading 7 test files
-    > Completed in 4.32 seconds
-    Compiling 110 files
-    Compiling /home/kputnam/wd/server/db/proc/roundfee.sql
-    Compiling /home/kputnam/wd/server/db/proc/roundtime.sql
-    Compiling /home/kputnam/wd/server/db/proc/unnest.sql
-    Compiling /home/kputnam/wd/server/db/proc/unravel.sql
-    ...
-    > Completed in 84.17 seconds
-    Installing 110 proc files
-    > Completed in 1.10 seconds
-    .............................................................................
-    .............................................................................
-    .............................................................................
-    ....
+    $ cd piggly/example/
+    $ ../bin/piggly -s 'proc/*.sql' 'spec/**/*_spec.rb'
+    Loading 1 test files
+     > Completed in 0.30 seconds
+    Compiling 1 files
+    Compiling /home/kputnam/wd/piggly/example/proc/iterate.sql
+     > Completed in 0.09 seconds
+    Installing 1 proc files
+     > Completed in 0.02 seconds
+    Clearing previous run's profile
+     > Completed in 0.00 seconds
+    ...........
+
+    Finished in 0.025061 seconds
+
+    11 examples, 0 failures
     Storing coverage profile
-    > Completed in 0.05 seconds
+     > Completed in 0.00 seconds
     Removing trace code
-    > Completed in 0.80 seconds
+     > Completed in 0.00 seconds
     Creating index
-    > Completed in 0.14 seconds
+     > Completed in 0.00 seconds
     Creating reports
-    > Completed in 33.25 seconds
-    > Completed in 176.79 seconds
+     > Completed in 0.02 seconds
+     > Completed in 0.65 seconds
 
     $ ls -alh piggly/reports/index.html
-    -rw-r--r-- 1 kputnam kputnam 82K 2010-04-19 14:25 piggly/reports/index.html
+    -rw-r--r-- 1 kputnam kputnam 1.3K 2010-04-19 14:25 piggly/reports/index.html
 
 Note the compilation can be slow on the first run, but on subsequent runs it shouldn't need
-to be compiled again.  If a file is added or changed (based on mtime), it will be recompiled.
+to be compiled again. If a file is added or changed (based on mtime), it will be recompiled.
 
 Piggly can also be run from Rake, with a task like:
 
@@ -66,8 +64,8 @@ Piggly can also be run from Rake, with a task like:
       Piggly::Task.new(:piggly => 'db:test:prepare') do |t|
         t.libs.push 'spec'
 
-        t.test_files = FileList['spec/*/*_spec.rb']
-        t.proc_files = FileList['db/{procs,functions}/*.sql']
+        t.test_files = FileList['spec/**/*_spec.rb']
+        t.proc_files = FileList['procs/*.sql']
 
         # this can be used if piggly is frozen in a Rails application
         t.libs.concat Dir['vendor/gems/*/lib/'].sort.reverse
@@ -77,5 +75,9 @@ Piggly can also be run from Rake, with a task like:
 
     $ rake spec:piggly
 
+## Author
+* Kyle Putnam <putnam.kyle@gmail.com>
+
   [1]: http://github.com/relevance/rcov/
   [2]: http://github.com/nathansobo/treetop
+  [3]: http://bitbucket.org/ged/ruby-pg/

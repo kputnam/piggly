@@ -1,0 +1,49 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Code Coverage: iterate.sql</title><link type="text/css" href="piggly.css" rel="stylesheet"/></head><body><table class="summary sortable"><tr><th>File</th><th>Blocks</th><th>Loops</th><th>Branches</th><th>Block Coverage</th><th>Loop Coverage</th><th>Branch Coverage</th></tr><tr class="even"><td class="file"><a href="iterate.html">iterate.sql</a></td><td class="count">6</td><td class="count">1</td><td class="count">2</td><td class="pct"><table align="center"><tr><td class="num">50.00%&nbsp;</td><td class="graph"><table class="graph" align="right"><tr><td class="covered" width="25"/><td class="uncovered" width="25"/></tr></table></td></tr></table></td><td class="pct"><table align="center"><tr><td class="num">0.00%&nbsp;</td><td class="graph"><table class="graph" align="right"><tr><td class="covered" width="0"/><td class="uncovered" width="50"/></tr></table></td></tr></table></td><td class="pct"><table align="center"><tr><td class="num">25.00%&nbsp;</td><td class="graph"><table class="graph" align="right"><tr><td class="covered" width="12"/><td class="uncovered" width="37"/></tr></table></td></tr></table></td></tr></table><br/><div class="listing"><table><tr><td class="lines"><a href="#L1" id="L1">1</a>
+<a href="#L2" id="L2">2</a>
+<a href="#L3" id="L3">3</a>
+<a href="#L4" id="L4">4</a>
+<a href="#L5" id="L5">5</a>
+<a href="#L6" id="L6">6</a>
+<a href="#L7" id="L7">7</a>
+<a href="#L8" id="L8">8</a>
+<a href="#L9" id="L9">9</a>
+<a href="#L10" id="L10">10</a>
+<a href="#L11" id="L11">11</a>
+<a href="#L12" id="L12">12</a>
+<a href="#L13" id="L13">13</a>
+<a href="#L14" id="L14">14</a>
+<a href="#L15" id="L15">15</a>
+<a href="#L16" id="L16">16</a>
+<a href="#L17" id="L17">17</a>
+<a href="#L18" id="L18">18</a>
+<a href="#L19" id="L19">19</a>
+<a href="#L20" id="L20">20</a>
+<a href="#L21" id="L21">21</a>
+<a href="#L22" id="L22">22</a>
+<a href="#L23" id="L23">23</a>
+<a href="#L24" id="L24">24</a>
+<a href="#L25" id="L25">25</a></td><td class="code">-- return each non-null element as a row
+create or replace function <span class="tI">iterate</span>(<span class="tI">items</span> <span class="tD">anyarray</span>)
+  returns setof <span class="tD">anyelement</span> <span class="tK">as</span>
+<span class="tM">$$</span>
+<span class="tK">declare</span>
+  <span class="tI">arrayMinIndex</span>  <span class="tD">integer</span> <span class="tK">:=</span> array_lower(items, 1);
+  <span class="tI">arrayMaxIndex</span>  <span class="tD">integer</span> <span class="tK">:=</span> array_upper(items, 1);
+  <span class="tI">loopIndex</span>      <span class="tD">integer</span>;
+<span class="tK">begin</span>
+
+  <span class="c1" id="Tb7a657f474f571d9"><span class="tK">if</span> <span class="b10" id="T114a17ae89be6953" title="never evaluates false">arrayMinIndex is null
+  </span><span class="tK">then</span>
+    <span class="c1" id="T7f7798bbf997c192"><span class="c1" id="Tcdcb47cffd9240b6"><span class="tK">return</span></span>;
+  </span><span class="tK">end</span> <span class="tK">if</span>;
+
+  <span class="tK">for</span> <span class="tI">loopIndex</span> <span class="tK">in</span> <span class="l0000" id="T99388834195cbde1" title="condition was never evaluated">arrayMinIndex .. arrayMaxIndex </span><span class="tK">loop</span>
+    <span class="c0" id="T4cf2ddc62789a2af" title="never evaluated"><span class="tK">if</span> <span class="b00" id="Tb55548abdd424912" title="never evaluated">items[loopIndex] is not null
+    </span><span class="tK">then</span>
+      <span class="c0" id="T19977131c28263de" title="never evaluated"><span class="c0" id="Tb8eac077e83263d5" title="never evaluated"><span class="tK">return</span> <span class="tK">next</span> items[loopIndex]</span>;
+    </span><span class="tK">end</span> <span class="tK">if</span>;
+  </span><span class="tK">end</span> <span class="tK">loop</span>;
+
+</span><span class="tK">end</span>;
+<span class="tM">$$</span> language plpgsql;
+</td></tr></table></div><div class="toc"><a href="index.html">Index</a><ol><li class="branch"><a href="#T114a17ae89be6953">never evaluates false</a></li><li class="block"><a href="#T4cf2ddc62789a2af">never evaluated</a></li><li class="loop"><a href="#T99388834195cbde1">condition was never evaluated</a></li><li class="branch"><a href="#Tb55548abdd424912">never evaluated</a></li><li class="block"><a href="#T19977131c28263de">never evaluated</a></li><li class="block"><a href="#Tb8eac077e83263d5">never evaluated</a></li></ol></div></body></html>
