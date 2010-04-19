@@ -1,0 +1,167 @@
+* { margin: 0; padding: 0; }
+
+body
+{
+  color: #000;
+  background-color: #fff;
+  padding: 8px;
+}
+
+a img { border: 0; }
+
+.tI { color: #666; }
+.tD { color: #cc3; font-style: italic; }
+.tK { color: #f30; }
+.tC { color: #66f; font-style: italic; }
+.tQ { color: #6c3; font-style: italic; }
+.tS { color: #390; }
+.tL { color: #630; font-style: italic; }
+.tM { }
+
+div.listing
+{
+  background-color: #f9f9f9;
+  border: 1px solid silver;
+  margin: 0 0 1.5em 0;
+  overflow: auto;
+}
+
+div.toc
+{
+  width: 200px;
+  height: 200px;
+  border: 1px solid #c00;
+  background-color: #fee;
+  padding: 5px;
+  position: fixed;
+  overflow: auto;
+  bottom: 10px;
+  right: 10px;
+}
+
+div.toc ol { margin-left: 1.5em; }
+div.toc li { font-size: 9.5px; }
+div.toc  a { color: #c00; }
+div.toc  a.selected { }
+div.timestamp { clear: both; }
+div.listing { }
+
+div.listing table { border-collapse: collapse; }
+div.listing td.code
+{
+  vertical-align: top;
+  padding: 2px 4px;
+  white-space: pre;
+
+  margin: 0;
+  width: 100%;
+  float: none;
+  clear: none;
+  overflow: visible;
+  
+  color: #000;
+  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-size: 9pt;
+}
+
+/* line numbers */
+div.listing td.lines
+{
+  vertical-align: top;
+  padding: 2px 4px;
+  white-space: pre;
+
+  text-align: right;
+  overflow: visible;
+  
+  color: grey;
+  background-color: #def;
+  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-size: 9pt;
+}
+
+/* tagged code blocks */
+.b { display: block; width: 100%; margin: 0; padding: 0; }
+.i { display: inline; }
+
+/* line with incomplete coverage */
+.lU
+{
+  display: block;
+  background: #fdd;
+
+  margin: 0px;
+  padding: 0px;
+  border: none;
+  border-left: 2px solid #f00;
+}
+
+/* block execution: yes, no */
+.c0 { font-weight: bold; }
+.c1 { }
+
+/* loop coverage */
+.l0000 { font-weight: bold; }
+.l0001 { font-weight: bold; }
+.l0010 { font-weight: bold; }
+.l0100 { font-weight: bold; }
+.l0011 { font-weight: bold; }
+.l0101 { font-weight: bold; }
+.l0110 { font-weight: bold; }
+.l0111 { font-weight: bold; }
+.l1000 { font-weight: bold; }
+.l1001 { font-weight: bold; }
+.l1010 { font-weight: bold; }
+.l1100 { font-weight: bold; }
+.l1011 { font-weight: bold; }
+.l1101 { font-weight: bold; }
+.l1110 { font-weight: bold; }
+.l1111 { }
+
+/* branch decisions: true, false */
+.b00 { font-weight: bold; }
+.b01 { font-weight: bold; }
+.b10 { font-weight: bold; }
+.b11 { }
+
+table.summary th { padding: 5px; border: 1px solid silver; font-weight: bold; font-size: 12px; background-color: #def; }
+table.summary td { padding: 5px; }
+
+table.summary td.file  { text-align: left; border: 0; }
+table.summary td.fail  { font-weight: bold; color: #f00; }
+table.summary td.count { max-width: 50px; min-width: 50px; text-align: right; border: 1px solid silver; }
+table.summary td.pct   { max-width: 100px; min-width: 100px; text-align: right; border: 0; }
+
+table.summary td.pct td.num   { padding: 0; max-width: 50px; min-width: 50px; text-align: right; border: 0; }
+table.summary td.pct td.graph { padding: 0; max-width: 50px; min-width: 50px; text-align: right; border: 0; }
+
+table.graph td.uncovered { background-color: #669; border: 0px; padding: 0px; }
+table.graph td.covered   { background-color: #ccf; border: 0px; padding: 0px; }
+
+table.summary
+{
+  width: 100%;
+  font-family: "Tahoma", "Trebuchet MS", "Arial", sans-serif;
+  font-size: 10px;
+  border-spacing: 0;
+  border-collapse: collapse;
+} 
+
+table.summary td.pct table
+{
+  font-size: 10px;
+  font-family: "Tahoma", "Trebuchet MS", "Arial", sans-serif;
+  padding: 0;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+table.graph
+{
+  min-width: 50px;
+  max-width: 50px;
+  padding: 0px;
+  border: 1px solid #000;
+  border-spacing: 0px;
+  height: 10px;
+}
