@@ -1,0 +1,752 @@
+grammar Piggly
+  # include Keywords
+  # include Expressions
+  # include Statements
+  # include Tokens
+
+  rule start
+    procedure+
+  end
+  
+  # elements[20] is procedure body
+  rule procedure
+    procedureHeader
+    name:tIdentifier tSpace?
+    parameters:parameterList tSpace
+    return:tType tSpace kwAS tSpace
+    procedureBody
+    procedureFooter <Procedure>
+  end
+
+  rule procedureHeader
+    tSpace? 'create' tSpace 'or' tSpace 'replace' tSpace 'function' tSpace <TextNode>
+  end
+
+  rule procedureReturn
+    'returns' tSpace ( 'set' tSpace 'of' tSpace )? <TextNode>
+  end
+
+  rule procedureBody
+    dollarQuoteMarker tSpace? body:block ';'? tSpace? dollarQuoteMarker 
+    / "'"             tSpace? body:block ';'? tSpace? "'"
+  end
+
+  rule procedureFooter
+    expressionUntilSemiColon ';' tSpace?  <TextNode>
+  end
+  
+  rule parameterList
+    '(' ( tSpace? name:tIdentifier tSpace type:tType tSpace? ',' )*
+        ( tSpace? name:tIdentifier tSpace type:tType )? tSpace? ')'
+  end
+
+  rule statement
+    inner:( block ';'
+          / stmtAssignment
+          / stmtIf
+          / stmtCase
+          / stmtLoop
+          / stmtWhileLoop
+          / stmtForLoop
+          / stmtExit
+          / stmtContinue
+          / stmtReturn
+          / stmtRaise
+          / stmtExecSql
+          / stmtNull
+          / stmtPerform
+          / stmtDynamicExecute
+          / stmtGetDiag
+          / stmtOpen
+          / stmtFetch
+          / stmtMove
+          / stmtClose ) tail:tSpace? <Statement>
+  end
+  
+  rule block
+    label_open:tLabel tSpace
+    blockDeclarations:stmtDeclare*
+    kwBEGIN
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+    blockExceptions?
+    kwEND
+    ( tSpace label_close:tLabel )?
+    tSpace? <Block>
+    / 
+    blockDeclarations:stmtDeclare*
+    kwBEGIN
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+    blockExceptions?
+    kwEND
+    tSpace? <Block>
+  end
+
+  rule stmtAssignment
+    lval:lValue tSpace? kwASSIGN ws? rval:expressionUntilSemiColon ';' <Assignment>
+  end
+
+  rule stmtCase
+    kwCASE tSpace 
+    cases:condWhen+
+    else:stmtElse?
+    kwEND tSpace kwCASE tSpace? ';' <Cond>
+    /
+    kwCASE tSpace
+    expr:expressionUntilWhen
+    cases:caseWhen+
+    else:stmtElse?
+    kwEND tSpace kwCASE tSpace? ';' <Case>
+  end
+  
+  rule stmtIf
+    kwIF
+      condSpace:tSpace?
+      condStub:stubNode
+      cond:expressionUntilThen
+    kwTHEN
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+      else:stmtElse?
+    kwEND tSpace kwIF tSpace? ';' <If>
+  end
+  
+  rule stmtElse
+    kwELSIF
+      condSpace:tSpace?
+      condStub:stubNode
+      cond:expressionUntilThen
+    kwTHEN
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+      else:stmtElse? <If>
+    /
+    kwELSE
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement* <Else>
+  end
+  
+  rule stmtLoop
+    label_open:tLabel tSpace
+    cond:kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+    kwEND tSpace kwLOOP
+    ( tSpace label_close:tIdentifier )?
+    tSpace? ';' exitStub:stubNode <Loop>
+    /
+    cond:kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+    kwEND tSpace kwLOOP
+    tSpace? ';' exitStub:stubNode <Loop>
+  end
+  
+  rule stmtWhileLoop
+    label_open:tLabel tSpace
+    kwWHILE
+      condSpace:tSpace?
+      condStub:stubNode
+      cond:expressionUntilLoop
+    kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+    kwEND tSpace kwLOOP
+    ( tSpace label_close:tIdentifier )?
+    tSpace? ';' <WhileLoop>
+    /
+    kwWHILE
+      condSpace:tSpace?
+      condStub:stubNode
+      cond:expressionUntilLoop
+    kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+    kwEND tSpace kwLOOP
+    tSpace? ';' <WhileLoop>
+  end
+  
+  rule stmtForLoop
+    # loop coverage calculated by using exitStub
+    label_open:tLabel tSpace
+    kwFOR tSpace tIdentifier tSpace
+    kwIN
+      condSpace:tSpace
+      cond:( stmtForSql / expressionUntilLoop )
+    kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+      doneStub:stubNode
+    kwEND tSpace kwLOOP
+    ( tSpace label_close:tIdentifier )?
+    tSpace? ';'
+    exitStub:stubNode <ForLoop>
+    /
+    kwFOR tSpace tIdentifier tSpace
+    kwIN
+      condSpace:tSpace
+      cond:( stmtForSql / expressionUntilLoop )
+    kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+      doneStub:stubNode
+    kwEND tSpace kwLOOP tSpace? ';'
+    exitStub:stubNode <ForLoop>
+  end
+  
+  rule stmtForSql
+    sqlKeyword tSpace expressionUntilLoop <Sql>
+  end
+  
+  rule stmtExit
+    bodyStub:stubNode
+    body:( kwEXIT (tSpace label:tIdentifier)? ) tSpace? ';' <Exit>
+    /
+    body:( kwEXIT (tSpace label:tIdentifier)? ) tSpace
+    kwWHEN
+      condSpace:tSpace
+      condStub:stubNode
+      cond:expressionUntilSemiColon ';' <ExitWhen>
+  end
+
+  rule stmtContinue
+    bodyStub:stubNode
+    body:( kwCONTINUE (tSpace label:tIdentifier)? ) tSpace? ';' <Continue>
+    /
+    body:( kwCONTINUE (tSpace label:tIdentifier)? ) tSpace
+    kwWHEN
+      condSpace:tSpace
+      condStub:stubNode
+      cond:expressionUntilSemiColon ';' <ContinueWhen>
+  end
+  
+  rule stmtReturn
+    bodyStub:stubNode
+    body:(kwRETURN ( tSpace? &';'
+                   / tSpace kwNEXT tSpace tIdentifier tSpace?
+                   / tSpace kwQUERY tSpace expressionUntilSemiColon
+                   / expressionUntilSemiColon )) ';'
+  end
+  
+  rule stmtRaise
+    bodyStub:stubNode
+    body:(kwRAISE tSpace level:kwEXCEPTION tSpace expr:expressionUntilSemiColon) ';' <Throw>
+    /
+    kwRAISE tSpace
+    level:( kwWARNING
+          / kwNOTICE
+          / kwINFO
+          / kwLOG
+          / kwDEBUG )
+    tSpace
+    expr:expressionUntilSemiColon ';' <Raise>
+  end
+  
+  # todo stmt_execsql
+  rule stmtExecSql
+    sqlKeyword tSpace expressionUntilSemiColon ';' <Sql>
+  end
+  
+  rule stmtDynamicExecute
+    kwEXECUTE tSpace expressionUntilSemiColon ';'
+  end
+  
+  rule stmtPerform
+    kwPERFORM tSpace expressionUntilSemiColon ';'
+  end
+  
+  rule stmtOpen
+    kwOPEN notImplemented
+  end
+  
+  rule stmtFetch
+    kwFETCH notImplemented
+  end
+  
+  rule stmtMove
+    kwMOVE notImplemented
+  end
+  
+  rule stmtClose
+    kwCLOSE notImplemented
+  end
+  
+  rule stmtGetDiag
+    kwGET tSpace
+    kwPERFORM tSpace
+    notImplemented
+  end
+  
+  rule stmtNull
+    kwNULL tSpace? ';'
+  end
+  
+  ##
+  #############################################################################
+  
+  rule stmtDeclare
+    kwDECLARE tSpace varDeclaration*
+  end
+
+  rule varDeclaration
+    name:tIdentifier tSpace ( kwCONSTANT tSpace )?
+    type:tType ( tSpace kwNOT tSpace kwNULL )?
+               ( tSpace kwASSIGN tSpace? rval:expressionUntilSemiColon )?
+    tSpace?
+    ';' tSpace?
+  end
+
+  rule blockExceptions
+    kwEXCEPTION tSpace cases:exceptionCase*
+  end
+  
+  rule exceptionCase
+    # cannot provide branch-coverage on cond
+    kwWHEN
+      condSpace:tSpace
+      cond:expressionUntilThen
+    kwTHEN
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement* <Catch>
+  end
+
+  rule caseWhen
+    # cannot provide branch-coverage on cond
+    kwWHEN
+      condSpace:tSpace
+      cond:expressionUntilThen
+    kwTHEN
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement* <Case>
+  end
+
+  rule condWhen
+    kwWHEN
+      condSpace:tSpace
+      condStub:stubNode
+      cond:expressionUntilThen
+    kwTHEN
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement* <Cond>
+  end
+  
+  ## EXPRESSIONS
+  #############################################################################
+  
+  # it would be nice to match parens and brackets here, but we again assume there
+  # are no syntax errors in the proc and let the database worry about them
+  
+  rule expressionUntilSemiColon
+    head:tSpace? expr:( tString / skipWords / tSpace !';' / !tSpace [^;] )* tail:tSpace? &';' <Expression>
+  end
+  
+  rule expressionUntilClosingBracket
+    head:tSpace? expr:( tString / skipWords / tSpace !']' / !tSpace [^\]] )+ tail:tSpace? &']' <Expression>
+  end
+  
+  rule expressionUntilThen
+    head:tSpace? expr:( tString / skipWords / tSpace !kwTHEN / !tSpace !kwTHEN . )+ tail:tSpace &kwTHEN <Expression>
+  end
+  
+  rule expressionUntilWhen
+    head:tSpace? expr:( tString / skipWords / tSpace !kwWHEN / !tSpace !kwWHEN . )+ tail:tSpace &kwWHEN <Expression>
+  end
+  
+  rule expressionUntilLoop
+    head:tSpace? expr:( tString / skipWords / tSpace !kwLOOP / !tSpace !kwLOOP . )+ tail:tSpace &kwLOOP <Expression>
+  end
+
+  rule skipWords
+    [a-z0-9_]+ <TextNode>
+  end
+
+  ##
+  #############################################################################
+
+  rule ws
+    [ \t\n\v\f\r]+ <TextNode>
+  end
+  
+  rule dollarQuoteMarker
+    '$' tag:( [a-z\200-\377_] [a-z\200-\377_0-9]* )? '$' <TDollarQuoteMarker>
+  end
+  
+  rule stubNode
+    '' <StubNode>
+  end
+
+  rule notImplemented
+    '' <NotImplemented>
+  end
+  
+  rule lValue
+      tIdentifier sub:('[' expressionUntilClosingBracket ']')+ next:('.' lValue)+ <Assignable>
+    / tIdentifier sub:('[' expressionUntilClosingBracket ']')+ <Assignable>
+    / tIdentifier next:('.' lValue)+ <Assignable>
+    / tIdentifier x:'' <Assignable>
+  end
+  
+  ## BASIC TOKENS
+  #############################################################################
+
+  rule tEOF
+    !.
+  end
+  
+  rule tLabel
+    '<<' tSpace? name:tIdentifier tSpace? '>>' <TLabel>
+  end
+  
+  rule tIdentifier
+    ( '"' [^"]+ '"' )+ <TIdentifier>
+    / !keyword ( [a-z\200-\377_] [a-z\200-\377_0-9$]* ) <TIdentifier>
+  end
+
+  # not context sensitive so opening and closing tag might not match
+  rule tString
+    openTag:dollarQuoteMarker content:(!dollarQuoteMarker .)* closeTag:dollarQuoteMarker <TString> /
+    "E'" content:("''" / [^'])* "'" <TString> /
+    "'"  content:("''" / [^'])* "'" <TString>
+  end
+  
+  rule tType
+    [a-z\200-\377_]
+    ( '(' rType ')' /
+      '[' rType ']' /
+      [a-z\200-\377_0-9$%]+ /
+      ws !( kwAS / kwNOT / kwASSIGN / kwDEFAULT ) )* <TDatatype>
+  end
+  
+  rule rType
+    ( '(' rType ')' /
+      '[' rType ']' /
+      [^\(\)\[\]]+ )*
+  end
+
+  rule tSpace
+    ws !tComment <TextNode>
+    /
+    ( ws / tComment )+
+  end
+  
+  rule tComment
+    '/*' content:(!'*/' .)* '*/' <TComment> /
+    '--' content:[^\n]* ("\n" / tEOF) <TComment>
+  end
+
+  ##
+  #############################################################################
+
+  rule tBinary
+    "b'" [01]+ "'"
+  end
+
+  rule tHex
+    "x'" [0123456789abcdef]+ "'"
+  end
+
+  rule tNumber
+    tBinary / tHex /
+    sign:[+-]?        '.' [0-9]+ exponent:('e' [+-]? [0-9]+)? /
+    sign:[+-]? [0-9]+ '.' [0-9]* exponent:('e' [+-]? [0-9]+)? /
+    sign:[+-]? [0-9]+ '.'?       exponent:('e' [+-]? [0-9]+)?
+  end
+
+  rule tLiteral
+    tString (tSpace? '::' tSpace? tType) /
+    tString /
+    tNumber (tSpace? '::' tSpace? tType) /
+    tNumber /
+    'cast' tSpace? '(' tSpace? tString tSpace kwAS tSpace tType tSpace? ')' /
+    'cast' tSpace? '(' tSpace? tNumber tSpace kwAS tSpace tType tSpace? ')'
+  end
+  
+  ## KEYWORDS
+  #############################################################################
+  
+  rule sqlKeyword
+    ( 'insert'
+    / 'select'
+    / 'update'
+    / 'delete'
+    / 'drop'
+    / 'alter'
+    / 'commit'
+    / 'copy'
+    / 'create'
+    / 'begin'
+    / 'rollback'
+    / 'set'
+    / 'start'
+    / 'vacuum' ) ![a-z0-9] <TextNode>
+  end
+  
+  rule keyword
+    # WHEN is checked first as a minor optimization to distinguish
+    #   CONTINUE tIdentifier WHEN cond;
+    #   EXIT tIdentifier WHEN cond;
+    #
+    #   CONTINUE WHEN cond;
+    #   EXIT WHEN cond;
+
+    kwWHEN / kwAS / kwASSIGN / kwALIAS / kwBEGIN / kwBY / kwCASE / kwCLOSE
+    / kwCONSTANT / kwCONTINUE / kwCURSOR / kwDEBUG / kwDECLARE / kwDEFAULT
+    / kwDIAGNOSTICS / kwELSE / kwELSIF / kwEND / kwEXCEPTION / kwEXECUTE / kwEXIT
+    / kwFETCH / kwFOR / kwFROM / kwGET / kwIF / kwIN / kwINFO / kwINSERT / kwINTO
+    / kwIS / kwLOG / kwLOOP / kwMOVE / kwNOT / kwNOTICE / kwNULL / kwOPEN
+    / kwOR / kwPERFORM / kwRAISE / kwRENAME / kwRESULTOID / kwRETURN
+    / kwREVERSE / kwROWCOUNT / kwSCROLL / kwSTRICT / kwTHEN / kwTO / kwTYPE
+    / kwWARNING / kwWHILE
+  end
+  
+  # this terminates keywords
+  rule x
+    [^a-z0-9_]
+  end
+  
+  rule kwAS
+    'as' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwASSIGN
+    ':=' <TKeyword> / '=' <TKeyword>
+  end
+  
+  rule kwALIAS
+    'alias' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwBEGIN
+    'begin' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwBY
+    'by' ![a-z0-9_] <TKeyword>
+  end
+
+  rule kwCASE
+    'case' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwCLOSE
+    'close' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwCONSTANT
+    'constant' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwCONTINUE
+    'continue' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwCURSOR
+    'cursor' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwDEBUG
+    'debug' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwDECLARE
+    'declare' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwDEFAULT
+    'default' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwDIAGNOSTICS
+    'diagnostics' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwELSE
+    'else' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwELSIF
+    ('elsif'/'elseif') ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwEND
+    'end' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwEXCEPTION
+    'exception' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwEXECUTE
+    'execute' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwEXIT
+    'exit' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwFETCH
+    'fetch' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwFOR
+    'for' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwFROM
+    'from' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwGET
+    'get' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwIF
+    'if' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwIN
+    'in' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwINFO
+    'info' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwINSERT
+    'insert' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwINTO
+    'into' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwIS
+    'is' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwLOG
+    'log' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwLOOP
+    'loop' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwMOVE
+    'move' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwNEXT
+    'next' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwNOT
+    'not' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwNOTICE
+    'notice' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwNULL
+    'null' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwOPEN
+    'open' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwOR
+    'or' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwPERFORM
+    'perform' ![a-z0-9_] <TKeyword>
+  end
+
+  rule kwQUERY
+    'query' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwRAISE
+    'raise' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwRENAME
+    'rename' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwRESULTOID
+    'result_oid' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwRETURN
+    'return' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwREVERSE
+    'reverse' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwROWCOUNT
+    'row_count' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwSCROLL
+    'scroll' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwSTRICT
+    'strict' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwTHEN
+    'then' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwTO
+    'to' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwTYPE
+    'type' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwWARNING
+    'warning' ![a-z0-9_] <TKeyword>
+  end
+  
+  rule kwWHEN
+    'when' ![a-z0-9_] <TKeyword>
+  end
+
+  rule kwWHILE
+    'while' ![a-z0-9_] <TKeyword>
+  end
+  
+end
+
+# expr   -> term   '+' expr | term
+# term   -> factor '*' term | factor
+# factor -> digit | '(' expr ')'
+# digit  -> '0' | '1' | ...
+# 
+# expr   -> term   ( '+' expr | '' )
+# term   -> factor ( '*' term | '' )
+# factor -> digit | '(' expr ')'
+# digit  -> '0' | '1' | ...
