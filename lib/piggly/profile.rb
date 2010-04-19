@@ -4,24 +4,19 @@ module Piggly
   # Collection of all Tags, index by unique tag_id
   #
   class Profile
-    PATTERN = /NOTICE:  #{Config.trace_prefix} (#{Tag::PATTERN})(?: (.))?/
+    PATTERN = /WARNING:  #{Config.trace_prefix} (#{Tag::PATTERN})(?: (.))?/
 
     class << self
 
       #
       # Build a notice processor function
       #
-      def notice_processor(prefix=nil)
-        if prefix
-          raise "Not yet implemented"
-        else
-          # processor pings all tags
-          proc do |message|
-            if m = PATTERN.match(message)
-              ping(m.captures[0], m.captures[1])
-            else
-              STDERR.puts message
-            end
+      def notice_processor
+        proc do |message|
+          if m = PATTERN.match(message)
+            ping(m.captures[0], m.captures[1])
+          else
+            STDERR.puts message
           end
         end
       end
