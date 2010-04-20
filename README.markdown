@@ -36,7 +36,7 @@ these events and generates prettified source code that is annotated with coverag
 
 ## Requirements
 * [Treetop] [2]
-* Stored procedures stored on the filesystem, defined as `CREATE **OR REPLACE** FUNCTION`
+* Stored procedures stored on the filesystem, defined as `CREATE OR REPLACE FUNCTION`
 * The [ruby-pg driver] [3], and for the time being, ActiveRecord (some workaround should be possible)
 
 ## How to Install
