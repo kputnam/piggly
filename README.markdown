@@ -2,7 +2,8 @@
 
 ## What's Piggly?
 Piggly is like [RCov] [1] for PostgreSQL's PL/pgSQL stored procedures. It reports on code
-coverage to help you identify untested parts of your code.
+coverage to help you identify untested parts of your code.  You write tests in Ruby against
+your stored procedures and run them with piggly.
 
 ## Features
 * Branch, block, and loop coverage analysis
@@ -61,7 +62,7 @@ stored procedures are in spec/.
     -rw-r--r-- 1 kputnam kputnam 1.3K 2010-04-19 14:25 piggly/reports/index.html
 
 Note the compilation can be slow on the first run, but on subsequent runs it shouldn't need
-to be compiled again. If a file is added or changed (based on mtime), it will be recompiled.
+to compile everything again. If a file is added or changed (based on mtime), it will be recompiled.
 
 Piggly can also be run from Rake, with a task like:
     require 'piggly/task'
