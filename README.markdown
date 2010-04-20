@@ -1,4 +1,4 @@
-# Piggly - PostgreSQL PL/pgSQL stored procedure code coverage
+# Piggly - PostgreSQL PL/pgSQL stored-procedure code coverage for Ruby
 
 ## What's Piggly?
 Piggly is like [RCov] [1] for PostgreSQL's PL/pgSQL stored procedures. It reports on code
