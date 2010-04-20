@@ -1,9 +1,22 @@
 # Piggly - PostgreSQL PL/pgSQL stored-procedure code coverage for Ruby
 
+## Purpose
+
+PL/pgSQL doesn't have much in the way of developer tools, and writing automated tests for
+stored procedures can go much better when you know what you haven't tested. Code coverage
+allows you to see which parts of your code haven't been executed.
+
 ## What's Piggly?
-Piggly is like [RCov] [1] for PostgreSQL's PL/pgSQL stored procedures. It reports on code
-coverage to help you identify untested parts of your code.  You write tests in Ruby against
-your stored procedures and run them with piggly.
+Piggly is a tool written in Ruby to track code coverage of PostgreSQL's PL/pgSQL stored
+procedures. It reports on code coverage to help you identify untested parts of your code.  You
+write tests in Ruby against your stored procedures and run them with piggly.
+
+## How Does It Work?
+
+Piggly tracks the execution of PostgreSQL's PL/pgSQL stored procedures by recompiling
+the stored procedure with instrumentation code that uses RAISE WARNING to notify the
+client of an execution event (e.g., a branch condition evaluating to true or false).  It records
+these events and generates prettified source code that is annotated with coverage details.
 
 ## Features
 * Branch, block, and loop coverage analysis
@@ -19,10 +32,11 @@ your stored procedures and run them with piggly.
 * Cannot parse nested dollar-quoted strings, eg $A$ ... $B$ ... $B$ ... $A$
 * Report generation is resource intensive and slow
 * SQL statements are not instrumented, so their branches (COALESCE, WHERE-clauses, etc) aren't tracked
+* Not all PL/pgSQL grammar is currently supported, but this is easily addressed
 
 ## Requirements
 * [Treetop] [2]
-* Stored procedures stored on the filesystem, defined with "CREATE OR REPLACE FUNCTION ..."
+* Stored procedures stored on the filesystem, defined as `CREATE **OR REPLACE** FUNCTION`
 * The [ruby-pg driver] [3], and for the time being, ActiveRecord (some workaround should be possible)
 
 ## How to Install
