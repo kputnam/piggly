@@ -23,7 +23,7 @@ module Piggly
       @test_files = []
       @proc_files = []
       @ruby_opts  = []
-      @output_dir = 'piggly/output'
+      @report_dir = 'piggly/report'
       @cache_root = 'piggly/cache'
       @piggly_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'bin', 'piggly'))
       @piggly_opts = ''
@@ -47,7 +47,7 @@ module Piggly
 
           ruby opts.join(' ') + ' ' +
                @piggly_opts   + ' ' +
-               %{-o #{quote @output_dir} } +
+               %{-o #{quote @report_dir} } +
                %{-c #{quote @cache_root} } +
                proc_files.map{|s| %[-s "#{s}" ] }.join +
                test_files.map{|f| quote(f) }.join(' ')
