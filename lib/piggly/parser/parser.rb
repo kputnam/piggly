@@ -61,32 +61,28 @@ module Piggly
       elements[5]
     end
 
-    def tSpace2
+    def return
       elements[6]
     end
 
-    def return
+    def tSpace2
       elements[7]
     end
 
-    def tSpace3
+    def kwAS
       elements[8]
     end
 
-    def kwAS
+    def tSpace3
       elements[9]
     end
 
-    def tSpace4
+    def procedureBody
       elements[10]
     end
 
-    def procedureBody
-      elements[11]
-    end
-
     def procedureFooter
-      elements[12]
+      elements[11]
     end
   end
 
@@ -125,27 +121,23 @@ module Piggly
               r7 = _nt_procedureReturn
               s0 << r7
               if r7
-                r8 = _nt_tSpace
+                r8 = _nt_tType
                 s0 << r8
                 if r8
-                  r9 = _nt_tType
+                  r9 = _nt_tSpace
                   s0 << r9
                   if r9
-                    r10 = _nt_tSpace
+                    r10 = _nt_kwAS
                     s0 << r10
                     if r10
-                      r11 = _nt_kwAS
+                      r11 = _nt_tSpace
                       s0 << r11
                       if r11
-                        r12 = _nt_tSpace
+                        r12 = _nt_procedureBody
                         s0 << r12
                         if r12
-                          r13 = _nt_procedureBody
+                          r13 = _nt_procedureFooter
                           s0 << r13
-                          if r13
-                            r14 = _nt_procedureFooter
-                            s0 << r14
-                          end
                         end
                       end
                     end
@@ -280,6 +272,12 @@ module Piggly
     def tSpace
       elements[1]
     end
+  end
+
+  module ProcedureReturn1
+    def tSpace
+      elements[1]
+    end
 
   end
 
@@ -307,11 +305,24 @@ module Piggly
       r2 = _nt_tSpace
       s0 << r2
       if r2
+        i4, s4 = index, []
         if has_terminal?('setof', false, index)
-          r4 = instantiate_node(SyntaxNode,input, index...(index + 5))
+          r5 = instantiate_node(SyntaxNode,input, index...(index + 5))
           @index += 5
         else
           terminal_parse_failure('setof')
+          r5 = nil
+        end
+        s4 << r5
+        if r5
+          r6 = _nt_tSpace
+          s4 << r6
+        end
+        if s4.last
+          r4 = instantiate_node(SyntaxNode,input, i4...index, s4)
+          r4.extend(ProcedureReturn0)
+        else
+          @index = i4
           r4 = nil
         end
         if r4
@@ -324,7 +335,7 @@ module Piggly
     end
     if s0.last
       r0 = instantiate_node(TextNode,input, i0...index, s0)
-      r0.extend(ProcedureReturn0)
+      r0.extend(ProcedureReturn1)
     else
       @index = i0
       r0 = nil

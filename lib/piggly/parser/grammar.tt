@@ -13,7 +13,7 @@ grammar Piggly
     procedureHeader
     name:tIdentifier tSpace?
     parameters:parameterList tSpace
-    procedureReturn tSpace
+    procedureReturn
     return:tType tSpace kwAS tSpace
     procedureBody
     procedureFooter <Procedure>
@@ -24,7 +24,7 @@ grammar Piggly
   end
 
   rule procedureReturn
-    'returns' tSpace 'setof'? <TextNode>
+    'returns' tSpace ( 'setof' tSpace )? <TextNode>
   end
 
   rule procedureBody
