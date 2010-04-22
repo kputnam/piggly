@@ -7,6 +7,7 @@ stored procedures can go much better when you know what you haven't tested. Code
 allows you to see which parts of your code haven't been executed.
 
 ## What's Piggly?
+
 Piggly is a tool written in Ruby to track code coverage of PostgreSQL's PL/pgSQL stored
 procedures. It reports on code coverage to help you identify untested parts of your code.  You
 write tests in Ruby against your stored procedures and run them with piggly.
@@ -19,6 +20,7 @@ client of an execution event (e.g., a branch condition evaluating to true or fal
 these events and generates prettified source code that is annotated with coverage details.
 
 ## Features
+
 * Branch, block, and loop coverage analysis
 * Instrumenting source-to-source compiler
 * Low test execution overhead
@@ -28,6 +30,7 @@ these events and generates prettified source code that is annotated with coverag
 * Test::Unit and RSpec compatible
 
 ## Limitations
+
 * Cannot parse aggregate definitions (but helper functions are fine)
 * Cannot parse nested dollar-quoted strings, eg $A$ ... $B$ ... $B$ ... $A$
 * Report generation is resource intensive and slow
@@ -35,14 +38,17 @@ these events and generates prettified source code that is annotated with coverag
 * Not all PL/pgSQL grammar is currently supported, but this is easily addressed
 
 ## Requirements
+
 * [Treetop] [2]
 * Stored procedures stored on the filesystem, defined as `CREATE OR REPLACE FUNCTION`
 * The [ruby-pg driver] [3], and for the time being, ActiveRecord (some workaround should be possible)
 
 ## How to Install
+
     $ gem install piggly
 
 ## Usage
+
 Assume your stored procedures are in proc/, and the tests that should be exercising your
 stored procedures are in spec/.
 
@@ -97,9 +103,11 @@ Piggly can also be run from Rake, with a task like:
     $ rake spec:piggly
 
 ## Bugs & Issues
+
 Please report any issues on the [github tracker] [4]
 
 ## Author
+
 * Kyle Putnam <putnam.kyle@gmail.com>
 
   [1]: http://github.com/relevance/rcov/
