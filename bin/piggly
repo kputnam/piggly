@@ -26,6 +26,7 @@ module Piggly
           uninstall_procs(sources)
           create_index(sources)
           create_reports(sources)
+          exit! 0 # avoid running tests again
         end
       end
 
