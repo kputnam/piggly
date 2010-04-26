@@ -6,7 +6,7 @@ require 'fileutils'
 require 'digest/md5'
 require File.join(PIGGLY_ROOT, 'version')
 require File.join(PIGGLY_ROOT, 'config')
-require File.join(PIGGLY_ROOT, 'filecache')
+require File.join(PIGGLY_ROOT, 'cacheable')
 require File.join(PIGGLY_ROOT, 'compiler')
 require File.join(PIGGLY_ROOT, 'parser')
 require File.join(PIGGLY_ROOT, 'profile')
