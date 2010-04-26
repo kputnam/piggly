@@ -91,229 +91,234 @@ class NodeClass
 end
 
 module Piggly
+  module Parser
+    module Nodes
 
-  # CREATE OR REPLACE ...
-  class Procedure < NodeClass
-  end
+      # CREATE OR REPLACE ...
+      class Procedure < NodeClass
+      end
 
-  # ...;
-  class Statement < NodeClass
-  end
+      # ...;
+      class Statement < NodeClass
+      end
 
-  class Expression < NodeClass
-    def expression?
-      true
-    end
+      class Expression < NodeClass
+        def expression?
+          true
+        end
 
-    def tag(prefix = nil, id = nil)
-      unless defined? @tag_id
-        if named?(:cond)
-          if parent.for?
-            # this object is the conditional statement in a FOR loop
-            Piggly::ForCollectionTag.new(prefix, id)
-          elsif parent.loop?
-            # this object is the conditional statement in a WHILE loop
-            Piggly::LoopConditionTag.new(prefix, id)
-          elsif parent.branch?
-            Piggly::BranchConditionTag.new(prefix, id)
+        def tag(prefix = nil, id = nil)
+          unless defined? @tag_id
+            if named?(:cond)
+              if parent.for?
+                # this object is the conditional statement in a FOR loop
+                Piggly::ForCollectionTag.new(prefix, id)
+              elsif parent.loop?
+                # this object is the conditional statement in a WHILE loop
+                Piggly::LoopConditionTag.new(prefix, id)
+              elsif parent.branch?
+                Piggly::BranchConditionTag.new(prefix, id)
+              end
+            else
+              Piggly::Evaluation.new(prefix, id)
+            end.tap{|tag| @tag_id = tag.id }
           end
-        else
-          Piggly::Evaluation.new(prefix, id)
-        end.tap{|tag| @tag_id = tag.id }
+        end
       end
-    end
-  end
 
-  # DECLARE declaration BEGIN body END;
-  class Block < Statement
-    def block?
-      true
-    end
-  end
-
-  # Branches with child 'cond' (Expression) will get a BranchCondTag
-  class Branch < Statement
-    def branch?
-      true
-    end
-  end
-
-  # IF boolean-cond THEN body
-  class If < Branch
-  end
-
-  # ELSE body END
-  class Else < NodeClass
-  end
-
-  # EXCEPTION WHEN boolean-cond THEN body
-  class Catch < Branch
-  end
-
-  # WHEN match-expr THEN body
-  class CaseWhen < Branch
-  end
-
-  # WHEN boolean-cond THEN body
-  class CondWhen < Branch
-  end
-
-  # CONTINUE label WHEN boolean-cond;
-  class ContinueWhen < Branch
-  end
-
-  # EXIT label WHEN boolean-cond;
-  class ExitWhen < Branch
-  end
-
-  class UnconditionalBranch < Statement
-  end
-
-  # RETURN expr
-  class Return < UnconditionalBranch
-  end
-
-  # EXIT label
-  class Exit < UnconditionalBranch
-  end
-
-  # CONTINUE label
-  class Continue < UnconditionalBranch
-  end
-
-  # RAISE EXCEPTION expr
-  class Throw < UnconditionalBranch
-  end
-
-  # Loops with child 'cond' (Expression/Sql) will get a LoopCondTag
-  class Loop < Statement
-    def loop?
-      true
-    end
-  end
-
-  # FOR boolean-cond LOOP body END
-  class ForLoop < Loop
-    def for?; true end
-  end
-
-  # WHILE boolean-cond LOOP body END
-  class WhileLoop < Loop
-  end
-
-
-  # RAISE NOTICE expr
-  class Raise < Statement
-  end
-
-  # CASE search-expr WHEN ...
-  class Case < Statement
-  end
-
-  # CASE WHEN ...
-  class Cond < Statement
-  end
-
-  # lval := rval
-  class Assignment < Statement
-  end
-
-  # Lval of assignment (rval is an Expression)
-  class Assignable < NodeClass
-  end
-
-  class Sql < Statement
-    def style; 'tQ'; end
-
-    def tag(prefix = nil, id = nil)
-      unless defined? @tag_id
-        if named?(:cond) and parent.for?
-          # this object is the conditional statement in a FOR loop
-          Piggly::ForCollectionTag.new(prefix, id)
-        else
-          Piggly::EvaluationTag.new(prefix, id)
-        end.tap{|tag| @tag_id = tag.id }
+      # DECLARE declaration BEGIN body END;
+      class Block < Statement
+        def block?
+          true
+        end
       end
-    end
-  end
 
-  # Tokens have no children
-  class Token < NodeClass
-    def initialize(input, interval, elements = nil)
-      # prevent children from being assigned
-      super(input, interval, nil)
-    end
+      # Branches with child 'cond' (Expression) will get a BranchCondTag
+      class Branch < Statement
+        def branch?
+          true
+        end
+      end
 
-    def terminal?
-      true
-    end
-  end
+      # IF boolean-cond THEN body
+      class If < Branch
+      end
 
-  # This seems like it should be a Token, but it may contain TComment children
-  # that should be highlighted differently than the enclosing whitespace
-  class TWhitespace < NodeClass
-  end
+      # ELSE body END
+      class Else < NodeClass
+      end
 
-  class TKeyword < Token
-    def style; 'tK'; end
-  end
+      # EXCEPTION WHEN boolean-cond THEN body
+      class Catch < Branch
+      end
 
-  class TIdentifier < Token
-    def style; 'tI'; end
-  end
+      # WHEN match-expr THEN body
+      class CaseWhen < Branch
+      end
 
-  class TDatatype < Token
-    def style; 'tD'; end
-  end
+      # WHEN boolean-cond THEN body
+      class CondWhen < Branch
+      end
 
-  class TString < Token
-    def style; 'tS'; end
-  end
+      # CONTINUE label WHEN boolean-cond;
+      class ContinueWhen < Branch
+      end
 
-  class TDollarQuoteMarker < Token
-    def style; 'tM'; end
-  end
+      # EXIT label WHEN boolean-cond;
+      class ExitWhen < Branch
+      end
 
-  class TComment < Token
-    def style; 'tC'; end
-  end
+      class UnconditionalBranch < Statement
+      end
 
-  class TLabel < Token
-    def style; 'tL'; end
-  end
+      # RETURN expr
+      class Return < UnconditionalBranch
+      end
 
-  # Text nodes have no children
-  class TextNode < NodeClass
-    def initialize(input, interval, elements = nil)
-      # prevent children from being assigned
-      super(input, interval, nil)
-    end
+      # EXIT label
+      class Exit < UnconditionalBranch
+      end
 
-    def terminal?
-      true
-    end
-  end
-  
-  # Stub nodes have no children, or content
-  class StubNode < NodeClass
-    def initialize(input, interval, elements = nil)
-      # prevent children from being assigned
-      super(input, interval, nil)
-    end
+      # CONTINUE label
+      class Continue < UnconditionalBranch
+      end
 
-    def terminal?
-      true
-    end
+      # RAISE EXCEPTION expr
+      class Throw < UnconditionalBranch
+      end
 
-    def stub?
-      true
-    end
-  end
+      # Loops with child 'cond' (Expression/Sql) will get a LoopCondTag
+      class Loop < Statement
+        def loop?
+          true
+        end
+      end
 
-  class NotImplemented < NodeClass
-    def parent=(object)
-      # this would go in the constructor, but parent is set from outside
-      raise Piggly::Parser::Failure, "Grammar does not implement #{object.source_text} at line #{input.line_of(object.interval.first)}"
+      # FOR boolean-cond LOOP body END
+      class ForLoop < Loop
+        def for?; true end
+      end
+
+      # WHILE boolean-cond LOOP body END
+      class WhileLoop < Loop
+      end
+
+
+      # RAISE NOTICE expr
+      class Raise < Statement
+      end
+
+      # CASE search-expr WHEN ...
+      class Case < Statement
+      end
+
+      # CASE WHEN ...
+      class Cond < Statement
+      end
+
+      # lval := rval
+      class Assignment < Statement
+      end
+
+      # Lval of assignment (rval is an Expression)
+      class Assignable < NodeClass
+      end
+
+      class Sql < Statement
+        def style; 'tQ'; end
+
+        def tag(prefix = nil, id = nil)
+          unless defined? @tag_id
+            if named?(:cond) and parent.for?
+              # this object is the conditional statement in a FOR loop
+              Piggly::ForCollectionTag.new(prefix, id)
+            else
+              Piggly::EvaluationTag.new(prefix, id)
+            end.tap{|tag| @tag_id = tag.id }
+          end
+        end
+      end
+
+      # Tokens have no children
+      class Token < NodeClass
+        def initialize(input, interval, elements = nil)
+          # prevent children from being assigned
+          super(input, interval, nil)
+        end
+
+        def terminal?
+          true
+        end
+      end
+
+      # This seems like it should be a Token, but it may contain TComment children
+      # that should be highlighted differently than the enclosing whitespace
+      class TWhitespace < NodeClass
+      end
+
+      class TKeyword < Token
+        def style; 'tK'; end
+      end
+
+      class TIdentifier < Token
+        def style; 'tI'; end
+      end
+
+      class TDatatype < Token
+        def style; 'tD'; end
+      end
+
+      class TString < Token
+        def style; 'tS'; end
+      end
+
+      class TDollarQuoteMarker < Token
+        def style; 'tM'; end
+      end
+
+      class TComment < Token
+        def style; 'tC'; end
+      end
+
+      class TLabel < Token
+        def style; 'tL'; end
+      end
+
+      # Text nodes have no children
+      class TextNode < NodeClass
+        def initialize(input, interval, elements = nil)
+          # prevent children from being assigned
+          super(input, interval, nil)
+        end
+
+        def terminal?
+          true
+        end
+      end
+      
+      # Stub nodes have no children, or content
+      class StubNode < NodeClass
+        def initialize(input, interval, elements = nil)
+          # prevent children from being assigned
+          super(input, interval, nil)
+        end
+
+        def terminal?
+          true
+        end
+
+        def stub?
+          true
+        end
+      end
+
+      class NotImplemented < NodeClass
+        def parent=(object)
+          # this would go in the constructor, but parent is set from outside
+          raise Piggly::Parser::Failure, "Grammar does not implement #{object.source_text} at line #{input.line_of(object.interval.first)}"
+        end
+      end
+
     end
   end
 end

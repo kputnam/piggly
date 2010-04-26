@@ -7,7 +7,7 @@ module Piggly
     describe "keywords" do
       it "parse successfully" do
         GrammarHelper::KEYWORDS.test_each do |k|
-          parse(:keyword, k).should be_a(TKeyword)
+          parse(:keyword, k).should be_a(Parser::Nodes::TKeyword)
         end
       end
 
@@ -26,7 +26,7 @@ module Piggly
       it "are terminated by symbols" do
         GrammarHelper::KEYWORDS.test_each do |k|
           node, rest = parse_some(:keyword, "#{k}+")
-          node.should be_a(TKeyword)
+          node.should be_a(Parser::Nodes::TKeyword)
           rest.should == '+'
         end
       end
@@ -34,7 +34,7 @@ module Piggly
       it "are terminated by spaces" do
         GrammarHelper::KEYWORDS.test_each do |k|
           node, rest = parse_some(:keyword, "#{k} ")
-          node.should be_a(TKeyword)
+          node.should be_a(Parser::Nodes::TKeyword)
           rest.should == ' '
         end
       end
