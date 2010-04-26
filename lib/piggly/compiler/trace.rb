@@ -9,12 +9,14 @@ module Piggly
 
     attr_accessor :nodes
 
-    def self.compile(tree, args)
-      new(args.fetch(:path)).send(:compile, tree)
-    end
+    class << self
+      def compile(tree, args)
+        new(args.fetch(:path)).send(:compile, tree)
+      end
 
-    def self.compiler_path
-      __FILE__
+      def compiler_path
+        __FILE__
+      end
     end
 
     def initialize(path)
