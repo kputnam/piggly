@@ -5,7 +5,7 @@ module Piggly
       # Compiles the procedures in +file+ with instrumentation and installs them
       def trace_proc(file)
         # recompile with instrumentation if needed
-        cache = Piggly::TraceCompiler.cache(file)
+        cache = Piggly::Compiler::Trace.cache(file)
 
         # install instrumented code
         connection.exec cache['code.sql']

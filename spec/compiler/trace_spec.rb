@@ -54,10 +54,10 @@ class N < OpenStruct
 end
 
 =begin
-describe TraceCompiler, "with terminal root node" do
+describe Compiler::Trace, "with terminal root node" do
   before do
     @tree     = N.terminal('code')
-    @compiler = TraceCompiler.new('file.sql')
+    @compiler = Compiler::Trace.new('file.sql')
   end
 
   it "compiles to original terminal" do
@@ -74,7 +74,7 @@ describe TraceCompiler, "with terminal root node" do
   end
 end
 
-describe TraceCompiler, "with regular root node" do
+describe Compiler::Trace, "with regular root node" do
   before do
     @tree = N.node N.terminal('statement'),
                    N.terminal('statement'),
@@ -82,7 +82,7 @@ describe TraceCompiler, "with regular root node" do
                           N.terminal('statement')),
                    N.terminal('statement'),
                    N.terminal('statement')
-    @compiler = TraceCompiler.new('file.sql')
+    @compiler = Compiler::Trace.new('file.sql')
   end
 
   it "compiles" do
@@ -100,7 +100,7 @@ describe TraceCompiler, "with regular root node" do
   end
 end
 
-describe TraceCompiler, "root node contains branches" do
+describe Compiler::Trace, "root node contains branches" do
   before do
     @tree = N.node N.node(N.terminal('statement-1;'),         N.space),
                    N.branch(N.node(N.terminal('if-1'),        N.space),
@@ -115,7 +115,7 @@ describe TraceCompiler, "root node contains branches" do
                             N.node(N.terminal('consequence'), N.space),
                             N.terminal('end if;'))
     @tree.interval # force computation
-    @compiler = TraceCompiler.new('file.sql')
+    @compiler = Compiler::Trace.new('file.sql')
   end
 
   it "flattens" do
