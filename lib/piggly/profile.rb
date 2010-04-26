@@ -4,7 +4,7 @@ module Piggly
   # Collection of all Tags
   #
   class Profile
-    PATTERN = /WARNING:  #{Config.trace_prefix} (#{Tag::PATTERN})(?: (.))?/
+    PATTERN = /WARNING:  #{Config.trace_prefix} (#{Piggly::Tags::AbstractTag::PATTERN})(?: (.))?/
 
     class << self
 
