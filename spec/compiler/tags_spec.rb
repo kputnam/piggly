@@ -2,24 +2,24 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'spec_helper'))
 
 module Piggly
 
-describe Tag do
+describe Tags::AbstractTag do
 end
 
-describe EvaluationTag do
+describe Tags::EvaluationTag do
 end
 
-describe BlockTag do
+describe Tags::BlockTag do
 end
 
-describe UnconditionalBranchTag do
+describe Tags::UnconditionalBranchTag do
 end
 
-describe LoopConditionTag do
+describe Tags::LoopConditionTag do
 end
 
-describe ForCollectionTag do
+describe Tags::ForCollectionTag do
   before do
-    @tag = ForCollectionTag.new('for-loop')
+    @tag = Tags::ForCollectionTag.new('for-loop')
   end
 
   it "detects state 00 (0b0000)" do
@@ -279,7 +279,7 @@ describe ForCollectionTag do
 
 end
 
-describe BranchConditionTag do
+describe Tags::BranchConditionTag do
 end
 
 end

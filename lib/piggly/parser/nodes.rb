@@ -29,9 +29,9 @@ class NodeClass
   def tag(prefix = nil, id = nil)
     unless defined? @tag_id
       if named?(:body)
-        Piggly::BlockTag.new(prefix, id)
+        Piggly::Tags::BlockTag.new(prefix, id)
       else
-        Piggly::EvaluationTag.new(prefix, id)
+        Piggly::Tags::EvaluationTag.new(prefix, id)
       end.tap{|tag| @tag_id = tag.id }
     end
   end
@@ -112,12 +112,12 @@ module Piggly
             if named?(:cond)
               if parent.for?
                 # this object is the conditional statement in a FOR loop
-                Piggly::ForCollectionTag.new(prefix, id)
+                Piggly::Tags::ForCollectionTag.new(prefix, id)
               elsif parent.loop?
                 # this object is the conditional statement in a WHILE loop
-                Piggly::LoopConditionTag.new(prefix, id)
+                Piggly::Tags::LoopConditionTag.new(prefix, id)
               elsif parent.branch?
-                Piggly::BranchConditionTag.new(prefix, id)
+                Piggly::Tags::BranchConditionTag.new(prefix, id)
               end
             else
               Piggly::Evaluation.new(prefix, id)
@@ -231,9 +231,9 @@ module Piggly
           unless defined? @tag_id
             if named?(:cond) and parent.for?
               # this object is the conditional statement in a FOR loop
-              Piggly::ForCollectionTag.new(prefix, id)
+              Piggly::Tags::ForCollectionTag.new(prefix, id)
             else
-              Piggly::EvaluationTag.new(prefix, id)
+              Piggly::Tags::EvaluationTag.new(prefix, id)
             end.tap{|tag| @tag_id = tag.id }
           end
         end
