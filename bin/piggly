@@ -121,7 +121,7 @@ module Piggly
       end
 
       def compile_procs(sources)
-        stale = sources.select{|f| Piggly::TraceCompiler.stale?(f) }
+        stale = sources.select{|f| Piggly::Compiler::Trace.stale?(f) }
 
         # build the parser if needed
         Piggly::Parser.parser
@@ -131,7 +131,7 @@ module Piggly
           stale.each do |file|
             Piggly::Util::ProcessQueue.child do
               begin
-                Piggly::TraceCompiler.cache(file)
+                Piggly::Compiler::Trace.cache(file)
             # rescue Errno::ENOENT, Piggly::Parser::Failure
             #   puts "! #{File.basename file}"
               rescue
@@ -223,7 +223,7 @@ module Piggly
             Piggly::Util::ProcessQueue.child do
               begin
                 summary = Piggly::Profile.summary(file)
-                report  = Piggly::ReportCompiler.compile(file, Piggly::Profile)
+                report  = Piggly::Compiler::Report.compile(file, Piggly::Profile)
 
                 Piggly::HtmlReporter.output(file, report, summary)
               rescue Errno::ENOENT, Piggly::Parser::Failure
