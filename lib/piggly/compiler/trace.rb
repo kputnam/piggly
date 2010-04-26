@@ -5,7 +5,7 @@ module Piggly
     # Walks the parse tree, attaching Tag values and rewriting source code to ping them.
     #
     class Trace
-      include FileCache
+      include Cacheable
       include Compiler::Cache
 
       attr_accessor :nodes
