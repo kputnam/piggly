@@ -223,9 +223,9 @@ module Piggly
             Piggly::Util::ProcessQueue.child do
               begin
                 summary = Piggly::Profile.summary(file)
-                pretty  = Piggly::PrettyCompiler.compile(file, Piggly::Profile)
+                report  = Piggly::ReportCompiler.compile(file, Piggly::Profile)
 
-                Piggly::HtmlReporter.output(file, pretty, summary)
+                Piggly::HtmlReporter.output(file, report, summary)
               rescue Errno::ENOENT, Piggly::Parser::Failure
               # puts "! #{File.basename file}"
               rescue

@@ -29,7 +29,7 @@ module Piggly
     # Destructively modifies +tree+ (by attaching tags) and returns the tree
     # along with the modified source code, and the list of tags. The tag list
     # is passed along to Profile to compute coverage information. The tree is
-    # passed to PrettyCompiler
+    # passed to ReportCompiler
     #
     def compile(tree)
       puts "Compiling #{@prefix}"
