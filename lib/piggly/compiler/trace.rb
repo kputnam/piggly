@@ -6,7 +6,7 @@ module Piggly
     #
     class Trace
       include FileCache
-      include CompilerCache
+      include Compiler::Cache
 
       attr_accessor :nodes
 
