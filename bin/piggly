@@ -5,7 +5,7 @@ $:.push File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'piggly'
 
 # Number of children to fork for parallel tasks
-Piggly::Queue.children = 2
+Piggly::Util::ProcessQueue.children = 2
 
 STDOUT.sync = true
 
@@ -129,7 +129,7 @@ module Piggly
         puts "Compiling #{stale.size} files"
         benchmark do
           stale.each do |file|
-            Piggly::Queue.child do
+            Piggly::Util::ProcessQueue.child do
               begin
                 Piggly::TraceCompiler.cache(file)
             # rescue Errno::ENOENT, Piggly::Parser::Failure
@@ -141,7 +141,7 @@ module Piggly
               end
             end
           end
-          Piggly::Queue.start
+          Piggly::Util::ProcessQueue.start
         end
       end
 
@@ -220,7 +220,7 @@ module Piggly
 
         benchmark do
           sources.each do |file|
-            Piggly::Queue.child do
+            Piggly::Util::ProcessQueue.child do
               begin
                 summary = Piggly::Profile.summary(file)
                 pretty  = Piggly::PrettyCompiler.compile(file, Piggly::Profile)
@@ -235,7 +235,7 @@ module Piggly
             end
           end
 
-          Piggly::Queue.start
+          Piggly::Util::ProcessQueue.start
         end
       end
 
