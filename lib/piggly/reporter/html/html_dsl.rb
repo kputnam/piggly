@@ -1,5 +1,5 @@
 module Piggly
-  class Reporter
+  module Reporter
 
     #
     # Markup DSL

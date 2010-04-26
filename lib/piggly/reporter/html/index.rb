@@ -1,5 +1,5 @@
 module Piggly
-  class Reporter
+  module Reporter
     class HtmlIndex < Reporter::Html
       extend HtmlDSL
 

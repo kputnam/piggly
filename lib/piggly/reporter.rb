@@ -1,6 +1,10 @@
 module Piggly
-  class Reporter
-    class << self
+  module Reporter
+    def self.included(subclass)
+      subclass.extend(ClassMethods)
+    end
+
+    module ClassMethods
       # Copy each file to Config.report_root
       def install(*files)
         files.each do |file|
@@ -16,6 +20,11 @@ module Piggly
       end
     end
 
+    extend ClassMethods
+
+    class AbstractReporter
+      include Reporter
+    end
   end
 end
 
