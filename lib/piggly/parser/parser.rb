@@ -5,7 +5,7 @@ module Piggly
   include Treetop::Runtime
 
   def root
-    @root || :start
+    @root ||= :start
   end
 
   def _nt_start
@@ -150,7 +150,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Procedure,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Procedure,input, i0...index, s0)
       r0.extend(Procedure0)
     else
       @index = i0
@@ -256,7 +256,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(TextNode,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
       r0.extend(ProcedureHeader0)
     else
       @index = i0
@@ -334,7 +334,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(TextNode,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
       r0.extend(ProcedureReturn1)
     else
       @index = i0
@@ -550,7 +550,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(TextNode,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
       r0.extend(ProcedureFooter0)
     else
       @index = i0
@@ -901,7 +901,7 @@ module Piggly
       s0 << r24
     end
     if s0.last
-      r0 = instantiate_node(Statement,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Statement,input, i0...index, s0)
       r0.extend(Statement1)
     else
       @index = i0
@@ -1087,7 +1087,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(Block,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::Block,input, i1...index, s1)
       r1.extend(Block1)
     else
       @index = i1
@@ -1156,7 +1156,7 @@ module Piggly
         end
       end
       if s20.last
-        r20 = instantiate_node(Block,input, i20...index, s20)
+        r20 = instantiate_node(Piggly::Parser::Nodes::Block,input, i20...index, s20)
         r20.extend(Block2)
       else
         @index = i20
@@ -1241,7 +1241,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Assignment,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Assignment,input, i0...index, s0)
       r0.extend(StmtAssignment0)
     else
       @index = i0
@@ -1397,7 +1397,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(Cond,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::Cond,input, i1...index, s1)
       r1.extend(StmtCase0)
     else
       @index = i1
@@ -1476,7 +1476,7 @@ module Piggly
         end
       end
       if s14.last
-        r14 = instantiate_node(Case,input, i14...index, s14)
+        r14 = instantiate_node(Piggly::Parser::Nodes::Case,input, i14...index, s14)
         r14.extend(StmtCase1)
       else
         @index = i14
@@ -1643,7 +1643,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(If,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::If,input, i0...index, s0)
       r0.extend(StmtIf0)
     else
       @index = i0
@@ -1778,7 +1778,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(If,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::If,input, i1...index, s1)
       r1.extend(StmtElse0)
     else
       @index = i1
@@ -1812,7 +1812,7 @@ module Piggly
         end
       end
       if s14.last
-        r14 = instantiate_node(Else,input, i14...index, s14)
+        r14 = instantiate_node(Piggly::Parser::Nodes::Else,input, i14...index, s14)
         r14.extend(StmtElse1)
       else
         @index = i14
@@ -2019,7 +2019,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(Loop,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::Loop,input, i1...index, s1)
       r1.extend(StmtLoop1)
     else
       @index = i1
@@ -2088,7 +2088,7 @@ module Piggly
         end
       end
       if s20.last
-        r20 = instantiate_node(Loop,input, i20...index, s20)
+        r20 = instantiate_node(Piggly::Parser::Nodes::Loop,input, i20...index, s20)
         r20.extend(StmtLoop2)
       else
         @index = i20
@@ -2338,7 +2338,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(WhileLoop,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::WhileLoop,input, i1...index, s1)
       r1.extend(StmtWhileLoop1)
     else
       @index = i1
@@ -2424,7 +2424,7 @@ module Piggly
         end
       end
       if s24.last
-        r24 = instantiate_node(WhileLoop,input, i24...index, s24)
+        r24 = instantiate_node(Piggly::Parser::Nodes::WhileLoop,input, i24...index, s24)
         r24.extend(StmtWhileLoop2)
       else
         @index = i24
@@ -2739,7 +2739,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(ForLoop,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::ForLoop,input, i1...index, s1)
       r1.extend(StmtForLoop1)
     else
       @index = i1
@@ -2852,7 +2852,7 @@ module Piggly
         end
       end
       if s30.last
-        r30 = instantiate_node(ForLoop,input, i30...index, s30)
+        r30 = instantiate_node(Piggly::Parser::Nodes::ForLoop,input, i30...index, s30)
         r30.extend(StmtForLoop2)
       else
         @index = i30
@@ -2908,7 +2908,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Sql,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Sql,input, i0...index, s0)
       r0.extend(StmtForSql0)
     else
       @index = i0
@@ -3062,7 +3062,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(Exit,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::Exit,input, i1...index, s1)
       r1.extend(StmtExit2)
     else
       @index = i1
@@ -3136,7 +3136,7 @@ module Piggly
         end
       end
       if s12.last
-        r12 = instantiate_node(ExitWhen,input, i12...index, s12)
+        r12 = instantiate_node(Piggly::Parser::Nodes::ExitWhen,input, i12...index, s12)
         r12.extend(StmtExit5)
       else
         @index = i12
@@ -3297,7 +3297,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(Continue,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::Continue,input, i1...index, s1)
       r1.extend(StmtContinue2)
     else
       @index = i1
@@ -3371,7 +3371,7 @@ module Piggly
         end
       end
       if s12.last
-        r12 = instantiate_node(ContinueWhen,input, i12...index, s12)
+        r12 = instantiate_node(Piggly::Parser::Nodes::ContinueWhen,input, i12...index, s12)
         r12.extend(StmtContinue5)
       else
         @index = i12
@@ -3717,7 +3717,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(Throw,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::Throw,input, i1...index, s1)
       r1.extend(StmtRaise1)
     else
       @index = i1
@@ -3783,7 +3783,7 @@ module Piggly
         end
       end
       if s10.last
-        r10 = instantiate_node(Raise,input, i10...index, s10)
+        r10 = instantiate_node(Piggly::Parser::Nodes::Raise,input, i10...index, s10)
         r10.extend(StmtRaise2)
       else
         @index = i10
@@ -3850,7 +3850,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Sql,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Sql,input, i0...index, s0)
       r0.extend(StmtExecSql0)
     else
       @index = i0
@@ -4752,7 +4752,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Catch,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Catch,input, i0...index, s0)
       r0.extend(ExceptionCase0)
     else
       @index = i0
@@ -4842,7 +4842,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Case,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Case,input, i0...index, s0)
       r0.extend(CaseWhen0)
     else
       @index = i0
@@ -4940,7 +4940,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Cond,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Cond,input, i0...index, s0)
       r0.extend(CondWhen0)
     else
       @index = i0
@@ -5109,7 +5109,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Expression,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Expression,input, i0...index, s0)
       r0.extend(ExpressionUntilSemiColon2)
     else
       @index = i0
@@ -5283,7 +5283,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Expression,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Expression,input, i0...index, s0)
       r0.extend(ExpressionUntilClosingBracket2)
     else
       @index = i0
@@ -5452,7 +5452,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Expression,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Expression,input, i0...index, s0)
       r0.extend(ExpressionUntilThen2)
     else
       @index = i0
@@ -5621,7 +5621,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Expression,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Expression,input, i0...index, s0)
       r0.extend(ExpressionUntilWhen2)
     else
       @index = i0
@@ -5790,7 +5790,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Expression,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::Expression,input, i0...index, s0)
       r0.extend(ExpressionUntilLoop2)
     else
       @index = i0
@@ -5831,7 +5831,7 @@ module Piggly
       @index = i0
       r0 = nil
     else
-      r0 = instantiate_node(TextNode,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
     end
 
     node_cache[:skipWords][start_index] = r0
@@ -5868,7 +5868,7 @@ module Piggly
       @index = i0
       r0 = nil
     else
-      r0 = instantiate_node(TextNode,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
     end
 
     node_cache[:ws][start_index] = r0
@@ -5958,7 +5958,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(TDollarQuoteMarker,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TDollarQuoteMarker,input, i0...index, s0)
       r0.extend(DollarQuoteMarker1)
     else
       @index = i0
@@ -5982,7 +5982,7 @@ module Piggly
     end
 
     if has_terminal?('', false, index)
-      r0 = instantiate_node(StubNode,input, index...(index + 0))
+      r0 = instantiate_node(Piggly::Parser::Nodes::StubNode,input, index...(index + 0))
       @index += 0
     else
       terminal_parse_failure('')
@@ -6006,7 +6006,7 @@ module Piggly
     end
 
     if has_terminal?('', false, index)
-      r0 = instantiate_node(NotImplemented,input, index...(index + 0))
+      r0 = instantiate_node(Piggly::Parser::Nodes::NotImplemented,input, index...(index + 0))
       @index += 0
     else
       terminal_parse_failure('')
@@ -6188,7 +6188,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(Assignable,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::Assignable,input, i1...index, s1)
       r1.extend(LValue2)
     else
       @index = i1
@@ -6248,7 +6248,7 @@ module Piggly
         s12 << r14
       end
       if s12.last
-        r12 = instantiate_node(Assignable,input, i12...index, s12)
+        r12 = instantiate_node(Piggly::Parser::Nodes::Assignable,input, i12...index, s12)
         r12.extend(LValue4)
       else
         @index = i12
@@ -6298,7 +6298,7 @@ module Piggly
           s19 << r21
         end
         if s19.last
-          r19 = instantiate_node(Assignable,input, i19...index, s19)
+          r19 = instantiate_node(Piggly::Parser::Nodes::Assignable,input, i19...index, s19)
           r19.extend(LValue6)
         else
           @index = i19
@@ -6321,7 +6321,7 @@ module Piggly
             s25 << r27
           end
           if s25.last
-            r25 = instantiate_node(Assignable,input, i25...index, s25)
+            r25 = instantiate_node(Piggly::Parser::Nodes::Assignable,input, i25...index, s25)
             r25.extend(LValue7)
           else
             @index = i25
@@ -6433,7 +6433,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(TLabel,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i0...index, s0)
       r0.extend(TLabel0)
     else
       @index = i0
@@ -6527,7 +6527,7 @@ module Piggly
       @index = i1
       r1 = nil
     else
-      r1 = instantiate_node(TIdentifier,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::TIdentifier,input, i1...index, s1)
     end
     if r1
       r0 = r1
@@ -6579,7 +6579,7 @@ module Piggly
         s7 << r10
       end
       if s7.last
-        r7 = instantiate_node(TIdentifier,input, i7...index, s7)
+        r7 = instantiate_node(Piggly::Parser::Nodes::TIdentifier,input, i7...index, s7)
         r7.extend(TIdentifier2)
       else
         @index = i7
@@ -6688,7 +6688,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(TString,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::TString,input, i1...index, s1)
       r1.extend(TString1)
     else
       @index = i1
@@ -6753,7 +6753,7 @@ module Piggly
         end
       end
       if s9.last
-        r9 = instantiate_node(TString,input, i9...index, s9)
+        r9 = instantiate_node(Piggly::Parser::Nodes::TString,input, i9...index, s9)
         r9.extend(TString2)
       else
         @index = i9
@@ -6818,7 +6818,7 @@ module Piggly
           end
         end
         if s16.last
-          r16 = instantiate_node(TString,input, i16...index, s16)
+          r16 = instantiate_node(Piggly::Parser::Nodes::TString,input, i16...index, s16)
           r16.extend(TString3)
         else
           @index = i16
@@ -7036,7 +7036,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TDatatype,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TDatatype,input, i0...index, s0)
       r0.extend(TType3)
     else
       @index = i0
@@ -7217,7 +7217,7 @@ module Piggly
       s1 << r3
     end
     if s1.last
-      r1 = instantiate_node(TextNode,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i1...index, s1)
       r1.extend(TSpace0)
     else
       @index = i1
@@ -7360,7 +7360,7 @@ module Piggly
       end
     end
     if s1.last
-      r1 = instantiate_node(TComment,input, i1...index, s1)
+      r1 = instantiate_node(Piggly::Parser::Nodes::TComment,input, i1...index, s1)
       r1.extend(TComment1)
     else
       @index = i1
@@ -7419,7 +7419,7 @@ module Piggly
         end
       end
       if s9.last
-        r9 = instantiate_node(TComment,input, i9...index, s9)
+        r9 = instantiate_node(Piggly::Parser::Nodes::TComment,input, i9...index, s9)
         r9.extend(TComment2)
       else
         @index = i9
@@ -8598,7 +8598,7 @@ module Piggly
       s0 << r16
     end
     if s0.last
-      r0 = instantiate_node(TextNode,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
       r0.extend(SqlKeyword0)
     else
       @index = i0
@@ -8958,7 +8958,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwAS0)
     else
       @index = i0
@@ -8983,7 +8983,7 @@ module Piggly
 
     i0 = index
     if has_terminal?(':=', false, index)
-      r1 = instantiate_node(TKeyword,input, index...(index + 2))
+      r1 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, index...(index + 2))
       @index += 2
     else
       terminal_parse_failure(':=')
@@ -8993,7 +8993,7 @@ module Piggly
       r0 = r1
     else
       if has_terminal?('=', false, index)
-        r2 = instantiate_node(TKeyword,input, index...(index + 1))
+        r2 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, index...(index + 1))
         @index += 1
       else
         terminal_parse_failure('=')
@@ -9052,7 +9052,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwALIAS0)
     else
       @index = i0
@@ -9104,7 +9104,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwBEGIN0)
     else
       @index = i0
@@ -9156,7 +9156,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwBY0)
     else
       @index = i0
@@ -9208,7 +9208,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwCASE0)
     else
       @index = i0
@@ -9260,7 +9260,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwCLOSE0)
     else
       @index = i0
@@ -9312,7 +9312,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwCONSTANT0)
     else
       @index = i0
@@ -9364,7 +9364,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwCONTINUE0)
     else
       @index = i0
@@ -9416,7 +9416,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwCURSOR0)
     else
       @index = i0
@@ -9468,7 +9468,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwDEBUG0)
     else
       @index = i0
@@ -9520,7 +9520,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwDECLARE0)
     else
       @index = i0
@@ -9572,7 +9572,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwDEFAULT0)
     else
       @index = i0
@@ -9624,7 +9624,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwDIAGNOSTICS0)
     else
       @index = i0
@@ -9676,7 +9676,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwELSE0)
     else
       @index = i0
@@ -9746,7 +9746,7 @@ module Piggly
       s0 << r4
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwELSIF0)
     else
       @index = i0
@@ -9798,7 +9798,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwEND0)
     else
       @index = i0
@@ -9850,7 +9850,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwEXCEPTION0)
     else
       @index = i0
@@ -9902,7 +9902,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwEXECUTE0)
     else
       @index = i0
@@ -9954,7 +9954,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwEXIT0)
     else
       @index = i0
@@ -10006,7 +10006,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwFETCH0)
     else
       @index = i0
@@ -10058,7 +10058,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwFOR0)
     else
       @index = i0
@@ -10110,7 +10110,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwFROM0)
     else
       @index = i0
@@ -10162,7 +10162,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwGET0)
     else
       @index = i0
@@ -10214,7 +10214,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwIF0)
     else
       @index = i0
@@ -10266,7 +10266,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwIN0)
     else
       @index = i0
@@ -10318,7 +10318,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwINFO0)
     else
       @index = i0
@@ -10370,7 +10370,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwINSERT0)
     else
       @index = i0
@@ -10422,7 +10422,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwINTO0)
     else
       @index = i0
@@ -10474,7 +10474,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwIS0)
     else
       @index = i0
@@ -10526,7 +10526,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwLOG0)
     else
       @index = i0
@@ -10578,7 +10578,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwLOOP0)
     else
       @index = i0
@@ -10630,7 +10630,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwMOVE0)
     else
       @index = i0
@@ -10682,7 +10682,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwNEXT0)
     else
       @index = i0
@@ -10734,7 +10734,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwNOT0)
     else
       @index = i0
@@ -10786,7 +10786,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwNOTICE0)
     else
       @index = i0
@@ -10838,7 +10838,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwNULL0)
     else
       @index = i0
@@ -10890,7 +10890,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwOPEN0)
     else
       @index = i0
@@ -10942,7 +10942,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwOR0)
     else
       @index = i0
@@ -10994,7 +10994,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwPERFORM0)
     else
       @index = i0
@@ -11046,7 +11046,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwQUERY0)
     else
       @index = i0
@@ -11098,7 +11098,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwRAISE0)
     else
       @index = i0
@@ -11150,7 +11150,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwRENAME0)
     else
       @index = i0
@@ -11202,7 +11202,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwRESULTOID0)
     else
       @index = i0
@@ -11254,7 +11254,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwRETURN0)
     else
       @index = i0
@@ -11306,7 +11306,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwREVERSE0)
     else
       @index = i0
@@ -11358,7 +11358,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwROWCOUNT0)
     else
       @index = i0
@@ -11410,7 +11410,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwSCROLL0)
     else
       @index = i0
@@ -11462,7 +11462,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwSTRICT0)
     else
       @index = i0
@@ -11514,7 +11514,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwTHEN0)
     else
       @index = i0
@@ -11566,7 +11566,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwTO0)
     else
       @index = i0
@@ -11618,7 +11618,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwTYPE0)
     else
       @index = i0
@@ -11670,7 +11670,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwWARNING0)
     else
       @index = i0
@@ -11722,7 +11722,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwWHEN0)
     else
       @index = i0
@@ -11774,7 +11774,7 @@ module Piggly
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(TKeyword,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::TKeyword,input, i0...index, s0)
       r0.extend(KwWHILE0)
     else
       @index = i0
