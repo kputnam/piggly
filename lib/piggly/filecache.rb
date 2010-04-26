@@ -15,7 +15,7 @@ class File
 end
 
 module Piggly
-  module FileCache
+  module Cacheable
     def self.included(subclass)
       subclass.extend(ClassMethods)
     end

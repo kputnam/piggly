@@ -4,7 +4,7 @@ module Piggly
   # Pl/pgSQL Parser, returns a tree of NodeClass values (see nodes.rb)
   #
   module Parser
-    include FileCache
+    include Cacheable
 
     class Failure < RuntimeError; end
 
