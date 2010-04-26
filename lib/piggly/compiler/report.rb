@@ -5,7 +5,7 @@ module Piggly
   #
   # Produces HTML output to report coverage of tagged nodes in the tree
   #
-  class PrettyCompiler
+  class ReportCompiler
     include HtmlTag
 
     def self.compile(path, profile)
