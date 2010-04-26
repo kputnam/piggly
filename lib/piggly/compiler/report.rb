@@ -7,7 +7,7 @@ module Piggly
     # Produces HTML output to report coverage of tagged nodes in the tree
     #
     class Report
-      include HtmlTag
+      include Piggly::Reporter::HtmlDSL
 
       def self.compile(path, profile)
         new(profile).send(:compile, path)

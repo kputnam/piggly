@@ -210,7 +210,7 @@ module Piggly
         puts "Creating index"
         benchmark do
           Piggly::Reporter.install('piggly.css', 'sortable.js')
-          Piggly::HtmlReporter::Index.output(sources)
+          Piggly::Reporter::HtmlIndex.output(sources)
         end
       end
 
@@ -225,7 +225,7 @@ module Piggly
                 summary = Piggly::Profile.summary(file)
                 report  = Piggly::Compiler::Report.compile(file, Piggly::Profile)
 
-                Piggly::HtmlReporter.output(file, report, summary)
+                Piggly::Reporter::Html.output(file, report, summary)
               rescue Errno::ENOENT, Piggly::Parser::Failure
               # puts "! #{File.basename file}"
               rescue
