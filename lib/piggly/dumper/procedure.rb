@@ -5,7 +5,7 @@ module Piggly
       class << self
         # Returns a list of all PL/pgSQL stored procedures in the current database
         def all
-          connection.select_all(<<-SQL).map{|x| from_record(x) }
+          connection.select_all(<<-SQL).map{|x| from_hash(x) }
             select
               pro.oid,
               ns.nspname      as namespace,
@@ -33,19 +33,19 @@ module Piggly
         end
 
         # Instantiates a Procedure
-        def from_record(record)
-          new(record['oid'],
-              record['namespace'],
-              record['name'],
-              record['strict'] == 't',
-              record['secdef'] == 't',
-              record['setof'] == 't',
-              record['type'],
-              record['volatile'],
-              record['arg_modes'] ? record['arg_names'].split(', ') : [],
-              record['arg_names'] ? record['arg_names'].split(', ') : [],
-              record['arg_types'] ? record['arg_types'].split(', ') : [],
-              record['source'])
+        def from_hash(hash)
+          new(hash['oid'],
+              hash['namespace'],
+              hash['name'],
+              hash['strict'] == 't',
+              hash['secdef'] == 't',
+              hash['setof'] == 't',
+              hash['type'],
+              hash['volatile'],
+              hash['arg_modes'] ? hash['arg_names'].split(', ') : [],
+              hash['arg_names'] ? hash['arg_names'].split(', ') : [],
+              hash['arg_types'] ? hash['arg_types'].split(', ') : [],
+              hash['source'])
         end
 
       private
@@ -98,20 +98,28 @@ module Piggly
         secdef ? 'security definer' : ''
       end
 
-      def source_path
-        Piggly::Config.mkpath(File.join(Piggly::Config.piggly_root, 'Dumper'), "#{oid}.plpgsql")
-      end
-
       # Returns source SQL function definition statement
       def definition(source = @source)
         [%[create or replace "#{namespace}"."#{name}" (#{arguments})],
-         %[ #{strictness} #{security} returns #{type} as $$],
+         %[ #{strictness} #{security} returns #{type} as $PIGGLY_BODY$],
          source,
-         %[$$ language plpgsql #{volatility}]].join("\n")
+         %[$PIGGLY_BODY$ language plpgsql #{volatility}]].join("\n")
       end
 
       def inspect
         "#{type} #{namespace}.#{name} (#{arguments})"
+      end
+
+      def source_path
+        Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), "#{oid}.plpgsql")
+      end
+
+      def purge_source
+        File.unlink(source_path)
+      end
+
+      def store_source
+        File.open(source_path, 'wb'){|io| io.write source }
       end
 
     end
