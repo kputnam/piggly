@@ -163,7 +163,7 @@ module Piggly
             end
           end
 
-          Piggly::Installer.install_trace
+          Piggly::Installer.install_trace_support
         end
       end
 
@@ -204,7 +204,7 @@ module Piggly
             end
           end
 
-          Piggly::Installer.uninstall_trace
+          Piggly::Installer.uninstall_trace_support
         end
       end
 
