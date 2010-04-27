@@ -26,4 +26,10 @@ module Enumerable
     end
   end unless method_defined?(:group_by)
 
+  def index_by(collection = Hash.new)
+    inject(collection) do |hash, item|
+      hash.update(yield(item) => item)
+    end
+  end unless method_defined?(:index_by)
+
 end

@@ -1,8 +1,8 @@
 module Piggly
   module Dumper
     class Procedure
-      class << self
 
+      class << self
         # Returns a list of all PL/pgSQL stored procedures in the current database
         def all
           connection.select_all(<<-SQL).map{|x| from_record(x) }
@@ -56,12 +56,12 @@ module Piggly
         end
       end
 
-      attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof,
-                    :type, :volatile, :modes, :args, :types, :source
+      attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :type,
+                    :volatile, :arg_modes, :arg_names, :arg_types, :source
 
-      def initialize(oid, namespace, name, strict, secdef, setof, type, volatile, modes, args, types, source)
-        @oid, @namespace, @name, @strict, @secdef, @type, @volatile, @setof, @modes, @args, @types, @source =
-          oid, namespace, name, strict, secdef, type, volatile, setof, modes, args, types, source
+      def initialize(oid, namespace, name, strict, secdef, setof, type, volatile, arg_modes, arg_names, arg_types, source)
+        @oid, @namespace, @name, @strict, @secdef, @type, @volatile, @setof, @arg_modes, @arg_names, @arg_types, @source =
+          oid, namespace, name, strict, secdef, type, volatile, setof, arg_modes, arg_names, arg_types, source
       end
 
       # Returns source text for argument list
@@ -71,7 +71,7 @@ module Piggly
         #   o - OUT
         #   b - INOUT
         #   v - VARIADIC
-        args.zip(types).map{|x| x.join(' ') }.join(', ')
+        arg_names.zip(arg_types).map{|x| x.join(' ') }.join(', ')
       end
 
       # Returns source text for volatility
@@ -96,6 +96,10 @@ module Piggly
       # Returns source text for security
       def security
         secdef ? 'security definer' : ''
+      end
+
+      def source_path
+        Piggly::Config.mkpath(File.join(Piggly::Config.piggly_root, 'Dumper'), "#{oid}.plpgsql")
       end
 
       # Returns source SQL function definition statement
