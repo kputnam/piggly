@@ -1,10 +1,13 @@
-#require 'spec_helper'
+require 'spec_helper'
 
 module Piggly
 
 describe Dumper::Index do
   before do
     @path = 'cache.idx'
+
+    # make sure not to create directories all over the file system during the test
+    Config.stub(:mkpath).and_return{|root, file| File.join(root, file) }
   end
 
   context "when path doesn't exist" do
