@@ -20,7 +20,7 @@ module Piggly
       end
 
       # Installs necessary instrumentation support
-      def install_trace
+      def install_trace_support
         # record trace messages
         connection.set_notice_processor(&Piggly::Profile.notice_processor)
 
@@ -79,7 +79,7 @@ module Piggly
       end
 
       # Uninstalls instrumentation support
-      def uninstall_trace
+      def uninstall_trace_support
         connection.set_notice_processor
         connection.exec "DROP FUNCTION IF EXISTS piggly_cond(varchar, boolean);"
         connection.exec "DROP FUNCTION IF EXISTS piggly_expr(varchar, varchar);"
