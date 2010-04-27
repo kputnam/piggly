@@ -1,4 +1,9 @@
-require File.join(File.dirname(__FILE__), *%w[compiler cache])
-require File.join(File.dirname(__FILE__), *%w[compiler tags])
-require File.join(File.dirname(__FILE__), *%w[compiler trace])
-require File.join(File.dirname(__FILE__), *%w[compiler report])
+module Piggly
+  module Compiler
+
+    autoload :Cacheable,  'piggly/compiler/cacheable'
+    autoload :Trace,      'piggly/compiler/trace'
+    autoload :Report,     'piggly/compiler/report'
+
+  end
+end

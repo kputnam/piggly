@@ -1,5 +1,8 @@
 module Piggly
   module Reporter
+
+    autoload :Html, 'piggly/reporter/html'
+
     def self.included(subclass)
       subclass.extend(ClassMethods)
     end
@@ -27,7 +30,3 @@ module Piggly
     end
   end
 end
-
-require File.join(File.dirname(__FILE__), *%w[reporter html html_dsl])
-require File.join(File.dirname(__FILE__), *%w[reporter html])
-require File.join(File.dirname(__FILE__), *%w[reporter html index])

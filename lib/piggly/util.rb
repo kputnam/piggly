@@ -1,4 +1,10 @@
-require File.join(File.dirname(__FILE__), *%w[util enumerable])
-require File.join(File.dirname(__FILE__), *%w[util process_queue])
-require File.join(File.dirname(__FILE__), *%w[util blankslate])
-require File.join(File.dirname(__FILE__), *%w[util thunk])
+require 'piggly/util/enumerable'
+require 'piggly/util/file'
+
+module Piggly
+  module Util
+    autoload :ProcessQueue, 'piggly/util/process_queue'
+    autoload :Thunk,        'piggly/util/thunk'
+    autoload :Cacheable,    'piggly/util/cacheable'
+  end
+end

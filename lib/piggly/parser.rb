@@ -4,53 +4,30 @@ module Piggly
   # Pl/pgSQL Parser, returns a tree of NodeClass values (see nodes.rb)
   #
   module Parser
-    include Cacheable
 
     class Failure < RuntimeError; end
 
     class << self
-
-
-      # Returns parse tree
+      # Returns lazy parse tree (only parsed when the value is needed)
       def parse(string)
-        p = parser
+        Piggly::Util::Thunk.new do
+          p = parser
 
-        begin
-          # downcase input for case-insensitive parsing,
-          # then restore original string after parsing
-          input = string.downcase
-          tree = p.parse(input)
-          tree or raise Piggly::Parser::Failure, "#{p.failure_reason}"
-        rescue Piggly::Parser::Failure
-          $!.backtrace.clear
-          raise
-        ensure
-          input.replace string
+          begin
+            # downcase input for case-insensitive parsing,
+            # then restore original string after parsing
+            input = string.downcase
+            tree = p.parse(input)
+            tree or raise Piggly::Parser::Failure, "#{p.failure_reason}"
+          ensure
+            input.replace string
+          end
         end
       end
 
       def parser_path;  File.join(File.dirname(__FILE__), 'parser', 'parser.rb')  end
       def grammar_path; File.join(File.dirname(__FILE__), 'parser', 'grammar.tt') end
       def nodes_path;   File.join(File.dirname(__FILE__), 'parser', 'nodes.rb')   end
-
-      def stale?(source)
-        File.stale?(cache_path(source), source, grammar_path, parser_path, nodes_path)
-      end
-
-      def cache(source)
-        cache = cache_path(source)
-
-        if stale?(source)
-          tree = parse(File.read(source))
-          File.open(cache, 'w+') do |f|
-            Marshal.dump(tree, f)
-            tree
-          end
-        else
-          _ = parser # ensure parser libraries, like nodes.rb, are loaded
-          Marshal.load(File.read(cache))
-        end
-      end
 
       # Returns treetop parser (recompiled as needed)
       def parser
@@ -59,10 +36,11 @@ module Piggly
         require nodes_path
 
         if File.stale?(parser_path, grammar_path)
+          # regenerate the parser when the grammar is updated
           Treetop::Compiler::GrammarCompiler.new.compile(grammar_path, parser_path)
         end
 
-        require parser_path
+        load parser_path
         ::PigglyParser.new
       end
     end

@@ -4,33 +4,30 @@ module Piggly
 
 describe Dumper::Index do
   before do
-    @path = 'cache.idx'
-
     # make sure not to create directories all over the file system during the test
     Config.stub(:mkpath).and_return{|root, file| File.join(root, file) }
   end
 
   context "when path doesn't exist" do
     before do
-      File.stub(:exists?).with(@path).and_return(false)
-      @index = Dumper::Index.new(@path)
+      File.stub(:exists?).with(Dumper::Index.path).and_return(false)
+      @index = Dumper::Index.new
     end
 
     it "is empty" do
-      @index.path.should == @path
       @index.procedures.should be_empty
     end
   end
 
   context "when path does exist" do
     before do
-      File.stub(:exists?).with(@path).and_return(true)
+      File.stub(:exists?).with(Dumper::Index.path).and_return(true)
     end
 
     context "when the cache file is empty" do
       before do
-        File.stub(:read).with(@path).and_return([].to_yaml)
-        @index = Dumper::Index.new(@path)
+        File.stub(:read).with(Dumper::Index.path).and_return([].to_yaml)
+        @index = Dumper::Index.new
       end
 
       it "is empty" do
@@ -45,9 +42,9 @@ describe Dumper::Index do
 
         File.stub(:read).with(@first.source_path).and_return(@first.source)
         File.stub(:read).with(@second.source_path).and_return(@second.source)
-        File.stub(:read).with(@path).and_return([@first, @second].to_yaml)
+        File.stub(:read).with(Dumper::Index.path).and_return([@first, @second].to_yaml)
 
-        @index = Dumper::Index.new(@path)
+        @index = Dumper::Index.new
       end
 
       it "should have two procedures" do

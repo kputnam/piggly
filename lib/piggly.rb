@@ -1,19 +1,16 @@
-unless defined?(PIGGLY_ROOT)
-  PIGGLY_ROOT = File.join(File.dirname(__FILE__), 'piggly')
-end
-
 require 'fileutils'
 require 'digest/md5'
-require File.join(PIGGLY_ROOT, 'version')
-require File.join(PIGGLY_ROOT, 'config')
-require File.join(PIGGLY_ROOT, 'cacheable')
-require File.join(PIGGLY_ROOT, 'compiler')
-require File.join(PIGGLY_ROOT, 'dumper')
-require File.join(PIGGLY_ROOT, 'parser')
-require File.join(PIGGLY_ROOT, 'profile')
-require File.join(PIGGLY_ROOT, 'installer')
-require File.join(PIGGLY_ROOT, 'reporter')
-require File.join(PIGGLY_ROOT, 'util')
 
-# used to generate MD5 tags for AST nodes
-$PIGGLY_GENTAG = 0
+module Piggly
+  autoload :VERSION,    'piggly/version'
+  autoload :Config,     'piggly/config'
+  autoload :Compiler,   'piggly/compiler'
+  autoload :Dumper,     'piggly/dumper'
+  autoload :Parser,     'piggly/parser'
+  autoload :Profile,    'piggly/profile'
+  autoload :Installer,  'piggly/installer'
+  autoload :Reporter,   'piggly/reporter'
+  autoload :Tags,       'piggly/tags'
+end
+
+require 'piggly/util'

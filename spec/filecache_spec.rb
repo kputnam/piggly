@@ -37,19 +37,19 @@ module Piggly
     end
   end  
 
-  class ExampleClass; include Cacheable; end
-  class ExampleCacheClass; include Cacheable; end
-  class PigglyExampleClassHTML; include Cacheable; end
-  class PigglyExampleHTMLClass; include Cacheable; end
-  class HTMLPiggly; include Cacheable; end
+  class ExampleClass; include Util::Cacheable; end
+  class ExampleCacheClass; include Util::Cacheable; end
+  class PigglyExampleClassHTML; include Util::Cacheable; end
+  class PigglyExampleHTMLClass; include Util::Cacheable; end
+  class HTMLPiggly; include Util::Cacheable; end
   class ExampleRedefined
-    include Cacheable
+    include Util::Cacheable
     def self.cache_path(file)
       'redefined'
     end
   end
 
-  describe Cacheable do
+  describe Util::Cacheable do
     it "installs class methods" do
       ExampleClass.should respond_to(:cache_path)
     end

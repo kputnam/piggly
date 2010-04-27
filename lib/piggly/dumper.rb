@@ -1,5 +1,9 @@
 module Piggly
   module Dumper
+
+    autoload :Index,      'piggly/dumper/index'
+    autoload :Procedure,  'piggly/dumper/procedure'
+
     class << self
 
       #
@@ -21,20 +25,6 @@ module Piggly
       # Parser.cache(path)
       # Parser.parse(content)
 
-      def dump
-        index.update(Piggly::Dumper::Procedure.all)
-      end
-
-      def index
-      end
-
-      def procedures
-        index.procedures
-      end
-
     end
   end
 end
-
-require File.join(File.dirname(__FILE__), *%w[dumper index])
-require File.join(File.dirname(__FILE__), *%w[dumper procedure])
