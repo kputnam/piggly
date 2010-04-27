@@ -1,6 +1,6 @@
 module Piggly
   module Util
-    class Thunk < Piggly::Util::BlankSlate
+    class Thunk < BlankSlate
       def initialize(&block)
         @block  = block
         @called = false
