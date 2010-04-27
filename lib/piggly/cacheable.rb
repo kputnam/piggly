@@ -26,14 +26,14 @@ module Piggly
       def cache_path(file)
         # up to the last capitalized word of the class name
         subdir = name[/^(?:.+::)?(.+?)([A-Z][^A-Z]+)?$/, 1]
-        root   = File.join(Config.cache_root, subdir)
+        root   = File.join(Piggly::Config.cache_root, subdir)
 
         # md5 the full path to prevent collisions
         full = File.expand_path(file)
         base = File.basename(full)
         hash = Digest::MD5.hexdigest(File.dirname(full))
 
-        Config.mkpath(File.join(Config.cache_root, hash, subdir), base)
+        Piggly::Config.mkpath(File.join(Config.cache_root, hash, subdir), base)
       end
 
     end

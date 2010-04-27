@@ -4,7 +4,7 @@ module Piggly
   # Collection of all Tags
   #
   class Profile
-    PATTERN = /WARNING:  #{Config.trace_prefix} (#{Piggly::Tags::AbstractTag::PATTERN})(?: (.))?/
+    PATTERN = /WARNING:  #{Piggly::Config.trace_prefix} (#{Piggly::Tags::AbstractTag::PATTERN})(?: (.))?/
 
     class << self
 
@@ -36,7 +36,7 @@ module Piggly
         @by_file ||= Hash.new
       end
 
-      # Each tag grouped by FileCache
+      # Each tag grouped by Compiler::Cache::DirectoryCache
       def by_cache
         @by_cache ||= Hash.new
       end

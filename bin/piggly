@@ -86,7 +86,9 @@ module Piggly
         begin
           opts.parse! ARGV
           raise OptionParser::MissingArgument, "no tests specified" if ARGV.empty?
-        rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument
+        rescue OptionParser::InvalidOption,
+               OptionParser::InvalidArgument,
+               OptionParser::MissingArgument
           puts opts
           puts
           puts $!.message
