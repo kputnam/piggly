@@ -19,6 +19,26 @@ module Piggly
         connection.exec File.read(file)
       end
 
+      # TODO: not implemented
+      def trace(procedure)
+        tree = Parser.parse(File.read(procedure_path))
+
+        # recompile with instrumentation
+        result = Piggly::Compiler::Trace.compile(tree)
+          # tree - tagged and rewritten parse tree
+          # tags - collection of Piggly::Tag values in the tree
+          # code - instrumented
+
+        connection.exec(procedure.define(result[:code]))
+        
+        Piggly::Profile.add(procedure, result[:tags])
+      end
+
+      # TODO: not implemented
+      def untrace(procedure)
+        connection.exec(procedure.define)
+      end
+
       # Installs necessary instrumentation support
       def install_trace_support
         # record trace messages
