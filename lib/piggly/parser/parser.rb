@@ -8,182 +8,17 @@ module Piggly
     @root ||= :start
   end
 
+  module Start0
+    def block
+      elements[1]
+    end
+
+  end
+
   def _nt_start
     start_index = index
     if node_cache[:start].has_key?(index)
       cached = node_cache[:start][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    s0, i0 = [], index
-    loop do
-      r1 = _nt_procedure
-      if r1
-        s0 << r1
-      else
-        break
-      end
-    end
-    if s0.empty?
-      @index = i0
-      r0 = nil
-    else
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
-    end
-
-    node_cache[:start][start_index] = r0
-
-    r0
-  end
-
-  module Procedure0
-    def procedureHeader
-      elements[0]
-    end
-
-    def name
-      elements[1]
-    end
-
-    def parameters
-      elements[3]
-    end
-
-    def tSpace1
-      elements[4]
-    end
-
-    def procedureReturn
-      elements[5]
-    end
-
-    def return
-      elements[6]
-    end
-
-    def tSpace2
-      elements[7]
-    end
-
-    def kwAS
-      elements[8]
-    end
-
-    def tSpace3
-      elements[9]
-    end
-
-    def procedureBody
-      elements[10]
-    end
-
-    def procedureFooter
-      elements[11]
-    end
-  end
-
-  def _nt_procedure
-    start_index = index
-    if node_cache[:procedure].has_key?(index)
-      cached = node_cache[:procedure][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    i0, s0 = index, []
-    r1 = _nt_procedureHeader
-    s0 << r1
-    if r1
-      r2 = _nt_tIdentifier
-      s0 << r2
-      if r2
-        r4 = _nt_tSpace
-        if r4
-          r3 = r4
-        else
-          r3 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s0 << r3
-        if r3
-          r5 = _nt_parameterList
-          s0 << r5
-          if r5
-            r6 = _nt_tSpace
-            s0 << r6
-            if r6
-              r7 = _nt_procedureReturn
-              s0 << r7
-              if r7
-                r8 = _nt_tType
-                s0 << r8
-                if r8
-                  r9 = _nt_tSpace
-                  s0 << r9
-                  if r9
-                    r10 = _nt_kwAS
-                    s0 << r10
-                    if r10
-                      r11 = _nt_tSpace
-                      s0 << r11
-                      if r11
-                        r12 = _nt_procedureBody
-                        s0 << r12
-                        if r12
-                          r13 = _nt_procedureFooter
-                          s0 << r13
-                        end
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-    if s0.last
-      r0 = instantiate_node(Piggly::Parser::Nodes::Procedure,input, i0...index, s0)
-      r0.extend(Procedure0)
-    else
-      @index = i0
-      r0 = nil
-    end
-
-    node_cache[:procedure][start_index] = r0
-
-    r0
-  end
-
-  module ProcedureHeader0
-    def tSpace1
-      elements[2]
-    end
-
-    def tSpace2
-      elements[4]
-    end
-
-    def tSpace3
-      elements[6]
-    end
-
-    def tSpace4
-      elements[8]
-    end
-  end
-
-  def _nt_procedureHeader
-    start_index = index
-    if node_cache[:procedureHeader].has_key?(index)
-      cached = node_cache[:procedureHeader][index]
       if cached
         cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
@@ -200,715 +35,42 @@ module Piggly
     end
     s0 << r1
     if r1
-      if has_terminal?('create', false, index)
-        r3 = instantiate_node(SyntaxNode,input, index...(index + 6))
-        @index += 6
-      else
-        terminal_parse_failure('create')
-        r3 = nil
-      end
+      r3 = _nt_block
       s0 << r3
       if r3
-        r4 = _nt_tSpace
-        s0 << r4
-        if r4
-          if has_terminal?('or', false, index)
-            r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-            @index += 2
-          else
-            terminal_parse_failure('or')
-            r5 = nil
-          end
-          s0 << r5
-          if r5
-            r6 = _nt_tSpace
-            s0 << r6
-            if r6
-              if has_terminal?('replace', false, index)
-                r7 = instantiate_node(SyntaxNode,input, index...(index + 7))
-                @index += 7
-              else
-                terminal_parse_failure('replace')
-                r7 = nil
-              end
-              s0 << r7
-              if r7
-                r8 = _nt_tSpace
-                s0 << r8
-                if r8
-                  if has_terminal?('function', false, index)
-                    r9 = instantiate_node(SyntaxNode,input, index...(index + 8))
-                    @index += 8
-                  else
-                    terminal_parse_failure('function')
-                    r9 = nil
-                  end
-                  s0 << r9
-                  if r9
-                    r10 = _nt_tSpace
-                    s0 << r10
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-    if s0.last
-      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
-      r0.extend(ProcedureHeader0)
-    else
-      @index = i0
-      r0 = nil
-    end
-
-    node_cache[:procedureHeader][start_index] = r0
-
-    r0
-  end
-
-  module ProcedureReturn0
-    def tSpace
-      elements[1]
-    end
-  end
-
-  module ProcedureReturn1
-    def tSpace
-      elements[1]
-    end
-
-  end
-
-  def _nt_procedureReturn
-    start_index = index
-    if node_cache[:procedureReturn].has_key?(index)
-      cached = node_cache[:procedureReturn][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    i0, s0 = index, []
-    if has_terminal?('returns', false, index)
-      r1 = instantiate_node(SyntaxNode,input, index...(index + 7))
-      @index += 7
-    else
-      terminal_parse_failure('returns')
-      r1 = nil
-    end
-    s0 << r1
-    if r1
-      r2 = _nt_tSpace
-      s0 << r2
-      if r2
-        i4, s4 = index, []
-        if has_terminal?('setof', false, index)
-          r5 = instantiate_node(SyntaxNode,input, index...(index + 5))
-          @index += 5
+        if has_terminal?(';', false, index)
+          r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
+          @index += 1
         else
-          terminal_parse_failure('setof')
+          terminal_parse_failure(';')
           r5 = nil
         end
-        s4 << r5
-        if r5
-          r6 = _nt_tSpace
-          s4 << r6
-        end
-        if s4.last
-          r4 = instantiate_node(SyntaxNode,input, i4...index, s4)
-          r4.extend(ProcedureReturn0)
-        else
-          @index = i4
-          r4 = nil
-        end
-        if r4
-          r3 = r4
-        else
-          r3 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s0 << r3
-      end
-    end
-    if s0.last
-      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
-      r0.extend(ProcedureReturn1)
-    else
-      @index = i0
-      r0 = nil
-    end
-
-    node_cache[:procedureReturn][start_index] = r0
-
-    r0
-  end
-
-  module ProcedureBody0
-    def dollarQuoteMarker1
-      elements[0]
-    end
-
-    def body
-      elements[2]
-    end
-
-    def dollarQuoteMarker2
-      elements[5]
-    end
-  end
-
-  module ProcedureBody1
-    def body
-      elements[2]
-    end
-
-  end
-
-  def _nt_procedureBody
-    start_index = index
-    if node_cache[:procedureBody].has_key?(index)
-      cached = node_cache[:procedureBody][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    i0 = index
-    i1, s1 = index, []
-    r2 = _nt_dollarQuoteMarker
-    s1 << r2
-    if r2
-      r4 = _nt_tSpace
-      if r4
-        r3 = r4
-      else
-        r3 = instantiate_node(SyntaxNode,input, index...index)
-      end
-      s1 << r3
-      if r3
-        r5 = _nt_block
-        s1 << r5
-        if r5
-          if has_terminal?(';', false, index)
-            r7 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
-          else
-            terminal_parse_failure(';')
-            r7 = nil
-          end
-          if r7
-            r6 = r7
-          else
-            r6 = instantiate_node(SyntaxNode,input, index...index)
-          end
-          s1 << r6
-          if r6
-            r9 = _nt_tSpace
-            if r9
-              r8 = r9
-            else
-              r8 = instantiate_node(SyntaxNode,input, index...index)
-            end
-            s1 << r8
-            if r8
-              r10 = _nt_dollarQuoteMarker
-              s1 << r10
-            end
-          end
-        end
-      end
-    end
-    if s1.last
-      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
-      r1.extend(ProcedureBody0)
-    else
-      @index = i1
-      r1 = nil
-    end
-    if r1
-      r0 = r1
-    else
-      i11, s11 = index, []
-      if has_terminal?("'", false, index)
-        r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
-      else
-        terminal_parse_failure("'")
-        r12 = nil
-      end
-      s11 << r12
-      if r12
-        r14 = _nt_tSpace
-        if r14
-          r13 = r14
-        else
-          r13 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s11 << r13
-        if r13
-          r15 = _nt_block
-          s11 << r15
-          if r15
-            if has_terminal?(';', false, index)
-              r17 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
-            else
-              terminal_parse_failure(';')
-              r17 = nil
-            end
-            if r17
-              r16 = r17
-            else
-              r16 = instantiate_node(SyntaxNode,input, index...index)
-            end
-            s11 << r16
-            if r16
-              r19 = _nt_tSpace
-              if r19
-                r18 = r19
-              else
-                r18 = instantiate_node(SyntaxNode,input, index...index)
-              end
-              s11 << r18
-              if r18
-                if has_terminal?("'", false, index)
-                  r20 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
-                else
-                  terminal_parse_failure("'")
-                  r20 = nil
-                end
-                s11 << r20
-              end
-            end
-          end
-        end
-      end
-      if s11.last
-        r11 = instantiate_node(SyntaxNode,input, i11...index, s11)
-        r11.extend(ProcedureBody1)
-      else
-        @index = i11
-        r11 = nil
-      end
-      if r11
-        r0 = r11
-      else
-        @index = i0
-        r0 = nil
-      end
-    end
-
-    node_cache[:procedureBody][start_index] = r0
-
-    r0
-  end
-
-  module ProcedureFooter0
-    def expressionUntilSemiColon
-      elements[0]
-    end
-
-  end
-
-  def _nt_procedureFooter
-    start_index = index
-    if node_cache[:procedureFooter].has_key?(index)
-      cached = node_cache[:procedureFooter][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    i0, s0 = index, []
-    r1 = _nt_expressionUntilSemiColon
-    s0 << r1
-    if r1
-      if has_terminal?(';', false, index)
-        r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
-      else
-        terminal_parse_failure(';')
-        r2 = nil
-      end
-      s0 << r2
-      if r2
-        r4 = _nt_tSpace
-        if r4
-          r3 = r4
-        else
-          r3 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s0 << r3
-      end
-    end
-    if s0.last
-      r0 = instantiate_node(Piggly::Parser::Nodes::TextNode,input, i0...index, s0)
-      r0.extend(ProcedureFooter0)
-    else
-      @index = i0
-      r0 = nil
-    end
-
-    node_cache[:procedureFooter][start_index] = r0
-
-    r0
-  end
-
-  module ParameterList0
-    def name
-      elements[1]
-    end
-
-    def tSpace
-      elements[2]
-    end
-
-    def type
-      elements[3]
-    end
-
-  end
-
-  module ParameterList1
-    def name
-      elements[1]
-    end
-
-    def tSpace
-      elements[2]
-    end
-
-    def type
-      elements[3]
-    end
-  end
-
-  module ParameterList2
-  end
-
-  def _nt_parameterList
-    start_index = index
-    if node_cache[:parameterList].has_key?(index)
-      cached = node_cache[:parameterList][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    i0, s0 = index, []
-    if has_terminal?('(', false, index)
-      r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
-      @index += 1
-    else
-      terminal_parse_failure('(')
-      r1 = nil
-    end
-    s0 << r1
-    if r1
-      s2, i2 = [], index
-      loop do
-        i3, s3 = index, []
-        r5 = _nt_tSpace
         if r5
           r4 = r5
         else
           r4 = instantiate_node(SyntaxNode,input, index...index)
         end
-        s3 << r4
+        s0 << r4
         if r4
-          r6 = _nt_tIdentifier
-          s3 << r6
-          if r6
-            r7 = _nt_tSpace
-            s3 << r7
-            if r7
-              r8 = _nt_tType
-              s3 << r8
-              if r8
-                r10 = _nt_tSpace
-                if r10
-                  r9 = r10
-                else
-                  r9 = instantiate_node(SyntaxNode,input, index...index)
-                end
-                s3 << r9
-                if r9
-                  if has_terminal?(',', false, index)
-                    r11 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                    @index += 1
-                  else
-                    terminal_parse_failure(',')
-                    r11 = nil
-                  end
-                  s3 << r11
-                end
-              end
-            end
-          end
-        end
-        if s3.last
-          r3 = instantiate_node(SyntaxNode,input, i3...index, s3)
-          r3.extend(ParameterList0)
-        else
-          @index = i3
-          r3 = nil
-        end
-        if r3
-          s2 << r3
-        else
-          break
-        end
-      end
-      r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-      s0 << r2
-      if r2
-        i13, s13 = index, []
-        r15 = _nt_tSpace
-        if r15
-          r14 = r15
-        else
-          r14 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s13 << r14
-        if r14
-          r16 = _nt_tIdentifier
-          s13 << r16
-          if r16
-            r17 = _nt_tSpace
-            s13 << r17
-            if r17
-              r18 = _nt_tType
-              s13 << r18
-            end
-          end
-        end
-        if s13.last
-          r13 = instantiate_node(SyntaxNode,input, i13...index, s13)
-          r13.extend(ParameterList1)
-        else
-          @index = i13
-          r13 = nil
-        end
-        if r13
-          r12 = r13
-        else
-          r12 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s0 << r12
-        if r12
-          r20 = _nt_tSpace
-          if r20
-            r19 = r20
+          r7 = _nt_tSpace
+          if r7
+            r6 = r7
           else
-            r19 = instantiate_node(SyntaxNode,input, index...index)
+            r6 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s0 << r19
-          if r19
-            if has_terminal?(')', false, index)
-              r21 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
-            else
-              terminal_parse_failure(')')
-              r21 = nil
-            end
-            s0 << r21
-          end
+          s0 << r6
         end
       end
     end
     if s0.last
       r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
-      r0.extend(ParameterList2)
+      r0.extend(Start0)
     else
       @index = i0
       r0 = nil
     end
 
-    node_cache[:parameterList][start_index] = r0
-
-    r0
-  end
-
-  module Statement0
-    def block
-      elements[0]
-    end
-
-  end
-
-  module Statement1
-    def inner
-      elements[0]
-    end
-
-    def tail
-      elements[1]
-    end
-  end
-
-  def _nt_statement
-    start_index = index
-    if node_cache[:statement].has_key?(index)
-      cached = node_cache[:statement][index]
-      if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-        @index = cached.interval.end
-      end
-      return cached
-    end
-
-    i0, s0 = index, []
-    i1 = index
-    i2, s2 = index, []
-    r3 = _nt_block
-    s2 << r3
-    if r3
-      if has_terminal?(';', false, index)
-        r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
-      else
-        terminal_parse_failure(';')
-        r4 = nil
-      end
-      s2 << r4
-    end
-    if s2.last
-      r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-      r2.extend(Statement0)
-    else
-      @index = i2
-      r2 = nil
-    end
-    if r2
-      r1 = r2
-    else
-      r5 = _nt_stmtAssignment
-      if r5
-        r1 = r5
-      else
-        r6 = _nt_stmtIf
-        if r6
-          r1 = r6
-        else
-          r7 = _nt_stmtCase
-          if r7
-            r1 = r7
-          else
-            r8 = _nt_stmtLoop
-            if r8
-              r1 = r8
-            else
-              r9 = _nt_stmtWhileLoop
-              if r9
-                r1 = r9
-              else
-                r10 = _nt_stmtForLoop
-                if r10
-                  r1 = r10
-                else
-                  r11 = _nt_stmtExit
-                  if r11
-                    r1 = r11
-                  else
-                    r12 = _nt_stmtContinue
-                    if r12
-                      r1 = r12
-                    else
-                      r13 = _nt_stmtReturn
-                      if r13
-                        r1 = r13
-                      else
-                        r14 = _nt_stmtRaise
-                        if r14
-                          r1 = r14
-                        else
-                          r15 = _nt_stmtExecSql
-                          if r15
-                            r1 = r15
-                          else
-                            r16 = _nt_stmtNull
-                            if r16
-                              r1 = r16
-                            else
-                              r17 = _nt_stmtPerform
-                              if r17
-                                r1 = r17
-                              else
-                                r18 = _nt_stmtDynamicExecute
-                                if r18
-                                  r1 = r18
-                                else
-                                  r19 = _nt_stmtGetDiag
-                                  if r19
-                                    r1 = r19
-                                  else
-                                    r20 = _nt_stmtOpen
-                                    if r20
-                                      r1 = r20
-                                    else
-                                      r21 = _nt_stmtFetch
-                                      if r21
-                                        r1 = r21
-                                      else
-                                        r22 = _nt_stmtMove
-                                        if r22
-                                          r1 = r22
-                                        else
-                                          r23 = _nt_stmtClose
-                                          if r23
-                                            r1 = r23
-                                          else
-                                            @index = i1
-                                            r1 = nil
-                                          end
-                                        end
-                                      end
-                                    end
-                                  end
-                                end
-                              end
-                            end
-                          end
-                        end
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-    s0 << r1
-    if r1
-      r25 = _nt_tSpace
-      if r25
-        r24 = r25
-      else
-        r24 = instantiate_node(SyntaxNode,input, index...index)
-      end
-      s0 << r24
-    end
-    if s0.last
-      r0 = instantiate_node(Piggly::Parser::Nodes::Statement,input, i0...index, s0)
-      r0.extend(Statement1)
-    else
-      @index = i0
-      r0 = nil
-    end
-
-    node_cache[:statement][start_index] = r0
+    node_cache[:start][start_index] = r0
 
     r0
   end
@@ -1171,6 +333,180 @@ module Piggly
     end
 
     node_cache[:block][start_index] = r0
+
+    r0
+  end
+
+  module Statement0
+    def block
+      elements[0]
+    end
+
+  end
+
+  module Statement1
+    def inner
+      elements[0]
+    end
+
+    def tail
+      elements[1]
+    end
+  end
+
+  def _nt_statement
+    start_index = index
+    if node_cache[:statement].has_key?(index)
+      cached = node_cache[:statement][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    i1 = index
+    i2, s2 = index, []
+    r3 = _nt_block
+    s2 << r3
+    if r3
+      if has_terminal?(';', false, index)
+        r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+        @index += 1
+      else
+        terminal_parse_failure(';')
+        r4 = nil
+      end
+      s2 << r4
+    end
+    if s2.last
+      r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+      r2.extend(Statement0)
+    else
+      @index = i2
+      r2 = nil
+    end
+    if r2
+      r1 = r2
+    else
+      r5 = _nt_stmtAssignment
+      if r5
+        r1 = r5
+      else
+        r6 = _nt_stmtIf
+        if r6
+          r1 = r6
+        else
+          r7 = _nt_stmtCase
+          if r7
+            r1 = r7
+          else
+            r8 = _nt_stmtLoop
+            if r8
+              r1 = r8
+            else
+              r9 = _nt_stmtWhileLoop
+              if r9
+                r1 = r9
+              else
+                r10 = _nt_stmtForLoop
+                if r10
+                  r1 = r10
+                else
+                  r11 = _nt_stmtExit
+                  if r11
+                    r1 = r11
+                  else
+                    r12 = _nt_stmtContinue
+                    if r12
+                      r1 = r12
+                    else
+                      r13 = _nt_stmtReturn
+                      if r13
+                        r1 = r13
+                      else
+                        r14 = _nt_stmtRaise
+                        if r14
+                          r1 = r14
+                        else
+                          r15 = _nt_stmtExecSql
+                          if r15
+                            r1 = r15
+                          else
+                            r16 = _nt_stmtNull
+                            if r16
+                              r1 = r16
+                            else
+                              r17 = _nt_stmtPerform
+                              if r17
+                                r1 = r17
+                              else
+                                r18 = _nt_stmtDynamicExecute
+                                if r18
+                                  r1 = r18
+                                else
+                                  r19 = _nt_stmtGetDiag
+                                  if r19
+                                    r1 = r19
+                                  else
+                                    r20 = _nt_stmtOpen
+                                    if r20
+                                      r1 = r20
+                                    else
+                                      r21 = _nt_stmtFetch
+                                      if r21
+                                        r1 = r21
+                                      else
+                                        r22 = _nt_stmtMove
+                                        if r22
+                                          r1 = r22
+                                        else
+                                          r23 = _nt_stmtClose
+                                          if r23
+                                            r1 = r23
+                                          else
+                                            @index = i1
+                                            r1 = nil
+                                          end
+                                        end
+                                      end
+                                    end
+                                  end
+                                end
+                              end
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    s0 << r1
+    if r1
+      r25 = _nt_tSpace
+      if r25
+        r24 = r25
+      else
+        r24 = instantiate_node(SyntaxNode,input, index...index)
+      end
+      s0 << r24
+    end
+    if s0.last
+      r0 = instantiate_node(Piggly::Parser::Nodes::Statement,input, i0...index, s0)
+      r0.extend(Statement1)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:statement][start_index] = r0
 
     r0
   end

@@ -1,2 +1,2 @@
 #!/bin/sh
-../bin/piggly -s 'proc/*.sql' 'spec/**/*_spec.rb'
+../bin/piggly 'spec/**/*_spec.rb'

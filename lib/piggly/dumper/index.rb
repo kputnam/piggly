@@ -8,10 +8,16 @@ module Piggly
     # code is stored in a separate file for each procedure.
     #
     class Index
-      attr_reader :path
 
-      def initialize(path)
-        @path  = path
+      def self.path
+        @path ||= Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), 'index.yml')
+      end
+
+      def self.instance
+        @instance ||= new
+      end
+
+      def initialize
         @index = load
       end
 
@@ -61,8 +67,8 @@ module Piggly
     private
 
       def load
-        if File.exists?(@path)
-          YAML.load(File.read(@path)).each do |p|
+        if File.exists?(self.class.path)
+          YAML.load(File.read(self.class.path)).each do |p|
             # read each procedure's source code
             p.source = File.read(p.source_path)
           end.index_by(&:oid)
@@ -73,7 +79,7 @@ module Piggly
 
       def store
         # remove each procedure's source code before writing the index
-        File.open(@path, 'wb'){|io| YAML.dump(procedures.map{|o| o.dup.tap{|c| c.source = nil }}, io) }
+        File.open(self.class.path, 'wb'){|io| YAML.dump(procedures.map{|o| o.dup.tap{|c| c.source = nil }}, io) }
       end
 
     end

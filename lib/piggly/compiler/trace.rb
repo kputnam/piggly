@@ -5,42 +5,28 @@ module Piggly
     # Walks the parse tree, attaching Tag values and rewriting source code to ping them.
     #
     class Trace
-      include Cacheable
-      include Compiler::Cache
+      include Compiler::Cacheable
 
-      attr_accessor :nodes
-
-      class << self
-        def compile(tree, args)
-          new(args.fetch(:path)).send(:compile, tree)
-        end
-
-        def compiler_path
-          __FILE__
-        end
-      end
-
-      def initialize(path)
-        # create unique prefix for each file, prepended to each node's tag
-        @prefix = File.expand_path(path)
-        @tags   = []
-      end
-
-      #
       # Destructively modifies +tree+ (by attaching tags) and returns the tree
-      # along with the modified source code, and the list of tags. The tag list
-      # is passed along to Profile to compute coverage information. The tree is
-      # passed to Compiler::Report
-      #
-      def compile(tree)
-        puts "Compiling #{@prefix}"
-        return 'code.sql' => traverse(tree),
-               'tree'     => tree,
-               'tags'     => @tags,
-               'prefix'   => @prefix
+      # along with the modified source code, and the list of tags. The source
+      # code is sent to the database. The tag list is used by Profile to compute
+      # coverage information. The tree is used in Compiler::Report
+      def self.compile(tree, oid)
+        new.send(:compile, tree, oid)
       end
 
-      def traverse(node)
+    protected
+
+      def compile(tree, oid) # :nodoc:
+        @tags = []
+        @oid  = oid
+
+        return :code => traverse(tree),
+               :tree => tree,
+               :tags => @tags
+      end
+
+      def traverse(node) # :nodoc:
         if node.terminal? or node.expression?
           node.source_text
         else
@@ -50,7 +36,7 @@ module Piggly
             pre, cond = node.cond.expr.text_value.match(/\A(\(?[\t\n\r ]*)(.+)\z/m).captures
             node.cond.source_text = ""
             
-            @tags << node.cond.tag(@prefix)
+            @tags << node.cond.tag(@oid)
 
             node.condStub.source_text  = "#{pre}piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, #{cond})"
             node.condStub.source_text << traverse(node.cond.tail) # preserve trailing whitespace
@@ -58,8 +44,8 @@ module Piggly
 
           if node.respond_to?(:bodyStub)
             if node.respond_to?(:exitStub) and node.respond_to?(:cond)
-              @tags << node.body.tag(@prefix)
-              @tags << node.cond.tag(@prefix)
+              @tags << node.body.tag(@oid)
+              @tags << node.cond.tag(@oid)
 
               # a hack to simulate a loop conditional statement in ForLoop. signal condition was true
               # when body is executed. when exit stub is reached, signal condition was false
@@ -81,7 +67,7 @@ module Piggly
               #   ... ELSE ... END;
               #   CONTINUE label;
               #   EXIT label;
-              @tags << node.body.tag(@prefix)
+              @tags << node.body.tag(@oid)
               node.bodyStub.source_text = "perform piggly_branch($PIGGLY$#{node.body.tag_id}$PIGGLY$);#{node.indent(:bodySpace)}"
             end
           end

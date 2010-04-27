@@ -2,41 +2,20 @@ module Piggly
   class Installer
     class << self
 
-      # Compiles the procedures in +file+ with instrumentation and installs them
-      def trace_proc(file)
-        # recompile with instrumentation if needed
-        cache = Piggly::Compiler::Trace.cache(file)
-
-        # install instrumented code
-        connection.exec cache['code.sql']
-
-        # map tag messages to tag objects
-        Piggly::Profile.add(file, cache['tags'], cache)
-      end
-
-      # Reinstalls the original stored procedures in +file+
-      def untrace_proc(file)
-        connection.exec File.read(file)
-      end
-
-      # TODO: not implemented
       def trace(procedure)
-        tree = Parser.parse(File.read(procedure_path))
-
         # recompile with instrumentation
-        result = Piggly::Compiler::Trace.compile(tree)
+        result = Piggly::Compiler::Trace.cache(procedure.source_path, procedure.oid)
           # tree - tagged and rewritten parse tree
           # tags - collection of Piggly::Tag values in the tree
           # code - instrumented
 
-        connection.exec(procedure.define(result[:code]))
+        connection.exec(procedure.definition(result[:code]))
         
-        Piggly::Profile.add(procedure, result[:tags])
+        Piggly::Profile.instance.add(procedure, result[:tags])
       end
 
-      # TODO: not implemented
       def untrace(procedure)
-        connection.exec(procedure.define)
+        connection.exec(procedure.definition)
       end
 
       # Installs necessary instrumentation support
@@ -105,6 +84,7 @@ module Piggly
         connection.exec "DROP FUNCTION IF EXISTS piggly_expr(varchar, varchar);"
         connection.exec "DROP FUNCTION IF EXISTS piggly_expr(varchar, anyelement);"
         connection.exec "DROP FUNCTION IF EXISTS piggly_branch(varchar);"
+        connection.exec "DROP FUNCTION IF EXISTS piggly_signal(varchar, varchar);"
       end
 
       # Returns the active PGConn

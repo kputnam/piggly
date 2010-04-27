@@ -4,6 +4,7 @@ module Piggly
 
       class << self
         # Returns a list of all PL/pgSQL stored procedures in the current database
+        # TODO: depends on array_agg which is available in PostgreSQL 8.4+
         def all
           connection.select_all(<<-SQL).map{|x| from_hash(x) }
             select
@@ -18,11 +19,20 @@ module Piggly
               pro.prosrc      as source,
               array_to_string(pro.proargmodes, ', ')  as arg_modes,
               array_to_string(pro.proargnames, ', ')  as arg_names,
-              oidvectortypes(pro.proargtypes)         as arg_types
+
+              coalesce(
+                -- use proalltypes array if its non-null
+                (select array_to_string(array_agg(format_type(proallargtypes[k], null)), ', ')
+                 from generate_series(array_lower(proallargtypes, 1),
+                                      array_upper(proallargtypes, 1)) as k),
+
+                -- fallback to oidvector proargtypes
+                oidvectortypes(pro.proargtypes))      as arg_types
             from pg_proc as pro,
                  pg_type as ret,
                  pg_namespace as ns
             where pro.pronamespace = ns.oid
+              and pro.proname not like 'piggly_%'
               and pro.prorettype = ret.oid
               and pro.prolang = (select oid from pg_language where lanname = 'plpgsql')
               and pro.pronamespace not in (select oid
@@ -42,7 +52,7 @@ module Piggly
               hash['setof'] == 't',
               hash['type'],
               hash['volatile'],
-              hash['arg_modes'] ? hash['arg_names'].split(', ') : [],
+              hash['arg_modes'] ? hash['arg_modes'].split(', ') : [],
               hash['arg_names'] ? hash['arg_names'].split(', ') : [],
               hash['arg_types'] ? hash['arg_types'].split(', ') : [],
               hash['source'])
@@ -61,17 +71,16 @@ module Piggly
 
       def initialize(oid, namespace, name, strict, secdef, setof, type, volatile, arg_modes, arg_names, arg_types, source)
         @oid, @namespace, @name, @strict, @secdef, @type, @volatile, @setof, @arg_modes, @arg_names, @arg_types, @source =
-          oid, namespace, name, strict, secdef, type, volatile, setof, arg_modes, arg_names, arg_types, source
+          oid, namespace, name, strict, secdef, type, volatile, setof, arg_modes, arg_names, arg_types, source.strip
       end
 
       # Returns source text for argument list
       def arguments
-        # TODO: modes:
-        #   i - IN
-        #   o - OUT
-        #   b - INOUT
-        #   v - VARIADIC
-        arg_names.zip(arg_types).map{|x| x.join(' ') }.join(', ')
+        modes = { 'i' => 'in', 'o' => 'out', 'b' => 'inout' }
+
+        arg_names.zip(arg_types, arg_modes).map do |name, type, mode|
+          "#{modes.include?(mode) ? modes[mode] + ' ' : ''}#{name} #{type}"
+        end.join(', ')
       end
 
       # Returns source text for volatility
@@ -100,14 +109,14 @@ module Piggly
 
       # Returns source SQL function definition statement
       def definition(source = @source)
-        [%[create or replace "#{namespace}"."#{name}" (#{arguments})],
+        [%[create or replace function "#{namespace}"."#{name}" (#{arguments})],
          %[ #{strictness} #{security} returns #{type} as $PIGGLY_BODY$],
          source,
          %[$PIGGLY_BODY$ language plpgsql #{volatility}]].join("\n")
       end
 
-      def inspect
-        "#{type} #{namespace}.#{name} (#{arguments})"
+      def signature
+        "#{type} #{namespace}.#{name}(#{arguments})"
       end
 
       def source_path
@@ -115,11 +124,17 @@ module Piggly
       end
 
       def purge_source
+        puts "Purging source for #{name}"
         File.unlink(source_path)
       end
 
       def store_source
+        puts "Storing source for #{name}"
         File.open(source_path, 'wb'){|io| io.write source }
+      end
+
+      def ==(other)
+        definition == other.definition
       end
 
     end

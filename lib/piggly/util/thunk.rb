@@ -1,17 +1,32 @@
 module Piggly
   module Util
+
+    #
+    # Wraps a computation and delays its evaluation until
+    # a message is sent to it. Computation can be forced by
+    # calling force!
+    #
     class Thunk < BlankSlate
       def initialize(&block)
         @block  = block
         @called = false
       end
 
-      def method_missing(name, *args, &block)
-        unless @called
+      def force!
+        unless @block.nil?
           @value = @block.call
+          @block = nil
         end
 
-        @value.send(name, *args, &block)
+        @value
+      end
+
+      def thunk?
+        true
+      end
+
+      def method_missing(name, *args, &block)
+        force!.send(name, *args, &block)
       end
     end
   end

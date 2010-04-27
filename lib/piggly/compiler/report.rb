@@ -1,5 +1,3 @@
-require File.join(File.dirname(__FILE__), *%w(.. reporter))
-
 module Piggly
   module Compiler
 
@@ -7,31 +5,29 @@ module Piggly
     # Produces HTML output to report coverage of tagged nodes in the tree
     #
     class Report
-      include Piggly::Reporter::HtmlDSL
+      include Piggly::Reporter::Html::DSL
 
-      def self.compile(path, profile)
-        new(profile).send(:compile, path)
+      def self.compile(procedure, profile)
+        new(profile).send(:compile, procedure)
       end
 
-      def initialize(profile)
+      def initialize(profile) # :nodoc:
         @profile = profile
       end
 
-    private
+    protected
 
-      def compile(path)
-        lines = File.read(path).count("\n") + 1
+      def compile(procedure) # :nodoc:
+        # get (copies of) the tagged nodes from the compiled tree
+        data = Piggly::Compiler::Trace.cache(procedure.source_path, procedure.oid)
+        html = traverse(data[:tree])
 
-        # recompile (should be cache hit) to identify tagged nodes
-        data = Compiler::Trace.cache(path)
-        html = traverse(data['tree'])
-
-        return 'html'  => html,
-               'lines' => 1..lines,
-               'tags'  => data['tags']
+        return :html  => html,
+               :lines => 1 .. procedure.definition.count("\n") + 1,
+               :tags  => data[:tags]
       end
 
-      def traverse(node, string='')
+      def traverse(node, string='') # :nodoc:
         if node.terminal?
           # terminals (leaves) are never tagged
           if node.style
@@ -45,7 +41,7 @@ module Piggly
             if child.tagged?
 
               # retreive the profiled tag
-              tag = @profile.by_id[child.tag_id]
+              tag = @profile[child.tag_id]
 
               if tag.complete?
                 string << '<span class="' << tag.style << '" id="T' << tag.id << '">'
@@ -65,6 +61,5 @@ module Piggly
       end
 
     end
-
   end
 end

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Piggly
 
-describe Compiler::Cache do
+describe Compiler::Cacheable do
 
 end
 
