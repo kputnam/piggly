@@ -21,9 +21,3 @@ to extend piggly to recognize pragmas like `-- piggly: no coverage`, so certain
 nodes wouldn't be tagged. However, it may ambiguous which node was intended to
 be annotated in a nest of nodes... and should the pragma apply to the node's
 descendants?
-
-## Read procedures directly from current database
-
-The `pg_proc` table could be used to read the source of procedures already
-loaded in the database. This would eliminate the need to parse the SQL procedure
-declaration, which is a bit tricky.
