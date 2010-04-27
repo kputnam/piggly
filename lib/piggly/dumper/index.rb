@@ -18,13 +18,15 @@ module Piggly
       # Updates the index with the given list of Procedure values
       def update(procedures)
         # purge each procedure's related files from the file system
-        outdated(procedures).each(&:purge)
+        outdated(procedures).each(&:purge_source)
 
         # write each updated procedure's source code
-        updated(procedures).each(&:store)
-        created(procedures).each(&:store)
+        updated(procedures).each(&:store_source)
+        created(procedures).each(&:store_source)
 
         @index = procedures.index_by(&:oid)
+
+        store
       end
 
       # Returns a list of Procedure values from the index
@@ -32,6 +34,7 @@ module Piggly
         @index.values
       end
 
+      # Returns the Procedure with the given oid
       def [](oid)
         @index[oid].dup
       end
@@ -70,7 +73,7 @@ module Piggly
 
       def store
         # remove each procedure's source code before writing the index
-        File.open(@path, 'wb') {|io| YAML.dump(procedures.dup.map{|p| p.source = nil }, io) }
+        File.open(@path, 'wb'){|io| YAML.dump(procedures.map{|o| o.dup.tap{|c| c.source = nil }}, io) }
       end
 
     end

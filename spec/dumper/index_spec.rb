@@ -40,8 +40,8 @@ describe Dumper::Index do
 
     context "when the cache file has two entries" do
       before do
-        @first  = Dumper::Procedure.from_record('oid' => '1000', 'name' => 'iterate', 'source' => 'FIRST PROCEDURE SOURCE CODE')
-        @second = Dumper::Procedure.from_record('oid' => '2000', 'name' => 'login',   'source' => 'SECOND PROCEDURE SOURCE CODE')
+        @first  = Dumper::Procedure.from_hash('oid' => '1000', 'name' => 'iterate', 'source' => 'FIRST PROCEDURE SOURCE CODE')
+        @second = Dumper::Procedure.from_hash('oid' => '2000', 'name' => 'login',   'source' => 'SECOND PROCEDURE SOURCE CODE')
 
         File.stub(:read).with(@first.source_path).and_return(@first.source)
         File.stub(:read).with(@second.source_path).and_return(@second.source)
