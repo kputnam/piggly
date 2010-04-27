@@ -1,7 +1,6 @@
 module Piggly
   module Reporter
     class HtmlIndex < Reporter::Html
-      extend HtmlDSL
 
       class << self
         def output(sources)

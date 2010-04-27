@@ -23,7 +23,7 @@ module Piggly
     extend ClassMethods
 
     class AbstractReporter
-      include Reporter
+      include Piggly::Reporter
     end
   end
 end

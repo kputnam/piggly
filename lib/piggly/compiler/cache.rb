@@ -134,7 +134,7 @@ module Piggly
 
           if stale?(source)
             begin
-              tree = Parser.cache(source)
+              tree = Piggly::Parser.cache(source)
               data = compile(tree, args.update(:path => source), &block)
               
               # replaces old cached data with new data

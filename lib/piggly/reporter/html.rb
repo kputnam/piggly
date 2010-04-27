@@ -1,7 +1,7 @@
 module Piggly
   module Reporter
     class Html < Reporter::AbstractReporter
-      extend Reporter::HtmlDSL
+      extend Piggly::Reporter::HtmlDSL
 
       class << self
         def output(path, data, summary)

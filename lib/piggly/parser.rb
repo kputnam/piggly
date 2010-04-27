@@ -20,8 +20,8 @@ module Piggly
           # then restore original string after parsing
           input = string.downcase
           tree = p.parse(input)
-          tree or raise Failure, "#{p.failure_reason}"
-        rescue Failure
+          tree or raise Piggly::Parser::Failure, "#{p.failure_reason}"
+        rescue Piggly::Parser::Failure
           $!.backtrace.clear
           raise
         ensure
