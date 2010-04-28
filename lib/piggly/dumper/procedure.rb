@@ -15,7 +15,7 @@ module Piggly
               pro.prosecdef   as secdef,
               pro.provolatile as volatile,
               pro.proretset   as setof,
-              ret.typname     as type,
+              ret.typname     as rettype,
               pro.prosrc      as source,
               array_to_string(pro.proargmodes, ', ')  as arg_modes,
               array_to_string(pro.proargnames, ', ')  as arg_names,
@@ -50,7 +50,7 @@ module Piggly
               hash['strict'] == 't',
               hash['secdef'] == 't',
               hash['setof'] == 't',
-              hash['type'],
+              hash['rettype'],
               hash['volatile'],
               hash['arg_modes'] ? hash['arg_modes'].split(', ') : [],
               hash['arg_names'] ? hash['arg_names'].split(', ') : [],
@@ -66,20 +66,20 @@ module Piggly
         end
       end
 
-      attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :type,
+      attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :rettype,
                     :volatile, :arg_modes, :arg_names, :arg_types, :source, :identified_using
 
-      def initialize(oid, namespace, name, strict, secdef, setof, type, volatile, arg_modes, arg_names, arg_types, source)
-        @oid, @namespace, @name, @strict, @secdef, @type, @volatile, @setof, @arg_modes, @arg_names, @arg_types, @source =
-          oid, namespace, name, strict, secdef, type, volatile, setof, arg_modes, arg_names, arg_types, source.strip
+      def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatile, arg_modes, arg_names, arg_types, source)
+        @oid, @namespace, @name, @strict, @secdef, @rettype, @volatile, @setof, @arg_modes, @arg_names, @arg_types, @source =
+          oid, namespace, name, strict, secdef, rettype, volatile, setof, arg_modes, arg_names, arg_types, source.strip
       end
 
       # Returns source text for argument list
       def arguments
         modes = { 'i' => 'in', 'o' => 'out', 'b' => 'inout' }
 
-        arg_names.zip(arg_types, arg_modes).map do |name, type, mode|
-          "#{modes.include?(mode) ? modes[mode] + ' ' : ''}#{name} #{type}"
+        arg_names.zip(arg_types, arg_modes).map do |aname, atype, amode|
+          "#{modes.include?(amode) ? modes[amode] + ' ' : ''}#{aname} #{atype}"
         end.join(', ')
       end
 
@@ -94,7 +94,7 @@ module Piggly
 
       # Returns source text for return type
       def type
-        "#{setof ? 'setof ' : ''}#{@type}"
+        "#{setof ? 'setof ' : ''}#{@rettype}"
       end
 
       # Returns source text for strictness
