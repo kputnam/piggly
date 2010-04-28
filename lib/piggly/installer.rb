@@ -4,7 +4,7 @@ module Piggly
 
       def trace(procedure)
         # recompile with instrumentation
-        result = Piggly::Compiler::Trace.cache(procedure.source_path, procedure.oid)
+        result = Piggly::Compiler::Trace.cache(procedure, procedure.oid)
           # tree - tagged and rewritten parse tree
           # tags - collection of Piggly::Tag values in the tree
           # code - instrumented

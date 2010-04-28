@@ -115,14 +115,13 @@ module Piggly
       end
 
       #
-      # Base class should define self.compiler_path and self.compile(tree, ...)
+      # Base class should define self.compile(tree, ...)
       #
       module ClassMethods
 
         # Each of these files' mtimes are used to determine when another file is stale
         def cache_sources
-          [#compiler_path,
-            Piggly::Parser.grammar_path,
+          [ Piggly::Parser.grammar_path,
             Piggly::Parser.parser_path,
             Piggly::Parser.nodes_path ]
         end
@@ -132,16 +131,16 @@ module Piggly
           File.stale?(cache_path(path), path, *cache_sources)
         end
 
-        def cache(source_path, *args, &block)
+        def cache(procedure, *args, &block)
           # load parser runtime
           Piggly::Parser.parser
 
-          cachedir = cache_path(source_path)
+          cachedir = cache_path(procedure.source_path)
 
-          if stale?(source_path)
-            puts "Compiling #{source_path}"
+          if stale?(procedure.source_path)
+            puts "Compiling #{procedure.name}"
 
-            tree = Piggly::Parser.parse(File.read(source_path))
+            tree = Piggly::Parser.parse(File.read(procedure.source_path))
             data = compile(tree.force!, *args, &block)
             
             CacheDirectory.lookup(cachedir).replace(data)

@@ -7,13 +7,13 @@ module Piggly
       extend Piggly::Reporter::Html::DSL
 
       class << self
-        def output(procedure, html, lines, tags)
+        def output(procedure, html, lines)
           File.open(report_path(procedure.source_path, '.html'), 'w') do |io|
             html(io) do
 
               tag :html, :xmlns => 'http://www.w3.org/1999/xhtml' do
                 tag :head do
-                  tag :title, "Code Coverage: #{File.basename(procedure.signature)}"
+                  tag :title, "Code Coverage: #{File.basename(procedure.name)}"
                   tag :link, :rel => 'stylesheet', :type => 'text/css', :href => 'piggly.css'
                 end
 
@@ -30,7 +30,7 @@ module Piggly
                     end
                   end
 
-                  toc(tags)
+                  toc(Piggly::Profile.instance[procedure])
                 end
               end
 
@@ -70,14 +70,17 @@ module Piggly
               tag :th, 'Branch Coverage'
             end
 
-            procedures.each_with_index do |procedure, index|
+            index = Piggly::Dumper::Index.instance
+
+            procedures.each_with_index do |procedure, k|
               summary = Piggly::Profile.instance.summary(procedure)
-              row     = index.modulo(2) == 0 ? 'even' : 'odd'
+              row     = k.modulo(2) == 0 ? 'even' : 'odd'
+              label   = index.label(procedure)
 
               tag :tr, :class => row do
                 unless summary.include?(:block) or summary.include?(:loop) or summary.include?(:branch)
                   # PigglyParser couldn't parse this file
-                  tag :td, procedure.signature, :class => 'file fail'
+                  tag :td, label, :class => 'file fail'
                   tag(:td, :class => 'count') { tag :span, -1, :style => 'display:none' }
                   tag(:td, :class => 'count') { tag :span, -1, :style => 'display:none' }
                   tag(:td, :class => 'count') { tag :span, -1, :style => 'display:none' }
@@ -85,7 +88,7 @@ module Piggly
                   tag(:td, :class => 'pct') { tag :span, -1, :style => 'display:none' }
                   tag(:td, :class => 'pct') { tag :span, -1, :style => 'display:none' }
                 else
-                  tag(:td, :class => 'file') { tag :a, procedure.signature, :href => procedure.oid + '.html' }
+                  tag(:td, :class => 'file') { tag :a, label, :href => procedure.identifier + '.html' }
                   tag :td, (summary[:block][:count]  || 0), :class => 'count'
                   tag :td, (summary[:loop][:count]   || 0), :class => 'count'
                   tag :td, (summary[:branch][:count] || 0), :class => 'count'
