@@ -20,13 +20,16 @@ module Piggly
           connect_to_database
 
           procedures = dump_procedures
-          trace(procedures)
 
-          clear_coverage
-          execute_tests
-          store_coverage
+          begin
+            trace(procedures)
+            clear_coverage
+            execute_tests
+            store_coverage
+          ensure
+            untrace(procedures)
+          end
 
-          untrace(procedures)
           create_index(procedures)
           create_reports(procedures)
           exit! 0 # avoid running tests again
