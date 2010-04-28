@@ -41,7 +41,7 @@ class NodeClass
   end
 
   def tagged?
-    not @tag_id.nil?
+    defined? @tag_id
   end
 
   # overridden in subclasses
@@ -94,12 +94,11 @@ module Piggly
   module Parser
     module Nodes
 
-      # CREATE OR REPLACE ...
-      class Procedure < NodeClass
-      end
-
       # ...;
       class Statement < NodeClass
+        def terminal?
+          false
+        end
       end
 
       class Expression < NodeClass
@@ -124,6 +123,10 @@ module Piggly
             end.tap{|tag| @tag_id = tag.id }
           end
         end
+
+        def terminal?
+          false
+        end
       end
 
       # DECLARE declaration BEGIN body END;
@@ -142,10 +145,16 @@ module Piggly
 
       # IF boolean-cond THEN body
       class If < Branch
+        def terminal?
+          false
+        end
       end
 
       # ELSE body END
       class Else < NodeClass
+        def terminal?
+          false
+        end
       end
 
       # EXCEPTION WHEN boolean-cond THEN body
@@ -254,6 +263,9 @@ module Piggly
       # This seems like it should be a Token, but it may contain TComment children
       # that should be highlighted differently than the enclosing whitespace
       class TWhitespace < NodeClass
+        def terminal?
+          false
+        end
       end
 
       class TKeyword < Token
