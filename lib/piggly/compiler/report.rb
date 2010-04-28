@@ -18,26 +18,27 @@ module Piggly
     protected
 
       def compile(procedure) # :nodoc:
-        # get (copies of) the tagged nodes from the compiled tree
-        data = Piggly::Compiler::Trace.cache(procedure.source_path, procedure.oid)
-        html = traverse(data[:tree])
+        unless Piggly::Compiler::Trace.stale?(procedure.source_path)
+          # get (copies of) the tagged nodes from the compiled tree
+          data = Piggly::Compiler::Trace.cache(procedure, procedure.oid)
+          html = traverse(data[:tree])
 
-        return :html  => html,
-               :lines => 1 .. procedure.definition.count("\n") + 1,
-               :tags  => data[:tags]
+          return :html  => html,
+                 :lines => 1 .. procedure.source.count("\n") + 1
+        end
       end
 
       def traverse(node, string='') # :nodoc:
         if node.terminal?
           # terminals (leaves) are never tagged
-          if node.style
-            string << '<span class="' << node.style << '">' << e(node.text_value) << '</span>'
+          if style = node.style
+            string << '<span class="' << style << '">' << e(node.text_value) << '</span>'
           else
             string << e(node.text_value)
           end
         else
           # non-terminals never write their text_value
-          node.elements.each do |child|
+          for child in node.elements
             if child.tagged?
 
               # retreive the profiled tag
@@ -55,9 +56,9 @@ module Piggly
               traverse(child, string)
             end
           end
-        end
 
-        string
+          string
+        end
       end
 
     end
