@@ -141,7 +141,7 @@ module Piggly
             puts "Compiling #{procedure.name}"
 
             tree = Piggly::Parser.parse(File.read(procedure.source_path))
-            data = compile(tree.force!, *args, &block)
+            data = compile(tree, *args, &block)
             
             CacheDirectory.lookup(cachedir).replace(data)
           else

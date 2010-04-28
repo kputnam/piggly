@@ -21,6 +21,10 @@ module Piggly
         @tags = []
         @oid  = oid
 
+        if tree.respond_to?(:thunk?) and tree.thunk?
+          tree = tree.force!
+        end
+
         return :code => traverse(tree),
                :tree => tree,
                :tags => @tags
