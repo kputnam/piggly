@@ -25,9 +25,12 @@ module Piggly
             trace(procedures)
             clear_coverage
             result = execute_tests
-          ensure
+          rescue Exception
             untrace(procedures)
+            raise
           end
+
+          untrace(procedures)
 
           create_index(procedures)
           create_reports(procedures)
@@ -123,7 +126,18 @@ module Piggly
       def trace(procedures)
         puts "Installing #{procedures.size} procedures"
 
+        # force parser to load before we start forking
+        Piggly::Parser.parser
+
         benchmark do
+          procedures.each do |p|
+            Piggly::Util::ProcessQueue.child do
+              result = Piggly::Compiler::Trace.cache(p, p.oid)
+            end
+          end
+
+          Piggly::Util::ProcessQueue.start
+
           procedures.each do |p|
             begin
               Piggly::Installer.trace(p)
@@ -131,6 +145,7 @@ module Piggly
               puts $!
             end
           end
+
           Piggly::Installer.install_trace_support
         end
       end
@@ -143,7 +158,7 @@ module Piggly
       end
 
       def execute_tests
-        if defined?  Test::Unit::AutoRunner
+        if defined? Test::Unit::AutoRunner
           Test::Unit::AutoRunner.run
         elsif defined? Spec::Runner
           Spec::Runner.run
@@ -175,23 +190,28 @@ module Piggly
 
       def create_reports(procedures)
         puts "Creating reports"
-        summary = Hash.new{|h,k| h[k] = Hash.new[:count => 0, :percent => 0]}
 
         benchmark do
-          for procedure in procedures
-            unless Piggly::Compiler::Trace.stale?(procedure.source_path)
-              path = Piggly::Reporter.report_path(procedure.source_path, '.html')
-              data = Piggly::Compiler::Trace.cache(procedure, procedure.oid)
-              live = Piggly::Profile.instance[procedure] rescue nil
+          procedures.each do |p|
+            unless Piggly::Compiler::Trace.stale?(p.source_path)
+              Piggly::Util::ProcessQueue.child do
 
-              # only compile the report if the source or the coverage profile changed
-              if File.stale?(path, procedure.source_path) or data[:tags] != live
-                puts "Reporting coverage for #{procedure.name}"
-                result = Piggly::Compiler::Report.compile(procedure, Piggly::Profile.instance)
-                Piggly::Reporter::Html.output(procedure, result[:html], result[:lines])
+                path = Piggly::Reporter.report_path(p.source_path, '.html')
+                data = Piggly::Compiler::Trace.cache(p, p.oid)
+                live = Piggly::Profile.instance[p] rescue nil
+
+                # only compile the report if the source or the coverage profile changed
+                if File.stale?(path, p.source_path) or data[:tags] != live
+                  puts "Reporting coverage for #{p.name}"
+                  result = Piggly::Compiler::Report.compile(p, Piggly::Profile.instance)
+                  Piggly::Reporter::Html.output(p, result[:html], result[:lines])
+                end
+
               end
             end
           end
+
+          Piggly::Util::ProcessQueue.start
         end
       end
 

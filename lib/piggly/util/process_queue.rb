@@ -10,22 +10,24 @@ module Piggly
         @children = value
       end
 
+      def self.size
+        items.size
+      end
+
       # add a compile job to the queue
       def self.queue(&block)
-        (@queue ||= []) << block
+        items << block
       end
 
       def self.child
         queue { yield }
       end
 
-      # start scheduler thread
       def self.start
         @active     = 0
         @children ||= 1
-        @queue    ||= []
 
-        while block = @queue.shift
+        while block = items.shift
           if @active >= @children
             pid = Process.wait
             @active -= 1
@@ -41,6 +43,12 @@ module Piggly
         end
 
         Process.waitall
+      end
+
+    private
+
+      def self.items
+        @items ||= []
       end
 
     end
