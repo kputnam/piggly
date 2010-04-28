@@ -27,12 +27,14 @@ module Piggly
 
     def initialize
       @by_id        = {}
+      @by_cache     = {}
       @by_procedure = {}
     end
 
     # Register a procedure and its list of tags
-    def add(procedure, tags)
+    def add(procedure, tags, cache = nil)
       tags.each{|t| @by_id[t.id] = t }
+      @by_cache[cache] = tags if cache
       @by_procedure[procedure.oid] = tags
     end
 
@@ -49,11 +51,7 @@ module Piggly
 
     # Record the execution of a coverage tag
     def ping(tag_id, value=nil)
-      if tag = @by_id[tag_id]
-        tag.ping(value)
-      else
-        raise "No tag with id #{tag_id}, perhaps the proc was not compiled with Piggly::Installer.trace, or it has been recompiled with new tag IDs."
-      end
+      self[tag_id].ping(value)
     end
 
     # Summarizes coverage for each type of tag (branch, block, loop)
@@ -80,12 +78,12 @@ module Piggly
 
     # Resets each tag's coverage stats
     def clear
-      @by_id.each{|key, tag| tag.clear }
+      @by_id.each{|id, tag| tag.clear }
     end
 
-    # Write each tag's coverage stats to the disk cache
+    # Write coverage stats to the disk cache
     def store
-      # TODO: not implemented
+      @by_cache.each{|cache, tags| cache[:tags] = tags }
     end
 
   end
