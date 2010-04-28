@@ -39,6 +39,7 @@ module Piggly
     config_accessor :cache_root   => File.expand_path(File.join(Dir.pwd, 'piggly', 'cache')),
                     :report_root  => File.expand_path(File.join(Dir.pwd, 'piggly', 'reports')),
                     :trace_prefix => 'PIGGLY',
-                    :aggregate    => false
+                    :aggregate    => false,
+                    :identify_procedures_using => 'signature'
   end
 end

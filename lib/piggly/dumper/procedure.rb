@@ -67,7 +67,7 @@ module Piggly
       end
 
       attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :type,
-                    :volatile, :arg_modes, :arg_names, :arg_types, :source
+                    :volatile, :arg_modes, :arg_names, :arg_types, :source, :identified_using
 
       def initialize(oid, namespace, name, strict, secdef, setof, type, volatile, arg_modes, arg_names, arg_types, source)
         @oid, @namespace, @name, @strict, @secdef, @type, @volatile, @setof, @arg_modes, @arg_names, @arg_types, @source =
@@ -119,18 +119,50 @@ module Piggly
         "#{type} #{namespace}.#{name}(#{arguments})"
       end
 
-      def source_path
-        Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), "#{oid}.plpgsql")
-      end
-
-      def purge_source
-        puts "Purging source for #{name}"
-        File.unlink(source_path)
+      def source_path(filename = identifier)
+        Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), "#{filename}.plpgsql")
       end
 
       def store_source
+        identified_using = Piggly::Config.identify_procedures_using
+
+        if @identified_using and @identified_using != identified_using
+          # the file name scheme changed, so remove our old source file
+          old = source_path(identifier(@identified_using))
+          File.unlink(old) if File.exists?(old)
+        end
+
         puts "Storing source for #{name}"
+        @identified_using = identified_using
+
         File.open(source_path, 'wb'){|io| io.write source }
+      end
+
+      def purge_source
+        if @identified_using
+          old = source_path(identifier(@identified_using))
+          File.unlink(old) if File.exists?(old)
+
+          old = Piggly::Compiler::Trace.cache_path(identifier(@identified_using))
+          FileUtils.rm_r(old) if File.exists?(old)
+        end
+
+        new = source_path
+        File.unlink(new) if File.exists?(new)
+
+        new = Piggly::Compiler::Trace.cache_path(identifier)
+        FileUtils.rm_r(new) if File.exists?(new)
+      end
+
+      def rename(filename = identifier(identified_using))
+        @identified_using = Piggly::Config.identify_procedures_using
+        File.rename(source_path(filename), source_path)
+        File.rename(Piggly::Compiler::Trace.cache_path(source_path(filename)),
+                    Piggly::Compiler::Trace.cache_path(source_path))
+      end
+
+      def identifier(method = Piggly::Config.identify_procedures_using)
+        send(method)
       end
 
       def ==(other)
