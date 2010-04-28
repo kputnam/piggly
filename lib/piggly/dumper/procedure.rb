@@ -145,12 +145,18 @@ module Piggly
 
           old = Piggly::Compiler::Trace.cache_path(identifier(@identified_using))
           FileUtils.rm_r(old) if File.exists?(old)
+
+          old = Piggly::Reporter.report_path(identifier(@identified_using), '.html')
+          FileUtils.rm_r(old) if File.exists?(old)
         end
 
         new = source_path
         File.unlink(new) if File.exists?(new)
 
         new = Piggly::Compiler::Trace.cache_path(identifier)
+        FileUtils.rm_r(new) if File.exists?(new)
+
+        new = Piggly::Reporter.report_path(identifier, '.html')
         FileUtils.rm_r(new) if File.exists?(new)
       end
 
