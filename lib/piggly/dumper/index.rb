@@ -18,21 +18,21 @@ module Piggly
       end
 
       def initialize
-        @index = load
+        load
       end
 
       # Updates the index with the given list of Procedure values
       def update(procedures)
         # purge each procedure's related files from the file system
-        outdated(procedures).each(&:purge_source)
+        changed = outdated(procedures).each(&:purge_source).any?
 
         # write each updated procedure's source code
-        updated(procedures).each(&:store_source)
-        created(procedures).each(&:store_source)
+        changed ||= updated(procedures).each(&:store_source).any?
+        changed ||= created(procedures).each(&:store_source).any?
 
-        @index = procedures.index_by(&:oid)
+        @index = procedures.index_by(&:identifier)
 
-        store
+        store if changed
       end
 
       # Returns a list of Procedure values from the index
@@ -40,9 +40,9 @@ module Piggly
         @index.values
       end
 
-      # Returns the Procedure with the given oid
-      def [](oid)
-        @index[oid].dup
+      # Returns the Procedure with the given identifier
+      def [](identifier)
+        @index[identifier].dup
       end
 
     protected
@@ -50,31 +50,42 @@ module Piggly
       # Returns procedures which have differences between the entry in
       # the index and the entry in the given list
       def updated(procedures)
-        procedures.select{|p| @index.include?(p.oid) and p != @index[p.oid] }
+        procedures.select{|p| @index.include?(p.identifier) and p != @index[p.identifier] }
       end
 
       # Returns procedures in the index that don't exist in the given list
       def outdated(procedures)
-        index = procedures.index_by(&:oid)
-        @index.values.reject{|p| index.include?(p.oid) }
+        index = procedures.index_by(&:identifier)
+        @index.values.reject{|p| index.include?(p.identifier) }
       end
 
       # Returns procedures in the given list that don't exist in the index
       def created(procedures)
-        procedures.reject{|p| @index.include?(p.oid) }
+        procedures.reject{|p| @index.include?(p.identifier) }
       end
 
     private
 
       def load
-        if File.exists?(self.class.path)
-          YAML.load(File.read(self.class.path)).each do |p|
-            # read each procedure's source code
-            p.source = File.read(p.source_path)
-          end.index_by(&:oid)
-        else
-          Hash.new
-        end
+        updated = false
+
+        @index = 
+          if File.exists?(self.class.path)
+            YAML.load(File.read(self.class.path)).each do |p|
+              if p.identified_using and p.identifier(p.identified_using) != p.identifier
+                # update location
+                p.rename(p.identifier(p.identified_using))
+                updated = true
+              end
+
+              # read each procedure's source code
+              p.source = File.read(p.source_path)
+            end.index_by(&:identifier)
+          else
+            Hash.new
+          end
+
+        store if updated
       end
 
       def store
