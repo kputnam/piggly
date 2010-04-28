@@ -32,15 +32,18 @@ module Piggly
 
     # Register a procedure and its list of tags
     def add(procedure, tags)
-      @by_id.update(tags.index_by(&:id))
-      @by_procedure.update(procedure.oid => tags)
+      tags.each{|t| @by_id[t.id] = t }
+      @by_procedure[procedure.oid] = tags
     end
 
-    def [](tag_id)
-      if tag = @by_id[tag_id]
-        tag
-      else
-        raise "No tag with id #{tag_id}, perhaps the proc was not compiled with Piggly::Installer.trace, or it has been recompiled with new tag IDs."
+    def [](object)
+      case object
+      when String
+        @by_id[object] or
+          raise "No tag with id #{object}"
+      when Piggly::Dumper::Procedure
+        @by_procedure[object.oid] or
+          raise "No tags for procedure #{object.signature}"
       end
     end
 
@@ -58,9 +61,13 @@ module Piggly
       summary = Hash.new{|h,k| h[k] = Hash.new }
 
       if procedure
-        grouped = by_procedure[procedure.oid].group_by(&:type)
+        if @by_procedure.include?(procedure.oid)
+          grouped = @by_procedure[procedure.oid].group_by(&:type)
+        else
+          grouped = {}
+        end
       else
-        grouped = by_id.values.group_by(&:type)
+        grouped = @by_id.values.group_by(&:type)
       end
 
       grouped.each do |type, ts|
