@@ -43,4 +43,3 @@ descendants?
   to other procs. Running didn't "cache source" for restored procs, then cacheable.rb:143
   `read' failed "no such file or directory". Running a third time recovers from
   "failed to load source for ..." and then "caching source for ..."
-* Run compiler in a separate processes to fix what seems like a memory leak
