@@ -4,7 +4,6 @@ module Piggly
 
       class << self
         # Returns a list of all PL/pgSQL stored procedures in the current database
-        # TODO: depends on array_agg which is available in PostgreSQL 8.4+
         def all
           connection.select_all(<<-SQL).map{|x| from_hash(x) }
             select
@@ -17,15 +16,14 @@ module Piggly
               pro.proretset   as setof,
               ret.typname     as rettype,
               pro.prosrc      as source,
-              array_to_string(pro.proargmodes, ', ')  as arg_modes,
-              array_to_string(pro.proargnames, ', ')  as arg_names,
+              array_to_string(pro.proargmodes, ',')  as arg_modes,
+              array_to_string(pro.proargnames, ',')  as arg_names,
 
               coalesce(
                 -- use proalltypes array if its non-null
-                (select array_to_string(array_agg(format_type(proallargtypes[k], null)), ', ')
-                 from generate_series(array_lower(proallargtypes, 1),
-                                      array_upper(proallargtypes, 1)) as k),
-
+                array_to_string(array(select format_type(proallargtypes[k], null)
+                                      from generate_series(array_lower(proallargtypes, 1),
+                                                           array_upper(proallargtypes, 1)) as k), ','),
                 -- fallback to oidvector proargtypes
                 oidvectortypes(pro.proargtypes))      as arg_types
             from pg_proc as pro,
@@ -52,9 +50,9 @@ module Piggly
               hash['setof'] == 't',
               hash['rettype'],
               hash['volatile'],
-              hash['arg_modes'] ? hash['arg_modes'].split(', ') : [],
-              hash['arg_names'] ? hash['arg_names'].split(', ') : [],
-              hash['arg_types'] ? hash['arg_types'].split(', ') : [],
+              hash['arg_modes'] ? hash['arg_modes'].split(',').map(&:strip) : [],
+              hash['arg_names'] ? hash['arg_names'].split(',').map(&:strip) : [],
+              hash['arg_types'] ? hash['arg_types'].split(',').map(&:strip) : [],
               hash['source'])
         end
 
