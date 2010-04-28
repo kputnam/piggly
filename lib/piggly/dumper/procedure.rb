@@ -19,13 +19,16 @@ module Piggly
               array_to_string(pro.proargmodes, ',')  as arg_modes,
               array_to_string(pro.proargnames, ',')  as arg_names,
 
-              coalesce(
+              case
+              when proallargtypes is not null then
                 -- use proalltypes array if its non-null
                 array_to_string(array(select format_type(proallargtypes[k], null)
                                       from generate_series(array_lower(proallargtypes, 1),
-                                                           array_upper(proallargtypes, 1)) as k), ','),
+                                                           array_upper(proallargtypes, 1)) as k), ',')
+              else
                 -- fallback to oidvector proargtypes
-                oidvectortypes(pro.proargtypes))      as arg_types
+                oidvectortypes(pro.proargtypes)
+              end             as arg_types
             from pg_proc as pro,
                  pg_type as ret,
                  pg_namespace as ns
