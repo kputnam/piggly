@@ -37,8 +37,9 @@ module Piggly
 
       def benchmark
         start = Time.now
-        yield
-        puts " > Completed in #{'%0.2f' % (Time.now - start)} seconds"
+        yield.tap do
+          puts " > Completed in #{'%0.2f' % (Time.now - start)} seconds"
+        end
       end
 
       def parse_options
@@ -116,7 +117,13 @@ module Piggly
         puts "Installing #{procedures.size} procedures"
 
         benchmark do
-          procedures.each{|p| Piggly::Installer.trace(p) }
+          procedures.each do |p|
+            begin
+              Piggly::Installer.trace(p)
+            rescue Piggly::Parser::Failure
+              puts $!
+            end
+          end
           Piggly::Installer.install_trace_support
         end
       end
@@ -165,8 +172,9 @@ module Piggly
 
         benchmark do
           for procedure in procedures
-            result = Piggly::Compiler::Report.compile(procedure, Piggly::Profile.instance)
-            Piggly::Reporter::Html.output(procedure, result[:html], result[:lines], result[:tags])
+            if result = Piggly::Compiler::Report.compile(procedure, Piggly::Profile.instance)
+              Piggly::Reporter::Html.output(procedure, result[:html], result[:lines])
+            end
           end
         end
       end
