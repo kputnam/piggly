@@ -35,6 +35,8 @@ module Piggly
                   end
 
                   toc(Piggly::Profile.instance[procedure])
+
+                  timestamp
                 end
               end
 
