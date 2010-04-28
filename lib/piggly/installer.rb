@@ -11,7 +11,7 @@ module Piggly
 
         connection.exec(procedure.definition(result[:code]))
         
-        Piggly::Profile.instance.add(procedure, result[:tags])
+        Piggly::Profile.instance.add(procedure, result[:tags], result)
       end
 
       def untrace(procedure)

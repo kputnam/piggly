@@ -25,13 +25,13 @@ module Piggly
             trace(procedures)
             clear_coverage
             result = execute_tests
-            store_coverage
           ensure
             untrace(procedures)
           end
 
           create_index(procedures)
           create_reports(procedures)
+          store_coverage
           exit! result # avoid running tests again
         end
       end
@@ -132,10 +132,10 @@ module Piggly
       end
 
       def clear_coverage
-      # unless Piggly::Config.aggregate
-      #   puts "Clearing previous run's profile"
-      #   benchmark { Piggly::Profile.clear }
-      # end
+        unless Piggly::Config.aggregate
+          puts "Clearing previous coverage"
+          benchmark { Piggly::Profile.instance.clear }
+        end
       end
 
       def execute_tests
@@ -149,8 +149,8 @@ module Piggly
       end
 
       def store_coverage
-      # puts "Storing coverage profile"
-      # benchmark { Piggly::Profile.store }
+        puts "Storing coverage profile"
+        benchmark { Piggly::Profile.instance.store }
       end
 
       def untrace(procedures)
@@ -175,8 +175,17 @@ module Piggly
 
         benchmark do
           for procedure in procedures
-            if result = Piggly::Compiler::Report.compile(procedure, Piggly::Profile.instance)
-              Piggly::Reporter::Html.output(procedure, result[:html], result[:lines])
+            unless Piggly::Compiler::Trace.stale?(procedure.source_path)
+              path = Piggly::Reporter.report_path(procedure.source_path, '.html')
+              data = Piggly::Compiler::Trace.cache(procedure, procedure.oid)
+              live = Piggly::Profile.instance[procedure] rescue nil
+
+              # only compile the report if the source or the coverage profile changed
+              if File.stale?(path, procedure.source_path) or data[:tags] != live
+                puts "Reporting coverage for #{procedure.name}"
+                result = Piggly::Compiler::Report.compile(procedure, Piggly::Profile.instance)
+                Piggly::Reporter::Html.output(procedure, result[:html], result[:lines])
+              end
             end
           end
         end
