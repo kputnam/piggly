@@ -1,5 +1,6 @@
 require 'rake'
 require 'rake/tasklib'
+require 'piggly'
 
 module Piggly
   class Task < Rake::TaskLib
