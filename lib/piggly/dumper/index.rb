@@ -109,15 +109,21 @@ module Piggly
 
         @index = 
           if File.exists?(self.class.path)
-            YAML.load(File.read(self.class.path)).each do |p|
+            YAML.load(File.read(self.class.path)).inject([]) do |list, p|
               if p.identified_using and p.identifier(p.identified_using) != p.identifier
                 # update location
                 p.rename(p.identifier(p.identified_using))
                 updated = true
               end
 
-              # read each procedure's source code
-              p.source = File.read(p.source_path)
+              begin
+                # read each procedure's source code
+                p.source = File.read(p.source_path)
+                list << p
+              rescue Errno::ENOENT
+                puts "Failed to load source for #{p.name}"
+                list
+              end
             end.index_by(&:identifier)
           else
             Hash.new
