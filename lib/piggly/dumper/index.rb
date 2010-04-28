@@ -45,6 +45,43 @@ module Piggly
         @index[identifier].dup
       end
 
+      # Returns the shortest human-readable label that distinctly identifies
+      # the given procedure from the other procedures in the index
+      def label(procedure)
+        others    = procedures.reject{|p| p.oid == procedure.oid }
+        samenames = others.select{|p| p.name == procedure.name }
+        if samenames.none?
+          procedure.name
+        else
+          # same name and namespace
+          samespaces = samenames.select{|p| p.namespace == procedure.namespace }
+          if samespaces.none?
+            "#{procedure.namespace}.#{procedure.name}"
+          else
+            # same name and return type
+            sametypes = samenames.select{|p| p.type == procedure.type }
+            if sametypes.none?
+              "#{procedure.type} #{procedure.name}"
+            else
+              # same name, namespace, and return type
+              if samespaces.none?{|p| p.type == procedure.type }
+                "#{procedure.type} #{procedure.namespace}.#{procedure.name}"
+              else
+                if samenames.none?{|p| p.arg_types == procedure.arg_types }
+                  "#{procedure.name} (#{procedure.arg_types.join(', ')})"
+                elsif samespaces.none?{|p| p.arg_types == procedure.arg_types }
+                  "#{procedure.namespace}.#{procedure.name} (#{procedure.arg_types.join(', ')})"
+                elsif sametypes.none?{|p| p.arg_types == procedure.arg_types }
+                  "#{procedure.type} #{procedure.name} (#{procedure.arg_types.join(', ')})"
+                else
+                  "#{procedure.type} #{procedure.namespace}.#{procedure.name} (#{procedure.arg_types.join(', ')})"
+                end
+              end
+            end
+          end
+        end
+      end
+
     protected
 
       # Returns procedures which have differences between the entry in
@@ -66,6 +103,7 @@ module Piggly
 
     private
 
+      # Load the index from disk
       def load
         updated = false
 
@@ -88,6 +126,7 @@ module Piggly
         store if updated
       end
 
+      # Write the index to disk
       def store
         # remove each procedure's source code before writing the index
         File.open(self.class.path, 'wb'){|io| YAML.dump(procedures.map{|o| o.dup.tap{|c| c.source = nil }}, io) }
