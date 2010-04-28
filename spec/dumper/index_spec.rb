@@ -37,6 +37,8 @@ describe Dumper::Index do
 
     context "when the cache file has two entries" do
       before do
+        Piggly::Config.identify_procedures_using = 'oid'
+
         @first  = Dumper::Procedure.from_hash('oid' => '1000', 'name' => 'iterate', 'source' => 'FIRST PROCEDURE SOURCE CODE')
         @second = Dumper::Procedure.from_hash('oid' => '2000', 'name' => 'login',   'source' => 'SECOND PROCEDURE SOURCE CODE')
 
@@ -51,14 +53,14 @@ describe Dumper::Index do
         @index.procedures.should have(2).things
       end
 
-      it "should be indexed by procedure oid" do
-        @index[@first.oid].oid.should == @first.oid
-        @index[@second.oid].oid.should == @second.oid
+      it "should be indexed by identifier" do
+        @index[@first.identifier].identifier.should == @first.identifier
+        @index[@second.identifier].identifier.should == @second.identifier
       end
 
       it "should read each procedures source_path" do
-        @index[@first.oid].source.should == @first.source
-        @index[@second.oid].source.should == @second.source
+        @index[@first.identifier].source.should == @first.source
+        @index[@second.identifier].source.should == @second.source
       end
     end
   end
