@@ -29,6 +29,8 @@ module Piggly
     end
 
     class EvaluationTag < AbstractTag
+      attr_reader :ran
+     
       def initialize(*args)
         clear
         super
@@ -61,6 +63,10 @@ module Piggly
       # Resets code coverage
       def clear
         @ran = false
+      end
+
+      def ==(other)
+        @id == other.id and @ran == other.ran
       end
     end
 
@@ -165,6 +171,14 @@ module Piggly
         @ends  = false
         @count = 0
       end
+
+      def ==(other)
+        @id    == other.id   and
+        @ends  == other.ends and
+        @pass  == other.pass and
+        @once  == other.once and
+        @twice == other.twice
+      end
     end
 
     class ForCollectionTag < LoopConditionTag
@@ -239,6 +253,10 @@ module Piggly
 
       def clear
         @true, @false  = false
+      end
+
+      def ==(other)
+        @id == other.id and @true == other.true and @false == other.false
       end
     end
 
