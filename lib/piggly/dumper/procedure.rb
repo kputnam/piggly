@@ -132,16 +132,18 @@ module Piggly
           File.unlink(old) if File.exists?(old)
         end
 
-        puts "Storing source for #{name}"
+        puts "Caching source for #{name}"
         @identified_using = identified_using
 
         File.open(source_path, 'wb'){|io| io.write source }
       end
 
       def purge_source
+        puts "Purging cached source of #{name}"
+
         if @identified_using
           old = source_path(identifier(@identified_using))
-          File.unlink(old) if File.exists?(old)
+          FileUtils.rm_r(old) if File.exists?(old)
 
           old = Piggly::Compiler::Trace.cache_path(identifier(@identified_using))
           FileUtils.rm_r(old) if File.exists?(old)
@@ -151,19 +153,19 @@ module Piggly
         end
 
         new = source_path
-        File.unlink(new) if File.exists?(new)
-
-        new = Piggly::Compiler::Trace.cache_path(identifier)
         FileUtils.rm_r(new) if File.exists?(new)
 
-        new = Piggly::Reporter.report_path(identifier, '.html')
+        new = Piggly::Compiler::Trace.cache_path(source_path(identifier))
+        FileUtils.rm_r(new) if File.exists?(new)
+
+        new = Piggly::Reporter.report_path(source_path(identifier), '.html')
         FileUtils.rm_r(new) if File.exists?(new)
       end
 
-      def rename(filename = identifier(identified_using))
+      def rename(from = identifier(identified_using))
         @identified_using = Piggly::Config.identify_procedures_using
-        File.rename(source_path(filename), source_path)
-        File.rename(Piggly::Compiler::Trace.cache_path(source_path(filename)),
+        File.rename(source_path(from), source_path)
+        File.rename(Piggly::Compiler::Trace.cache_path(source_path(from)),
                     Piggly::Compiler::Trace.cache_path(source_path))
       end
 

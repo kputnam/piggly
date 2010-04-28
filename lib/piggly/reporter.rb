@@ -19,7 +19,7 @@ module Piggly
       end
 
       def report_path(file=nil, ext=nil)
-        Piggly::Config.mkpath(Config.report_root, ext ? File.basename(file).sub(/\.[^.]+$/i, ext) : file)
+        Piggly::Config.mkpath(Piggly::Config.report_root, ext ? File.basename(file, '.*') + ext : file)
       end
     end
 
