@@ -24,7 +24,7 @@ module Piggly
           begin
             trace(procedures)
             clear_coverage
-            execute_tests
+            result = execute_tests
             store_coverage
           ensure
             untrace(procedures)
@@ -32,7 +32,7 @@ module Piggly
 
           create_index(procedures)
           create_reports(procedures)
-          exit! 0 # avoid running tests again
+          exit! result # avoid running tests again
         end
       end
 
