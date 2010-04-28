@@ -51,13 +51,15 @@ module Piggly
             $:.concat paths.split(':')
           end
 
-          opts.on("-o", "--output PATH", "Report output directory") do |dir|
+          opts.on("-o", "--report-root PATH", "Report output directory") do |dir|
             Piggly::Config.report_root = dir
           end
 
-          opts.on("-c", "--cache-root PATH", "Compiler cache directory") do |dir|
+          opts.on("-c", "--cache-root PATH", "Local cache directory") do |dir|
             Piggly::Config.cache_root = dir
           end
+
+          opts.on("-k", "--cache-key MODE", "Use MODE [name|signature|oid] as cache key for each procedure")
           
           opts.on("-a", "--aggregate", "Aggregate data from the previous run") do
             Piggly::Config.aggregate = true
