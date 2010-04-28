@@ -59,7 +59,9 @@ module Piggly
             Piggly::Config.cache_root = dir
           end
 
-          opts.on("-k", "--cache-key MODE", "Use MODE [name|signature|oid] as cache key for each procedure")
+          opts.on("-k", "--cache-key MODE", "Use MODE [name|signature|oid] as cache key for each procedure") do |mode|
+            Piggly::Config.identify_procedures_using = mode
+          end
           
           opts.on("-a", "--aggregate", "Aggregate data from the previous run") do
             Piggly::Config.aggregate = true
