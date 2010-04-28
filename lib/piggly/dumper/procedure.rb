@@ -116,7 +116,7 @@ module Piggly
       end
 
       def signature
-        "#{type} #{namespace}.#{name}(#{arguments})"
+        "#{type} #{namespace}.#{name}(#{arg_types.join(', ')})"
       end
 
       def source_path(filename = identifier)
@@ -162,7 +162,17 @@ module Piggly
       end
 
       def identifier(method = Piggly::Config.identify_procedures_using)
-        send(method)
+        case method.to_s
+        when 'name'
+          name
+        when 'oid'
+          oid
+        when 'signature'
+          # prevent Errno::ENAMETOOLONG
+          Digest::MD5.hexdigest(signature)
+        else
+          raise "Procedure identifier method #{method.inspect} is not recognized"
+        end
       end
 
       def ==(other)
