@@ -13,7 +13,7 @@ module Piggly
 
               tag :html, :xmlns => 'http://www.w3.org/1999/xhtml' do
                 tag :head do
-                  tag :title, "Code Coverage: #{File.basename(procedure.name)}"
+                  tag :title, "Code Coverage: #{procedure.name}"
                   tag :link, :rel => 'stylesheet', :type => 'text/css', :href => 'piggly.css'
                 end
 
@@ -23,6 +23,10 @@ module Piggly
                   tag :br
                   tag :div, :class => 'listing' do
                     tag :table do
+                      tag :tr do
+                        tag :td, signature(procedure), :class => 'signature', :colspan => 2 do
+                        end
+                      end
                       tag :tr do
                         tag :td, lines.to_a.map{|n| %[<a href="#L#{n}" id="L#{n}">#{n}</a>] }.join("\n"), :class => 'lines'
                         tag :td, html, :class => 'code'
@@ -36,6 +40,36 @@ module Piggly
 
             end
           end
+        end
+
+        def signature(procedure)
+          string = "<span class='tK'>CREATE FUNCTION</span> <b><span class='tI'>#{procedure.name}</span></b>"
+          modes  = {'i' => 'IN', 'o' => 'OUT', 'b' => 'INOUT'}
+
+          if procedure.arg_names.size <= 4
+            string << " ( "
+            separator = ", "
+            spacer    = " "
+          else
+            string << "\n\t( "
+            separator = ",\n\t  "
+            spacer    = "\t"
+          end
+
+          arguments = procedure.arg_names.zip(procedure.arg_modes, procedure.arg_types).map do |name, mode, type|
+            if mode = modes[mode]
+              mode = "<span class='tK'>#{mode}</span>#{spacer}"
+            end
+            "#{mode}<span class='tI'>#{name}</span>#{spacer}<span class='tD'>#{type}</span>"
+          end.join(separator)
+
+          string << arguments << " )"
+          string << "\n  <span class='tK'>SECURITY DEFINER</span>" if procedure.secdef
+          string << "\n  <span class='tK'>STRICT</span>" if procedure.strict
+          string << "\n  <span class='tK'>RETURNS#{procedure.setof ? ' SETOF' : ''}</span>"
+          string << " <span class='tD'>#{procedure.rettype}</span>"
+
+          string
         end
 
         def toc(tags)
@@ -61,7 +95,7 @@ module Piggly
         def table(procedures)
           tag :table, :class => 'summary sortable' do
             tag :tr do
-              tag :th, 'File'
+              tag :th, 'Procedure'
               tag :th, 'Blocks'
               tag :th, 'Loops'
               tag :th, 'Branches'

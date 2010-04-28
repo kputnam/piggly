@@ -16,7 +16,7 @@ div.toc
   width: 200px;
   height: 150px;
   border: 1px solid #c00;
-  background-color: #fee;
+  background-color: #fdd;
   padding: 5px;
   position: fixed;
   overflow: auto;
@@ -41,6 +41,24 @@ div.listing
 }
 
 div.listing table { border-collapse: collapse; }
+div.listing td.signature
+{
+  vertical-align: top;
+  padding: 2px 4px;
+  white-space: pre;
+
+  margin: 0;
+  width: 100%;
+  float: none;
+  clear: none;
+  overflow: visible;
+  
+  border-bottom: 1px solid silver; 
+  background-color: #ffffe0;
+  color: #000;
+  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-size: 9pt;
+}
 div.listing td.code
 {
   vertical-align: top;
