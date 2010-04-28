@@ -6,11 +6,11 @@ module Piggly
     attr_accessor :name,          # Name of the test task
                   :libs,          # List of paths added to $LOAD_PATH before running tests
                   :test_files,    # List of ruby test files to load
-                  :proc_files,    # List of pl/pgsql stored procedures to compile
                   :verbose,
                   :warning,       # Execute ruby -w if true
-                  :report_dir,    # Where to store reports (default piggly/report)
+                  :report_root,   # Where to store reports (default piggly/report)
                   :cache_root,    # Where to store compiler cache (default piggly/cache)
+                  :cache_key,     # Stored procedure's attribute to use as a cache key
                   :aggregate,     # Accumulate coverage from the previous run (default false)
                   :piggly_opts,
                   :piggly_path    # Path to bin/piggly (default searches with ruby -S)
@@ -18,13 +18,13 @@ module Piggly
     def initialize(name = :piggly)
       @name = name
       @libs = %w[]
-      @verbose    = false
-      @warning    = false
-      @test_files = []
-      @proc_files = []
-      @ruby_opts  = []
-      @report_dir = 'piggly/report'
-      @cache_root = 'piggly/cache'
+      @verbose     = false
+      @warning     = false
+      @test_files  = []
+      @ruby_opts   = []
+      @report_root = Piggly::Config.report_root
+      @cache_root  = Piggly::Config.cache_root
+      @cache_key   = Piggly::Config.identify_procedures_using
       @piggly_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'bin', 'piggly'))
       @piggly_opts = ''
       @aggregate   = false
@@ -47,9 +47,9 @@ module Piggly
 
           ruby opts.join(' ') + ' ' +
                @piggly_opts   + ' ' +
-               %{-o #{quote @report_dir} } +
+               %{-o #{quote @report_root} } +
                %{-c #{quote @cache_root} } +
-               proc_files.map{|s| %[-s "#{s}" ] }.join +
+               %{-k #{quote @cache_key} } +
                test_files.map{|f| quote(f) }.join(' ')
         end
 
