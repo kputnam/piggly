@@ -6189,13 +6189,16 @@ module Piggly
   end
 
   module TType2
+  end
+
+  module TType3
     def ws
       elements[0]
     end
 
   end
 
-  module TType3
+  module TType4
   end
 
   def _nt_tType
@@ -6287,74 +6290,98 @@ module Piggly
           if r8
             r3 = r8
           else
-            s12, i12 = [], index
+            i12, s12 = index, []
+            s13, i13 = [], index
             loop do
               if has_terminal?('\G[a-z\\200-\\377_0-9$%]', true, index)
-                r13 = true
+                r14 = true
                 @index += 1
               else
-                r13 = nil
+                r14 = nil
               end
-              if r13
-                s12 << r13
+              if r14
+                s13 << r14
               else
                 break
               end
             end
-            if s12.empty?
+            if s13.empty?
+              @index = i13
+              r13 = nil
+            else
+              r13 = instantiate_node(SyntaxNode,input, i13...index, s13)
+            end
+            s12 << r13
+            if r13
+              if has_terminal?('.', false, index)
+                r16 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
+              else
+                terminal_parse_failure('.')
+                r16 = nil
+              end
+              if r16
+                r15 = r16
+              else
+                r15 = instantiate_node(SyntaxNode,input, index...index)
+              end
+              s12 << r15
+            end
+            if s12.last
+              r12 = instantiate_node(SyntaxNode,input, i12...index, s12)
+              r12.extend(TType2)
+            else
               @index = i12
               r12 = nil
-            else
-              r12 = instantiate_node(SyntaxNode,input, i12...index, s12)
             end
             if r12
               r3 = r12
             else
-              i14, s14 = index, []
-              r15 = _nt_ws
-              s14 << r15
-              if r15
-                i16 = index
-                i17 = index
-                r18 = _nt_kwAS
-                if r18
-                  r17 = r18
+              i17, s17 = index, []
+              r18 = _nt_ws
+              s17 << r18
+              if r18
+                i19 = index
+                i20 = index
+                r21 = _nt_kwAS
+                if r21
+                  r20 = r21
                 else
-                  r19 = _nt_kwNOT
-                  if r19
-                    r17 = r19
+                  r22 = _nt_kwNOT
+                  if r22
+                    r20 = r22
                   else
-                    r20 = _nt_kwASSIGN
-                    if r20
-                      r17 = r20
+                    r23 = _nt_kwASSIGN
+                    if r23
+                      r20 = r23
                     else
-                      r21 = _nt_kwDEFAULT
-                      if r21
-                        r17 = r21
+                      r24 = _nt_kwDEFAULT
+                      if r24
+                        r20 = r24
                       else
-                        @index = i17
-                        r17 = nil
+                        @index = i20
+                        r20 = nil
                       end
                     end
                   end
                 end
-                if r17
-                  r16 = nil
+                if r20
+                  r19 = nil
                 else
-                  @index = i16
-                  r16 = instantiate_node(SyntaxNode,input, index...index)
+                  @index = i19
+                  r19 = instantiate_node(SyntaxNode,input, index...index)
                 end
-                s14 << r16
+                s17 << r19
               end
-              if s14.last
-                r14 = instantiate_node(SyntaxNode,input, i14...index, s14)
-                r14.extend(TType2)
+              if s17.last
+                r17 = instantiate_node(SyntaxNode,input, i17...index, s17)
+                r17.extend(TType3)
               else
-                @index = i14
-                r14 = nil
+                @index = i17
+                r17 = nil
               end
-              if r14
-                r3 = r14
+              if r17
+                r3 = r17
               else
                 @index = i3
                 r3 = nil
@@ -6373,7 +6400,7 @@ module Piggly
     end
     if s0.last
       r0 = instantiate_node(Piggly::Parser::Nodes::TDatatype,input, i0...index, s0)
-      r0.extend(TType3)
+      r0.extend(TType4)
     else
       @index = i0
       r0 = nil

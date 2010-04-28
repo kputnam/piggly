@@ -23,6 +23,12 @@ module Piggly
         end
       end
 
+      it "can have namespace notation" do
+        %w[public.users namespace.relation%rowtype].test_each do |s|
+          parse(:tType, s).should be_a(Parser::Nodes::TDatatype)
+        end
+      end
+
       it "can consist of several words" do
         ["timestamp with time zone", "character varying"].test_each do |s|
           parse(:tType, s).should be_a(Parser::Nodes::TDatatype)

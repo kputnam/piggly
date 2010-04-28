@@ -402,7 +402,7 @@ grammar Piggly
     [a-z\200-\377_]
     ( '(' rType ')' /
       '[' rType ']' /
-      [a-z\200-\377_0-9$%]+ /
+      [a-z\200-\377_0-9$%]+ '.'? /
       ws !( kwAS / kwNOT / kwASSIGN / kwDEFAULT ) )* <Piggly::Parser::Nodes::TDatatype>
   end
   
