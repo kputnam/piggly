@@ -21,9 +21,8 @@ module Piggly
         unless Piggly::Compiler::Trace.stale?(procedure.source_path)
           # get (copies of) the tagged nodes from the compiled tree
           data = Piggly::Compiler::Trace.cache(procedure, procedure.oid)
-          html = traverse(data[:tree])
 
-          return :html  => html,
+          return :html  => traverse(data[:tree]),
                  :lines => 1 .. procedure.source.count("\n") + 1
         end
       end

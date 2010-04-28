@@ -48,9 +48,6 @@ div.listing td.signature
   white-space: pre;
 
   margin: 0;
-  width: 100%;
-  float: none;
-  clear: none;
   overflow: visible;
   
   border-bottom: 1px solid silver; 

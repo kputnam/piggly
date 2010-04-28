@@ -24,8 +24,8 @@ module Piggly
                   tag :div, :class => 'listing' do
                     tag :table do
                       tag :tr do
-                        tag :td, signature(procedure), :class => 'signature', :colspan => 2 do
-                        end
+                        tag :td, '&nbsp;', :class => 'signature'
+                        tag :td, signature(procedure), :class => 'signature'
                       end
                       tag :tr do
                         tag :td, lines.to_a.map{|n| %[<a href="#L#{n}" id="L#{n}">#{n}</a>] }.join("\n"), :class => 'lines'
@@ -46,12 +46,12 @@ module Piggly
           string = "<span class='tK'>CREATE FUNCTION</span> <b><span class='tI'>#{procedure.name}</span></b>"
           modes  = {'i' => 'IN', 'o' => 'OUT', 'b' => 'INOUT'}
 
-          if procedure.arg_names.size <= 4
-            string << " ( "
+          if procedure.arg_names.size <= 1
+            string   << " ( "
             separator = ", "
             spacer    = " "
           else
-            string << "\n\t( "
+            string   << "\n\t( "
             separator = ",\n\t  "
             spacer    = "\t"
           end
@@ -64,9 +64,9 @@ module Piggly
           end.join(separator)
 
           string << arguments << " )"
-          string << "\n  <span class='tK'>SECURITY DEFINER</span>" if procedure.secdef
-          string << "\n  <span class='tK'>STRICT</span>" if procedure.strict
-          string << "\n  <span class='tK'>RETURNS#{procedure.setof ? ' SETOF' : ''}</span>"
+          string << "\n<span class='tK'>SECURITY DEFINER</span>" if procedure.secdef
+          string << "\n<span class='tK'>STRICT</span>" if procedure.strict
+          string << "\n<span class='tK'>RETURNS#{procedure.setof ? ' SETOF' : ''}</span>"
           string << " <span class='tD'>#{procedure.rettype}</span>"
 
           string
