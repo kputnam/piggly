@@ -24,7 +24,7 @@ manually. Piggly's instrumentation support procs could easily be extended to
 print timestamps on each event. It's not clear how to present this information
 in the report without it becoming cluttered.
 
-## Coverage Pragmas
+## Coverage pragmas
 
 Some loops and branches cannot be fully covered in practice. It might be useful
 to extend piggly to recognize pragmas like `-- piggly: no coverage`, so certain
@@ -32,9 +32,15 @@ nodes wouldn't be tagged. However, it may ambiguous which node was intended to
 be annotated in a nest of nodes... and should the pragma apply to the node's
 descendants?
 
-## Smaller Things
-* User-defined array_agg for PostgreSQL < 8.3
+## Small things
+* Check support for numbered (unnamed) paramaters in method signature like $1, $2, etc.
 * Summary row in the report index
 * Configurable filter to select which procs are dumped/instrumented/reported
 * Remove linebreaks from Compiler::Trace, so error messages line numbers match
   the report and the original uninstrumented source
+* Print the percent change in coverage after "Reporting coverage for ..."
+* Intermittant dumper bug: removed procs, ran tests. restored procs and made edits
+  to other procs. Running didn't "cache source" for restored procs, then cacheable.rb:143
+  `read' failed "no such file or directory". Running a third time recovers from
+  "failed to load source for ..." and then "caching source for ..."
+* Run compiler in a separate processes to fix what seems like a memory leak
