@@ -4,43 +4,43 @@ module Piggly
       autoload :DSL,    'piggly/reporter/html/dsl'
       autoload :Index,  'piggly/reporter/html/index'
 
-      extend Piggly::Reporter::Html::DSL
-
       class << self
+        include Piggly::Reporter::Html::DSL
+
         def output(procedure, html, lines)
-          File.open(report_path(procedure.source_path, '.html'), 'w') do |io|
-            html(io) do
+          io = File.open(report_path(procedure.source_path, '.html'), 'w')
 
-              tag :html, :xmlns => 'http://www.w3.org/1999/xhtml' do
-                tag :head do
-                  tag :title, "Code Coverage: #{procedure.name}"
-                  tag :link, :rel => 'stylesheet', :type => 'text/css', :href => 'piggly.css'
-                end
-
-                tag :body do
-                  aggregate(procedure.name, Piggly::Profile.instance.summary(procedure))
-
-                  tag :div, :class => 'listing' do
-                    tag :table do
-                      tag :tr do
-                        tag :td, '&nbsp;', :class => 'signature'
-                        tag :td, signature(procedure), :class => 'signature'
-                      end
-                      tag :tr do
-                        tag :td, lines.to_a.map{|n| %[<a href="#L#{n}" id="L#{n}">#{n}</a>] }.join("\n"), :class => 'lines'
-                        tag :td, html, :class => 'code'
-                      end
-                    end
-                  end
-
-                  toc(Piggly::Profile.instance[procedure])
-
-                  timestamp
-                end
+          html(io) do
+            tag :html, :xmlns => 'http://www.w3.org/1999/xhtml' do
+              tag :head do
+                tag :title, "Code Coverage: #{procedure.name}"
+                tag :link, :rel => 'stylesheet', :type => 'text/css', :href => 'piggly.css'
               end
 
+              tag :body do
+                aggregate(procedure.name, Piggly::Profile.instance.summary(procedure))
+
+                tag :div, :class => 'listing' do
+                  tag :table do
+                    tag :tr do
+                      tag :td, '&nbsp;', :class => 'signature'
+                      tag :td, signature(procedure), :class => 'signature'
+                    end
+                    tag :tr do
+                      tag :td, lines.to_a.map{|n| %[<a href="#L#{n}" id="L#{n}">#{n}</a>] }.join("\n"), :class => 'lines'
+                      tag :td, html, :class => 'code'
+                    end
+                  end
+                end
+
+                toc(Piggly::Profile.instance[procedure])
+
+                timestamp
+              end
             end
           end
+        ensure
+          io.close
         end
 
         def signature(procedure)
@@ -174,7 +174,6 @@ module Piggly
           if pct
             tag :table, :align => 'center' do
               tag :tr do
-
                 tag :td, '%0.2f%%&nbsp;' % pct, :class => 'num'
                 tag :td, :class => 'graph' do
                   if pct
@@ -186,15 +185,14 @@ module Piggly
                     end
                   end
                 end
-
               end
             end
           else
             tag :span, -1, :style => 'display:none'
           end
         end
-      end
 
+      end
     end
   end
 end
