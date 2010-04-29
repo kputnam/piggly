@@ -16,8 +16,8 @@ module Piggly
                   end
 
                   tag :body do
+                    aggregate('PL/pgSQL Coverage Summary', Piggly::Profile.instance.summary)
                     table(procedures.sort_by(&:name))
-                    tag :br
                     timestamp
                   end
                 end
@@ -25,6 +25,7 @@ module Piggly
               end
             end
           end
+
         end
       end
     end
