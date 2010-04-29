@@ -79,7 +79,7 @@ module Piggly
       def arguments
         modes = { 'i' => 'in', 'o' => 'out', 'b' => 'inout' }
 
-        arg_names.zip(arg_types, arg_modes).map do |aname, atype, amode|
+        arg_types.zip(arg_names, arg_modes).map do |atype, aname, amode|
           "#{modes.include?(amode) ? modes[amode] + ' ' : ''}#{aname} #{atype}"
         end.join(', ')
       end
