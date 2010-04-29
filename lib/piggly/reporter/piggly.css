@@ -9,7 +9,13 @@ body
 
 a img { border: 0; }
 
-div.timestamp { clear: both; }
+div.timestamp
+{
+  clear: both;
+  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-style: italic;
+  font-size: 9pt;
+}
 
 div.toc
 {
@@ -89,6 +95,14 @@ div.listing td.lines
 }
 div.listing td.lines a { color: grey; text-decoration: none; }
 
+p.summary
+{ 
+  font-weight: bold;
+  font-family: "Tahoma", "Trebuchet MS", "Arial", sans-serif;
+  margin-bottom: 1em;
+}
+
+table.summary { margin-bottom: 2em; }
 table.summary th { padding: 5px; border: 1px solid silver; font-weight: bold; font-size: 12px; background-color: #def; }
 table.summary td { padding: 5px; font-size: 10pt; }
 
