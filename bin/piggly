@@ -15,11 +15,15 @@ module Piggly
 
       def main
         benchmark do
-          tests = parse_options
+          tests, filters = parse_options
           load_tests(tests)
           connect_to_database
 
-          procedures = dump_procedures
+          procedures = dump_procedures(filters)
+
+          if procedures.empty?
+            abort "No stored procedures in the database#{' matched your criteria' if filters.any?}"
+          end
 
           begin
             trace(procedures)
@@ -49,6 +53,8 @@ module Piggly
       end
 
       def parse_options
+        filters = []
+
         opts = OptionParser.new do |opts|
           opts.on("-I", "--include PATHS", "Prepend paths to $: (colon separated list)") do |paths|
             $:.concat paths.split(':')
@@ -64,6 +70,14 @@ module Piggly
 
           opts.on("-k", "--cache-key MODE", "Use MODE [name|signature|oid] as cache key for each procedure") do |mode|
             Piggly::Config.identify_procedures_using = mode
+          end
+
+          opts.on("-n", "--name PATTERN", "Trace stored procedures matching PATTERN") do |opt|
+            if m = opt.match(%r{^/(.+)/$})
+              filters << lambda{|p| p.name.match(m.captures.first) }
+            else
+              filters << lambda{|p| p.name === opt }
+            end
           end
           
           opts.on("-a", "--aggregate", "Aggregate data from the previous run") do
@@ -102,7 +116,7 @@ module Piggly
         test_paths = ARGV.map{|p| Dir[p] }.flatten.sort
         ARGV.clear
 
-        test_paths
+        return test_paths, filters
       end
 
       def load_tests(tests)
@@ -117,10 +131,15 @@ module Piggly
         ActiveRecord::Base.establish_connection
       end
 
-      def dump_procedures
+      def dump_procedures(filters)
         index = Piggly::Dumper::Index.instance
         index.update(Piggly::Dumper::Procedure.all)
-        index.procedures
+
+        if filters.empty?
+          index.procedures
+        else
+          filters.inject(Set.new){|set, filter| set | index.procedures.select(&filter) }
+        end
       end
 
       def trace(procedures)
@@ -183,7 +202,7 @@ module Piggly
       def create_index(procedures)
         puts "Creating index"
         benchmark do
-          Piggly::Reporter.install('piggly.css', 'sortable.js')
+          Piggly::Reporter.install('html/piggly.css', 'html/sortable.js')
           Piggly::Reporter::Html::Index.output(procedures)
         end
       end
