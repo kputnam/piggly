@@ -19,7 +19,12 @@ module Piggly
       end
 
       def report_path(file=nil, ext=nil)
-        Piggly::Config.mkpath(Piggly::Config.report_root, ext ? File.basename(file, '.*') + ext : file)
+        if file
+          # remove the original extension from +file+ and add given extension
+          Piggly::Config.mkpath(Piggly::Config.report_root, ext ? File.basename(file, '.*') + ext : File.basename(file))
+        else
+          Piggly::Config.mkpath(Piggly::Config.report_root)
+        end
       end
     end
 
