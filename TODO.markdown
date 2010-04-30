@@ -33,9 +33,7 @@ be annotated in a nest of nodes... and should the pragma apply to the node's
 descendants?
 
 ## Small things
-* Check support for numbered (unnamed) paramaters in method signature like $1, $2, etc.
-* Summary row in the report index
-* Configurable filter to select which procs are dumped/instrumented/reported
+* Support for user-provided stylesheet
 * Remove linebreaks from Compiler::Trace, so error messages line numbers match
   the report and the original uninstrumented source
 * Print the percent change in coverage after "Reporting coverage for ..."
