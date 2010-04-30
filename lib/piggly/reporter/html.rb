@@ -175,9 +175,16 @@ module Piggly
             tag :table, :align => 'center' do
               tag :tr do
                 tag :td, '%0.2f%%&nbsp;' % pct, :class => 'num'
+
+                style = case pct.to_f
+                        when 0...50;  'low'
+                        when 0...100; 'mid'
+                        else          'high'
+                        end
+
                 tag :td, :class => 'graph' do
                   if pct
-                    tag :table, :align => 'right', :class => 'graph' do
+                    tag :table, :align => 'right', :class => "graph #{style}" do
                       tag :tr do
                         tag :td, :class => 'covered', :width => (pct/2.0).to_i
                         tag :td, :class => 'uncovered', :width => ((100-pct)/2.0).to_i
