@@ -53,7 +53,7 @@ module Piggly
                %{-o #{quote @report_root} } +
                %{-c #{quote @cache_root} } +
                %{-k #{quote @cache_key} } +
-               procedures.map{|x| '-n ' + quote(x) }.join(' ') +
+               procedures.map{|x| '-n ' + quote(x) }.join(' ') + ' ' +
                test_files.map{|x|         quote(x) }.join(' ')
         end
 
