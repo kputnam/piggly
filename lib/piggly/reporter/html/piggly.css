@@ -6,7 +6,7 @@ body
 {
   color: #000;
   background-color: #fff;
-  padding: 8px;
+  padding: 50px;
 }
 
 a img { border: 0; }
@@ -105,19 +105,28 @@ p.summary
 }
 
 table.summary { margin-bottom: 2em; }
-table.summary th { padding: 5px; border: 1px solid silver; font-weight: bold; font-size: 12px; background-color: #def; }
+table.summary th { padding: 5px; border-bottom: 1px solid silver; font-weight: bold; font-size: 12px; background-color: #eee; }
 table.summary td { padding: 5px; font-size: 10pt; }
 
-table.summary td.file  { text-align: left; border: 0; }
+table.summary tr.odd   { border-bottom: 1px solid #eee; }
+table.summary tr.even  { border-bottom: 1px solid #eee; }
+table.summary td.file  { text-align: left; }
 table.summary td.fail  { font-weight: bold; color: #f00; }
-table.summary td.count { max-width: 50px;  min-width: 50px;  text-align: right; border: 1px solid silver; }
-table.summary td.pct   { max-width: 100px; min-width: 100px; text-align: right; border: 0; }
+table.summary td.count { max-width: 50px;  min-width: 50px;  text-align: center; }
+table.summary td.pct   { max-width: 100px; min-width: 100px; }
 
 table.summary td.pct td.num   { padding: 0; max-width: 50px; min-width: 50px; text-align: right; border: 0; }
 table.summary td.pct td.graph { padding: 0; max-width: 50px; min-width: 50px; text-align: right; border: 0; }
 
-table.graph td.uncovered { background-color: #669; border: 0px; padding: 0px; }
-table.graph td.covered   { background-color: #ccf; border: 0px; padding: 0px; }
+table.graph td.uncovered { border: 0; padding: 0; }
+table.low   td.uncovered { background-color: #c00; }
+table.mid   td.uncovered { background-color: #fc0; }
+table.high  td.uncovered { background-color: #093; }
+
+table.graph td.covered { border: 0; padding: 0; }
+table.low   td.covered { background-color: #f66; }
+table.mid   td.covered { background-color: #ffc; }
+table.high  td.covered { background-color: #390; }
 
 table.summary
 {
