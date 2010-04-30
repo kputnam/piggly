@@ -13,6 +13,7 @@ module Piggly
                   :cache_root,    # Where to store compiler cache (default piggly/cache)
                   :cache_key,     # Stored procedure's attribute to use as a cache key
                   :aggregate,     # Accumulate coverage from the previous run (default false)
+                  :procedures,    # List of procedure names or regular expressions, match all by default
                   :piggly_opts,
                   :piggly_path    # Path to bin/piggly (default searches with ruby -S)
 
@@ -26,6 +27,7 @@ module Piggly
       @report_root = Piggly::Config.report_root
       @cache_root  = Piggly::Config.cache_root
       @cache_key   = Piggly::Config.identify_procedures_using
+      @procedures  = []
       @piggly_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'bin', 'piggly'))
       @piggly_opts = ''
       @aggregate   = false
@@ -51,14 +53,20 @@ module Piggly
                %{-o #{quote @report_root} } +
                %{-c #{quote @cache_root} } +
                %{-k #{quote @cache_key} } +
-               test_files.map{|f| quote(f) }.join(' ')
+               procedures.map{|x| '-n ' + quote(x) }.join(' ') +
+               test_files.map{|x|         quote(x) }.join(' ')
         end
 
       end
     end
 
-    def quote(string)
-      %{"#{string}"}
+    def quote(value)
+      case value
+      when Regexp
+        quote(value.inspect)
+      else
+        %{"#{value}"}
+      end
     end
 
   end
