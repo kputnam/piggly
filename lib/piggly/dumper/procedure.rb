@@ -117,7 +117,11 @@ module Piggly
       end
 
       def signature
-        "#{type} #{namespace}.#{name}(#{arg_types.join(', ')})"
+        # attempt to abbreviate a bit
+        args = arg_types.join(', ').
+          gsub('charater varying', 'varchar')
+
+        "#{type} #{namespace}.#{name}(#{args})"
       end
 
       def source_path(filename = identifier)

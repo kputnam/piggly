@@ -67,14 +67,17 @@ module Piggly
               if samespaces.none?{|p| p.type == procedure.type }
                 "#{procedure.type} #{procedure.namespace}.#{procedure.name}"
               else
+                args = procedure.arg_types.join(', ').
+                  gsub('charater varying', 'varchar')
+
                 if samenames.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{procedure.name} (#{procedure.arg_types.join(', ')})"
+                  "#{procedure.name} (#{args})"
                 elsif samespaces.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{procedure.namespace}.#{procedure.name} (#{procedure.arg_types.join(', ')})"
+                  "#{procedure.namespace}.#{procedure.name} (#{args})"
                 elsif sametypes.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{procedure.type} #{procedure.name} (#{procedure.arg_types.join(', ')})"
+                  "#{procedure.type} #{procedure.name} (#{args})"
                 else
-                  "#{procedure.type} #{procedure.namespace}.#{procedure.name} (#{procedure.arg_types.join(', ')})"
+                  "#{procedure.type} #{procedure.namespace}.#{procedure.name} (#{args})"
                 end
               end
             end
