@@ -9,6 +9,9 @@ require 'spec'
   postgres=# CREATE DATABASE piggly OWNER piggly ENCODING 'utf8';
   postgres=# \c piggly
   postgres=# CREATE LANGUAGE "plpgsql";
+  postgres=# \i proc/iterate.sql
+  postgres=# \i proc/snippets.sql
+  postgres=# \i proc/scramble.sql
 =end
 
 ActiveRecord::Base.establish_connection \
@@ -19,9 +22,25 @@ ActiveRecord::Base.establish_connection \
   'host'      => 'localhost',
   'port'      => '5432'
 
+def connection
+  ActiveRecord::Base.connection
+end
+
 def call_iterate(argument)
-  ActiveRecord::Base.connection.select_values <<-SQL
+  connection.select_values <<-SQL
     SELECT * FROM iterate('{#{argument.map{|x| (x.nil?) ? 'null' : x }.join(',')}}'::varchar[])
+  SQL
+end
+
+def call_snippets(a, b)
+  connection.select_values <<-SQL
+    SELECT * FROM snippets(#{connection.quote a}, #{connection.quote b})
+  SQL
+end
+
+def call_scramble(text)
+  connection.select_values <<-SQL
+    SELECT * FROM scramble(#{connection.quote text})
   SQL
 end
 
@@ -99,4 +118,16 @@ describe "iterate" do
     end
   end
 
+end
+
+describe "snippets" do
+  it "wrecklessly cpu cycles" do
+    call_snippets(nil, nil)
+  end
+end
+
+describe "scramble" do
+  it "performs magnificently" do
+    call_scramble('boo hiss')
+  end
 end
