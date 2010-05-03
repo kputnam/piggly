@@ -1,12 +1,8 @@
 grammar Piggly
-  # include Keywords
-  # include Expressions
-  # include Statements
-  # include Tokens
 
   rule start
     tSpace?
-      block ';'?
+    block ';'?
     tSpace?
   end
   
@@ -19,8 +15,8 @@ grammar Piggly
       body:statement*
     blockExceptions?
     kwEND
-    ( tSpace label_close:tLabel )?
-    tSpace? <Piggly::Parser::Nodes::Block>
+      ( tSpace label_close:tLabel )?
+      tSpace? <Piggly::Parser::Nodes::Block>
     / 
     blockDeclarations:stmtDeclare*
     kwBEGIN
@@ -29,7 +25,7 @@ grammar Piggly
       body:statement*
     blockExceptions?
     kwEND
-    tSpace? <Piggly::Parser::Nodes::Block>
+      tSpace? <Piggly::Parser::Nodes::Block>
   end
 
   rule statement
@@ -52,24 +48,28 @@ grammar Piggly
           / stmtOpen
           / stmtFetch
           / stmtMove
-          / stmtClose ) tail:tSpace? <Piggly::Parser::Nodes::Statement>
+          / stmtClose )
+    tail:tSpace? <Piggly::Parser::Nodes::Statement>
   end
 
   rule stmtAssignment
-    lval:lValue tSpace? kwASSIGN ws? rval:expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Assignment>
+    lval:lValue tSpace? kwASSIGN ws?
+    rval:expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Assignment>
   end
 
   rule stmtCase
     kwCASE tSpace 
     cases:condWhen+
     else:stmtElse?
-    kwEND tSpace kwCASE tSpace? ';' <Piggly::Parser::Nodes::Cond>
+    kwEND tSpace kwCASE
+      tSpace? ';' <Piggly::Parser::Nodes::Cond>
     /
     kwCASE tSpace
     expr:expressionUntilWhen
     cases:caseWhen+
     else:stmtElse?
-    kwEND tSpace kwCASE tSpace? ';' <Piggly::Parser::Nodes::Case>
+    kwEND tSpace kwCASE
+      tSpace? ';' <Piggly::Parser::Nodes::Case>
   end
   
   rule stmtIf
@@ -108,16 +108,18 @@ grammar Piggly
       bodySpace:tSpace
       bodyStub:stubNode
       body:statement*
+      doneStub:stubNode
     kwEND tSpace kwLOOP
-    ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
-    tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::Loop>
+      ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
+      tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::Loop>
     /
     cond:kwLOOP
       bodySpace:tSpace
       bodyStub:stubNode
       body:statement*
+      doneStub:stubNode
     kwEND tSpace kwLOOP
-    tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::Loop>
+      tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::Loop>
   end
   
   rule stmtWhileLoop
@@ -131,8 +133,8 @@ grammar Piggly
       bodyStub:stubNode
       body:statement*
     kwEND tSpace kwLOOP
-    ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
-    tSpace? ';' <Piggly::Parser::Nodes::WhileLoop>
+      ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
+      tSpace? ';' <Piggly::Parser::Nodes::WhileLoop>
     /
     kwWHILE
       condSpace:tSpace?
@@ -143,10 +145,9 @@ grammar Piggly
       bodyStub:stubNode
       body:statement*
     kwEND tSpace kwLOOP
-    tSpace? ';' <Piggly::Parser::Nodes::WhileLoop>
+      tSpace? ';' <Piggly::Parser::Nodes::WhileLoop>
   end
   
-  # loop coverage calculated by using exitStub
   rule stmtForLoop
     label_open:tLabelDefinition tSpace
     kwFOR tSpace identifierList tSpace
@@ -159,9 +160,8 @@ grammar Piggly
       body:statement*
       doneStub:stubNode
     kwEND tSpace kwLOOP
-    ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
-    tSpace? ';'
-    exitStub:stubNode <Piggly::Parser::Nodes::ForLoop>
+      ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
+      tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::ForLoop>
     /
     kwFOR tSpace identifierList tSpace
     kwIN
@@ -172,8 +172,8 @@ grammar Piggly
       bodyStub:stubNode
       body:statement*
       doneStub:stubNode
-    kwEND tSpace kwLOOP tSpace? ';'
-    exitStub:stubNode <Piggly::Parser::Nodes::ForLoop>
+    kwEND tSpace kwLOOP
+      tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::ForLoop>
   end
   
   rule stmtForSql
@@ -196,10 +196,10 @@ grammar Piggly
   rule stmtContinue
     bodyStub:stubNode
     body:( kwCONTINUE (tSpace label:tLabel <Piggly::Parser::Nodes::TLabel> )? )
-    tSpace? ';' <Piggly::Parser::Nodes::Continue>
+      tSpace? ';' <Piggly::Parser::Nodes::Continue>
     /
     body:( kwCONTINUE (tSpace label:tLabel <Piggly::Parser::Nodes::TLabel> )? )
-    tSpace
+      tSpace
     kwWHEN
       condSpace:tSpace
       condStub:stubNode
@@ -266,7 +266,6 @@ grammar Piggly
     kwNULL tSpace? ';'
   end
   
-  ##
   #############################################################################
   
   rule stmtDeclare
@@ -308,7 +307,7 @@ grammar Piggly
     kwTHEN
       bodySpace:tSpace
       bodyStub:stubNode
-      body:statement* <Piggly::Parser::Nodes::Case>
+      body:statement* <Piggly::Parser::Nodes::CaseWhen>
   end
 
   rule condWhen
@@ -319,40 +318,41 @@ grammar Piggly
     kwTHEN
       bodySpace:tSpace
       bodyStub:stubNode
-      body:statement* <Piggly::Parser::Nodes::Cond>
+      body:statement* <Piggly::Parser::Nodes::CondWhen>
   end
   
   ## EXPRESSIONS
   #############################################################################
   
-  # it would be nice to match parens and brackets here, but we again assume there
-  # are no syntax errors in the proc and let the database worry about them
-  
   rule expressionUntilSemiColon
-    head:tSpace? expr:( tString / skipWords / tSpace !';' / !tSpace [^;] )* tail:tSpace? &';' <Piggly::Parser::Nodes::Expression>
+    head:tSpace? expr:( tString / skipWords / tSpace !';' / !tSpace [^;] )*
+    tail:tSpace? &';' <Piggly::Parser::Nodes::Expression>
   end
   
   rule expressionUntilClosingBracket
-    head:tSpace? expr:( tString / skipWords / tSpace !']' / !tSpace [^\]] )+ tail:tSpace? &']' <Piggly::Parser::Nodes::Expression>
+    head:tSpace? expr:( tString / skipWords / tSpace !']' / !tSpace [^\]] )+
+    tail:tSpace? &']' <Piggly::Parser::Nodes::Expression>
   end
   
   rule expressionUntilThen
-    head:tSpace? expr:( tString / skipWords / tSpace !kwTHEN / !tSpace !kwTHEN . )+ tail:tSpace &kwTHEN <Piggly::Parser::Nodes::Expression>
+    head:tSpace? expr:( tString / skipWords / tSpace !kwTHEN / !tSpace !kwTHEN . )+
+    tail:tSpace &kwTHEN <Piggly::Parser::Nodes::Expression>
   end
   
   rule expressionUntilWhen
-    head:tSpace? expr:( tString / skipWords / tSpace !kwWHEN / !tSpace !kwWHEN . )+ tail:tSpace &kwWHEN <Piggly::Parser::Nodes::Expression>
+    head:tSpace? expr:( tString / skipWords / tSpace !kwWHEN / !tSpace !kwWHEN . )+
+    tail:tSpace &kwWHEN <Piggly::Parser::Nodes::Expression>
   end
   
   rule expressionUntilLoop
-    head:tSpace? expr:( tString / skipWords / tSpace !kwLOOP / !tSpace !kwLOOP . )+ tail:tSpace &kwLOOP <Piggly::Parser::Nodes::Expression>
+    head:tSpace? expr:( tString / skipWords / tSpace !kwLOOP / !tSpace !kwLOOP . )+
+    tail:tSpace &kwLOOP <Piggly::Parser::Nodes::Expression>
   end
 
   rule skipWords
     [a-z0-9_]+ <Piggly::Parser::Nodes::TextNode>
   end
 
-  ##
   #############################################################################
 
   rule ws

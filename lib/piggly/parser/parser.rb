@@ -1202,20 +1202,24 @@ module Piggly
       elements[5]
     end
 
-    def kwEND
+    def doneStub
       elements[6]
     end
 
-    def tSpace2
+    def kwEND
       elements[7]
     end
 
-    def kwLOOP
+    def tSpace2
       elements[8]
     end
 
+    def kwLOOP
+      elements[9]
+    end
+
     def exitStub
-      elements[12]
+      elements[13]
     end
   end
 
@@ -1236,20 +1240,24 @@ module Piggly
       elements[3]
     end
 
-    def kwEND
+    def doneStub
       elements[4]
     end
 
-    def tSpace
+    def kwEND
       elements[5]
     end
 
-    def kwLOOP
+    def tSpace
       elements[6]
     end
 
+    def kwLOOP
+      elements[7]
+    end
+
     def exitStub
-      elements[9]
+      elements[10]
     end
   end
 
@@ -1293,55 +1301,59 @@ module Piggly
               r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
               s1 << r7
               if r7
-                r9 = _nt_kwEND
+                r9 = _nt_stubNode
                 s1 << r9
                 if r9
-                  r10 = _nt_tSpace
+                  r10 = _nt_kwEND
                   s1 << r10
                   if r10
-                    r11 = _nt_kwLOOP
+                    r11 = _nt_tSpace
                     s1 << r11
                     if r11
-                      i13, s13 = index, []
-                      r14 = _nt_tSpace
-                      s13 << r14
-                      if r14
-                        r15 = _nt_tLabel
-                        s13 << r15
-                      end
-                      if s13.last
-                        r13 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i13...index, s13)
-                        r13.extend(StmtLoop0)
-                      else
-                        @index = i13
-                        r13 = nil
-                      end
-                      if r13
-                        r12 = r13
-                      else
-                        r12 = instantiate_node(SyntaxNode,input, index...index)
-                      end
+                      r12 = _nt_kwLOOP
                       s1 << r12
                       if r12
-                        r17 = _nt_tSpace
-                        if r17
-                          r16 = r17
-                        else
-                          r16 = instantiate_node(SyntaxNode,input, index...index)
+                        i14, s14 = index, []
+                        r15 = _nt_tSpace
+                        s14 << r15
+                        if r15
+                          r16 = _nt_tLabel
+                          s14 << r16
                         end
-                        s1 << r16
-                        if r16
-                          if has_terminal?(';', false, index)
-                            r18 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                            @index += 1
-                          else
-                            terminal_parse_failure(';')
-                            r18 = nil
-                          end
-                          s1 << r18
+                        if s14.last
+                          r14 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i14...index, s14)
+                          r14.extend(StmtLoop0)
+                        else
+                          @index = i14
+                          r14 = nil
+                        end
+                        if r14
+                          r13 = r14
+                        else
+                          r13 = instantiate_node(SyntaxNode,input, index...index)
+                        end
+                        s1 << r13
+                        if r13
+                          r18 = _nt_tSpace
                           if r18
-                            r19 = _nt_stubNode
+                            r17 = r18
+                          else
+                            r17 = instantiate_node(SyntaxNode,input, index...index)
+                          end
+                          s1 << r17
+                          if r17
+                            if has_terminal?(';', false, index)
+                              r19 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                              @index += 1
+                            else
+                              terminal_parse_failure(';')
+                              r19 = nil
+                            end
                             s1 << r19
+                            if r19
+                              r20 = _nt_stubNode
+                              s1 << r20
+                            end
                           end
                         end
                       end
@@ -1364,56 +1376,60 @@ module Piggly
     if r1
       r0 = r1
     else
-      i20, s20 = index, []
-      r21 = _nt_kwLOOP
-      s20 << r21
-      if r21
-        r22 = _nt_tSpace
-        s20 << r22
-        if r22
-          r23 = _nt_stubNode
-          s20 << r23
-          if r23
-            s24, i24 = [], index
+      i21, s21 = index, []
+      r22 = _nt_kwLOOP
+      s21 << r22
+      if r22
+        r23 = _nt_tSpace
+        s21 << r23
+        if r23
+          r24 = _nt_stubNode
+          s21 << r24
+          if r24
+            s25, i25 = [], index
             loop do
-              r25 = _nt_statement
-              if r25
-                s24 << r25
+              r26 = _nt_statement
+              if r26
+                s25 << r26
               else
                 break
               end
             end
-            r24 = instantiate_node(SyntaxNode,input, i24...index, s24)
-            s20 << r24
-            if r24
-              r26 = _nt_kwEND
-              s20 << r26
-              if r26
-                r27 = _nt_tSpace
-                s20 << r27
-                if r27
-                  r28 = _nt_kwLOOP
-                  s20 << r28
-                  if r28
-                    r30 = _nt_tSpace
+            r25 = instantiate_node(SyntaxNode,input, i25...index, s25)
+            s21 << r25
+            if r25
+              r27 = _nt_stubNode
+              s21 << r27
+              if r27
+                r28 = _nt_kwEND
+                s21 << r28
+                if r28
+                  r29 = _nt_tSpace
+                  s21 << r29
+                  if r29
+                    r30 = _nt_kwLOOP
+                    s21 << r30
                     if r30
-                      r29 = r30
-                    else
-                      r29 = instantiate_node(SyntaxNode,input, index...index)
-                    end
-                    s20 << r29
-                    if r29
-                      if has_terminal?(';', false, index)
-                        r31 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                        @index += 1
+                      r32 = _nt_tSpace
+                      if r32
+                        r31 = r32
                       else
-                        terminal_parse_failure(';')
-                        r31 = nil
+                        r31 = instantiate_node(SyntaxNode,input, index...index)
                       end
-                      s20 << r31
+                      s21 << r31
                       if r31
-                        r32 = _nt_stubNode
-                        s20 << r32
+                        if has_terminal?(';', false, index)
+                          r33 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                          @index += 1
+                        else
+                          terminal_parse_failure(';')
+                          r33 = nil
+                        end
+                        s21 << r33
+                        if r33
+                          r34 = _nt_stubNode
+                          s21 << r34
+                        end
                       end
                     end
                   end
@@ -1423,15 +1439,15 @@ module Piggly
           end
         end
       end
-      if s20.last
-        r20 = instantiate_node(Piggly::Parser::Nodes::Loop,input, i20...index, s20)
-        r20.extend(StmtLoop2)
+      if s21.last
+        r21 = instantiate_node(Piggly::Parser::Nodes::Loop,input, i21...index, s21)
+        r21.extend(StmtLoop2)
       else
-        @index = i20
-        r20 = nil
+        @index = i21
+        r21 = nil
       end
-      if r20
-        r0 = r20
+      if r21
+        r0 = r21
       else
         @index = i0
         r0 = nil
@@ -4178,7 +4194,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Piggly::Parser::Nodes::Case,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::CaseWhen,input, i0...index, s0)
       r0.extend(CaseWhen0)
     else
       @index = i0
@@ -4276,7 +4292,7 @@ module Piggly
       end
     end
     if s0.last
-      r0 = instantiate_node(Piggly::Parser::Nodes::Cond,input, i0...index, s0)
+      r0 = instantiate_node(Piggly::Parser::Nodes::CondWhen,input, i0...index, s0)
       r0.extend(CondWhen0)
     else
       @index = i0
