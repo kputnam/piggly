@@ -8,9 +8,9 @@ allows you to see which parts of your code haven't been executed.
 
 ## What's Piggly?
 
-Piggly is a tool written in Ruby to track code coverage of PostgreSQL's PL/pgSQL stored
-procedures. It reports on code coverage to help you identify untested parts of your code.  You
-write tests in Ruby against your stored procedures and run them with piggly.
+Piggly is a tool (written in Ruby) to track code coverage of PostgreSQL PL/pgSQL stored
+procedures. It reports on code coverage to help you identify untested parts of your code.
+You write tests in Ruby against your stored procedures and run them with piggly.
 
 ## How Does It Work?
 
@@ -25,7 +25,7 @@ these events and generates prettified source code that is annotated with coverag
 * Instrumenting source-to-source compiler
 * Low test execution overhead
 * Reduced compilation times by use of disk caching
-* Readable and easily-navigable reports (see example/piggly/reports/index.html)
+* Readable and easily-navigable reports (see [example] [5])
 * Possible to aggregate coverage across multiple runs
 * Test::Unit and RSpec compatible
 
@@ -54,9 +54,9 @@ To install the latest from github:
 
 ## Usage
 
-Your stored procedures must already be loaded in the database. Your tests will automatically connect
-to the database when they are loaded, or `ActiveRecord::Base.establish_connection`, is called with
-no parameters to the default database. Assume the tests that exercise your stored procedures are in spec/.  
+Your stored procedures must already be loaded in the database. Your tests should automatically connect
+to the database when they are loaded, or `ActiveRecord::Base.establish_connection`, will be called with
+no parameters to connect the default database. Assume your tests are in spec/.  
 
     $ cd piggly/example/
     $ ../bin/piggly 'spec/**/*_spec.rb'
@@ -88,7 +88,7 @@ no parameters to the default database. Assume the tests that exercise your store
 
 Note the compilation can be slow on the first run, but on subsequent runs it shouldn't need
 to compile everything again. If a procedure is added or changed, it will be recompiled. The
-report index is rebuild on each run, but the individual reports are only rebuilt if the
+report index is rebuilt on each run, but the individual reports are only rebuilt if the
 coverage for that procedure was updated or if the source code changed.
 
 Piggly can also be run from Rake, with a task like:
@@ -120,3 +120,4 @@ Please report any issues on the [github tracker] [4]
   [2]: http://github.com/nathansobo/treetop
   [3]: http://bitbucket.org/ged/ruby-pg/
   [4]: http://github.com/kputnam/piggly/issues
+  [5]: http://kputnam.github.com/piggly/reports/index.html
