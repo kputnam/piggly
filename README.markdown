@@ -114,7 +114,7 @@ Please report any issues on the [github tracker] [4]
 
 ## Author
 
-* Kyle Putnam <putnam.kyle@gmail.com>
+* Kyle Putnam <putnam.kyle at gmail>
 
   [1]: http://github.com/relevance/rcov/
   [2]: http://github.com/nathansobo/treetop
