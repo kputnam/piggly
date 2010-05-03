@@ -33,10 +33,16 @@ be annotated in a nest of nodes... and should the pragma apply to the node's
 descendants?
 
 ## Small things
+* Don't show OUT parameter types in Dumper::Index#label
 * Support for user-provided stylesheet
 * Remove linebreaks from Compiler::Trace, so error messages line numbers match
   the report and the original uninstrumented source
 * Print the percent change in coverage after "Reporting coverage for ..."
+* Loop coverage tags for ordinary LOOPs
+* Optional to generate index for all previously exercised procs, when -n was used to
+  update coverage for specific procs.
+* Prevent instrumenting a previously instrumented proc, which happens when the previous
+  restore failed. This causes failure to ping tags generated from last time
 * Intermittant dumper bug: removed procs, ran tests. restored procs and made edits
   to other procs. Running didn't "cache source" for restored procs, then cacheable.rb:143
   `read' failed "no such file or directory". Running a third time recovers from
