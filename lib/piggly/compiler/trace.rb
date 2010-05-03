@@ -51,8 +51,8 @@ module Piggly
               @tags << node.body.tag(@oid)
               @tags << node.cond.tag(@oid)
 
-              # a hack to simulate a loop conditional statement in ForLoop. signal condition was true
-              # when body is executed. when exit stub is reached, signal condition was false
+              # a hack to simulate a loop conditional statement in stmtForLoop and stmtLoop.
+              # signal condition is true when body is executed, and false when exit stub is reached
               node.bodyStub.source_text  = "perform piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, true);#{node.indent(:bodySpace)}"
               node.bodyStub.source_text << "perform piggly_branch($PIGGLY$#{node.body.tag_id}$PIGGLY$);#{node.indent(:bodySpace)}"
 
@@ -67,7 +67,6 @@ module Piggly
             elsif node.respond_to?(:body)
               # no condition:
               #   BEGIN ... END;
-              #   LOOP ... END;
               #   ... ELSE ... END;
               #   CONTINUE label;
               #   EXIT label;

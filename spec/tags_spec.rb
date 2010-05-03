@@ -14,12 +14,12 @@ end
 describe Tags::UnconditionalBranchTag do
 end
 
-describe Tags::LoopConditionTag do
+describe Tags::ConditionalLoopTag do
 end
 
-describe Tags::ForCollectionTag do
+describe Tags::UnconditionalLoopTag do
   before do
-    @tag = Tags::ForCollectionTag.new('for-loop')
+    @tag = Tags::UnconditionalLoopTag.new('for-loop')
   end
 
   it "detects state 00 (0b0000)" do
@@ -279,7 +279,7 @@ describe Tags::ForCollectionTag do
 
 end
 
-describe Tags::BranchConditionTag do
+describe Tags::ConditionalBranchTag do
 end
 
 end

@@ -28,8 +28,17 @@ module Piggly
       end
 
       def traverse(node, string='') # :nodoc:
+        if node.tagged?
+          tag = @profile[node.tag_id]
+
+          if tag.complete?
+            string << '<span class="' << tag.style << '" id="T' << tag.id << '">'
+          else
+            string << '<span class="' << tag.style << '" id="T' << tag.id << '" title="' << tag.description << '">'
+          end
+        end
+
         if node.terminal?
-          # terminals (leaves) are never tagged
           if style = node.style
             string << '<span class="' << style << '">' << e(node.text_value) << '</span>'
           else
@@ -37,27 +46,14 @@ module Piggly
           end
         else
           # non-terminals never write their text_value
-          for child in node.elements
-            if child.tagged?
-
-              # retreive the profiled tag
-              tag = @profile[child.tag_id]
-
-              if tag.complete?
-                string << '<span class="' << tag.style << '" id="T' << tag.id << '">'
-              else
-                string << '<span class="' << tag.style << '" id="T' << tag.id << '" title="' << tag.description << '">'
-              end
-
-              traverse(child, string)
-              string << '</span>'
-            else
-              traverse(child, string)
-            end
-          end
-
-          string
+          node.elements.each{|child| traverse(child, string) }
         end
+
+        if node.tagged?
+          string << '</span>'
+        end
+
+        string
       end
 
     end
