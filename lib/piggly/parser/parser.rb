@@ -160,7 +160,7 @@ module Piggly
 
     i0 = index
     i1, s1 = index, []
-    r2 = _nt_tLabel
+    r2 = _nt_tLabelDefinition
     s1 << r2
     if r2
       r3 = _nt_tSpace
@@ -1266,7 +1266,7 @@ module Piggly
 
     i0 = index
     i1, s1 = index, []
-    r2 = _nt_tLabel
+    r2 = _nt_tLabelDefinition
     s1 << r2
     if r2
       r3 = _nt_tSpace
@@ -1306,11 +1306,11 @@ module Piggly
                       r14 = _nt_tSpace
                       s13 << r14
                       if r14
-                        r15 = _nt_tIdentifier
+                        r15 = _nt_tLabel
                         s13 << r15
                       end
                       if s13.last
-                        r13 = instantiate_node(SyntaxNode,input, i13...index, s13)
+                        r13 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i13...index, s13)
                         r13.extend(StmtLoop0)
                       else
                         @index = i13
@@ -1568,7 +1568,7 @@ module Piggly
 
     i0 = index
     i1, s1 = index, []
-    r2 = _nt_tLabel
+    r2 = _nt_tLabelDefinition
     s1 << r2
     if r2
       r3 = _nt_tSpace
@@ -1625,11 +1625,11 @@ module Piggly
                               r19 = _nt_tSpace
                               s18 << r19
                               if r19
-                                r20 = _nt_tIdentifier
+                                r20 = _nt_tLabel
                                 s18 << r20
                               end
                               if s18.last
-                                r18 = instantiate_node(SyntaxNode,input, i18...index, s18)
+                                r18 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i18...index, s18)
                                 r18.extend(StmtWhileLoop0)
                               else
                                 @index = i18
@@ -1942,7 +1942,7 @@ module Piggly
 
     i0 = index
     i1, s1 = index, []
-    r2 = _nt_tLabel
+    r2 = _nt_tLabelDefinition
     s1 << r2
     if r2
       r3 = _nt_tSpace
@@ -2018,11 +2018,11 @@ module Piggly
                                       r24 = _nt_tSpace
                                       s23 << r24
                                       if r24
-                                        r25 = _nt_tIdentifier
+                                        r25 = _nt_tLabel
                                         s23 << r25
                                       end
                                       if s23.last
-                                        r23 = instantiate_node(SyntaxNode,input, i23...index, s23)
+                                        r23 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i23...index, s23)
                                         r23.extend(StmtForLoop0)
                                       else
                                         @index = i23
@@ -2352,11 +2352,11 @@ module Piggly
         r7 = _nt_tSpace
         s6 << r7
         if r7
-          r8 = _nt_tIdentifier
+          r8 = _nt_tLabel
           s6 << r8
         end
         if s6.last
-          r6 = instantiate_node(SyntaxNode,input, i6...index, s6)
+          r6 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i6...index, s6)
           r6.extend(StmtExit0)
         else
           @index = i6
@@ -2416,11 +2416,11 @@ module Piggly
         r17 = _nt_tSpace
         s16 << r17
         if r17
-          r18 = _nt_tIdentifier
+          r18 = _nt_tLabel
           s16 << r18
         end
         if s16.last
-          r16 = instantiate_node(SyntaxNode,input, i16...index, s16)
+          r16 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i16...index, s16)
           r16.extend(StmtExit3)
         else
           @index = i16
@@ -2587,11 +2587,11 @@ module Piggly
         r7 = _nt_tSpace
         s6 << r7
         if r7
-          r8 = _nt_tIdentifier
+          r8 = _nt_tLabel
           s6 << r8
         end
         if s6.last
-          r6 = instantiate_node(SyntaxNode,input, i6...index, s6)
+          r6 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i6...index, s6)
           r6.extend(StmtContinue0)
         else
           @index = i6
@@ -2651,11 +2651,11 @@ module Piggly
         r17 = _nt_tSpace
         s16 << r17
         if r17
-          r18 = _nt_tIdentifier
+          r18 = _nt_tLabel
           s16 << r18
         end
         if s16.last
-          r16 = instantiate_node(SyntaxNode,input, i16...index, s16)
+          r16 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i16...index, s16)
           r16.extend(StmtContinue3)
         else
           @index = i16
@@ -5709,17 +5709,17 @@ module Piggly
     r0
   end
 
-  module TLabel0
-    def name
+  module TLabelDefinition0
+    def tLabel
       elements[2]
     end
 
   end
 
-  def _nt_tLabel
+  def _nt_tLabelDefinition
     start_index = index
-    if node_cache[:tLabel].has_key?(index)
-      cached = node_cache[:tLabel][index]
+    if node_cache[:tLabelDefinition].has_key?(index)
+      cached = node_cache[:tLabelDefinition][index]
       if cached
         cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
@@ -5745,7 +5745,7 @@ module Piggly
       end
       s0 << r2
       if r2
-        r4 = _nt_tIdentifier
+        r4 = _nt_tLabel
         s0 << r4
         if r4
           r6 = _nt_tSpace
@@ -5770,11 +5770,29 @@ module Piggly
     end
     if s0.last
       r0 = instantiate_node(Piggly::Parser::Nodes::TLabel,input, i0...index, s0)
-      r0.extend(TLabel0)
+      r0.extend(TLabelDefinition0)
     else
       @index = i0
       r0 = nil
     end
+
+    node_cache[:tLabelDefinition][start_index] = r0
+
+    r0
+  end
+
+  def _nt_tLabel
+    start_index = index
+    if node_cache[:tLabel].has_key?(index)
+      cached = node_cache[:tLabel][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    r0 = _nt_tIdentifier
 
     node_cache[:tLabel][start_index] = r0
 
