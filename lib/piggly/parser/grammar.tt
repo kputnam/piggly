@@ -11,7 +11,7 @@ grammar Piggly
   end
   
   rule block
-    label_open:tLabel tSpace
+    label_open:tLabelDefinition tSpace
     blockDeclarations:stmtDeclare*
     kwBEGIN
       bodySpace:tSpace
@@ -103,13 +103,13 @@ grammar Piggly
   end
   
   rule stmtLoop
-    label_open:tLabel tSpace
+    label_open:tLabelDefinition tSpace
     cond:kwLOOP
       bodySpace:tSpace
       bodyStub:stubNode
       body:statement*
     kwEND tSpace kwLOOP
-    ( tSpace label_close:tIdentifier )?
+    ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
     tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::Loop>
     /
     cond:kwLOOP
@@ -121,7 +121,7 @@ grammar Piggly
   end
   
   rule stmtWhileLoop
-    label_open:tLabel tSpace
+    label_open:tLabelDefinition tSpace
     kwWHILE
       condSpace:tSpace?
       condStub:stubNode
@@ -131,7 +131,7 @@ grammar Piggly
       bodyStub:stubNode
       body:statement*
     kwEND tSpace kwLOOP
-    ( tSpace label_close:tIdentifier )?
+    ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
     tSpace? ';' <Piggly::Parser::Nodes::WhileLoop>
     /
     kwWHILE
@@ -148,7 +148,7 @@ grammar Piggly
   
   # loop coverage calculated by using exitStub
   rule stmtForLoop
-    label_open:tLabel tSpace
+    label_open:tLabelDefinition tSpace
     kwFOR tSpace identifierList tSpace
     kwIN
       condSpace:tSpace
@@ -159,7 +159,7 @@ grammar Piggly
       body:statement*
       doneStub:stubNode
     kwEND tSpace kwLOOP
-    ( tSpace label_close:tIdentifier )?
+    ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
     tSpace? ';'
     exitStub:stubNode <Piggly::Parser::Nodes::ForLoop>
     /
@@ -182,9 +182,11 @@ grammar Piggly
   
   rule stmtExit
     bodyStub:stubNode
-    body:( kwEXIT (tSpace label:tIdentifier)? ) tSpace? ';' <Piggly::Parser::Nodes::Exit>
+    body:( kwEXIT (tSpace label:tLabel <Piggly::Parser::Nodes::TLabel> )? )
+    tSpace? ';' <Piggly::Parser::Nodes::Exit>
     /
-    body:( kwEXIT (tSpace label:tIdentifier)? ) tSpace
+    body:( kwEXIT (tSpace label:tLabel <Piggly::Parser::Nodes::TLabel> )? )
+    tSpace
     kwWHEN
       condSpace:tSpace
       condStub:stubNode
@@ -193,9 +195,11 @@ grammar Piggly
 
   rule stmtContinue
     bodyStub:stubNode
-    body:( kwCONTINUE (tSpace label:tIdentifier)? ) tSpace? ';' <Piggly::Parser::Nodes::Continue>
+    body:( kwCONTINUE (tSpace label:tLabel <Piggly::Parser::Nodes::TLabel> )? )
+    tSpace? ';' <Piggly::Parser::Nodes::Continue>
     /
-    body:( kwCONTINUE (tSpace label:tIdentifier)? ) tSpace
+    body:( kwCONTINUE (tSpace label:tLabel <Piggly::Parser::Nodes::TLabel> )? )
+    tSpace
     kwWHEN
       condSpace:tSpace
       condStub:stubNode
@@ -381,8 +385,12 @@ grammar Piggly
     !.
   end
   
+  rule tLabelDefinition
+    '<<' tSpace? tLabel tSpace? '>>' <Piggly::Parser::Nodes::TLabel>
+  end
+
   rule tLabel
-    '<<' tSpace? name:tIdentifier tSpace? '>>' <Piggly::Parser::Nodes::TLabel>
+    tIdentifier
   end
   
   rule tIdentifier
