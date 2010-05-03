@@ -57,11 +57,10 @@ module Piggly
             spacer    = "\t"
           end
 
-          arguments = procedure.arg_names.zip(procedure.arg_modes, procedure.arg_types).map do |name, mode, type|
-            if mode = modes[mode]
-              mode = "<span class='tK'>#{mode}</span>#{spacer}"
-            end
-            "#{mode}<span class='tI'>#{name}</span>#{spacer}<span class='tD'>#{type}</span>"
+          arguments = procedure.arg_types.zip(procedure.arg_modes, procedure.arg_names).map do |atype, amode, aname|
+            amode &&= "<span class='tK'>#{amode}</span>#{spacer}"
+            aname &&= "<span class='tI'>#{aname}</span>#{spacer}"
+            "#{amode}#{aname}<span class='tD'>#{atype}</span>"
           end.join(separator)
 
           string << arguments << " )"
@@ -200,6 +199,7 @@ module Piggly
         end
 
       end
+
     end
   end
 end

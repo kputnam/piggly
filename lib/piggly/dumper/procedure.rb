@@ -2,6 +2,15 @@ module Piggly
   module Dumper
     class Procedure
 
+      # return the key if it's not a member
+      ABBREVATIONS = Hash.new{|h,k| k }.update \
+        'character varying' => 'varchar',
+        'character'         => 'char',
+        'integer'           => 'int',
+        'int4'              => 'int',
+        'boolean'           => 'bool',
+        '"char"'            => 'char'
+
       class << self
         # Returns a list of all PL/pgSQL stored procedures in the current database
         def all
@@ -51,11 +60,11 @@ module Piggly
               hash['strict'] == 't',
               hash['secdef'] == 't',
               hash['setof'] == 't',
-              hash['rettype'],
+              ABBREVATIONS[hash['rettype']],
               hash['volatile'],
               hash['arg_modes'] ? hash['arg_modes'].split(',').map(&:strip) : [],
               hash['arg_names'] ? hash['arg_names'].split(',').map(&:strip) : [],
-              hash['arg_types'] ? hash['arg_types'].split(',').map(&:strip) : [],
+              hash['arg_types'] ? hash['arg_types'].split(',').map(&:strip).map{|x| ABBREVATIONS[x] } : [],
               hash['source'])
         end
 
@@ -75,12 +84,15 @@ module Piggly
           oid, namespace, name, strict, secdef, rettype, volatile, setof, arg_modes, arg_names, arg_types, source.strip
       end
 
+      def arg_modes
+        renamed = Hash.new{|h,k| k }.update('i' => 'in', 'o' => 'out', 'b' => 'inout')
+        @arg_modes.map{|m| renamed[m] }
+      end
+
       # Returns source text for argument list
       def arguments
-        modes = { 'i' => 'in', 'o' => 'out', 'b' => 'inout' }
-
         arg_types.zip(arg_names, arg_modes).map do |atype, aname, amode|
-          "#{modes.include?(amode) ? modes[amode] + ' ' : ''}#{aname} #{atype}"
+          "#{amode + ' ' if amode}#{aname + ' ' if aname} #{atype}"
         end.join(', ')
       end
 
@@ -117,11 +129,7 @@ module Piggly
       end
 
       def signature
-        # attempt to abbreviate a bit
-        args = arg_types.join(', ').
-          gsub('charater varying', 'varchar')
-
-        "#{type} #{namespace}.#{name}(#{args})"
+        "#{type} #{namespace}.#{name}(#{arg_types.join(', ')})"
       end
 
       def source_path(filename = identifier)
