@@ -25,7 +25,7 @@ module Piggly
       def update(procedures)
         changed = outdated(procedures).each(&:purge_source).any? ||
                   created(procedures).each(&:store_source).any?  ||
-                  updated(procedures).each(&:store_source).any?  ||
+                  updated(procedures).each(&:store_source).any?
 
         @index = procedures.index_by(&:identifier)
 
@@ -64,7 +64,9 @@ module Piggly
               if samespaces.none?{|p| p.type == procedure.type }
                 "#{procedure.type} #{procedure.namespace}.#{procedure.name}"
               else
-                args = procedure.arg_types.join(', ')
+                # ignore OUT arguments
+                args = procedure.arg_types.zip(procedure.arg_modes).
+                  select{|_, m| m != 'out' }.map(&:first).join(', ')
 
                 if samenames.none?{|p| p.arg_types == procedure.arg_types }
                   "#{procedure.name} (#{args})"
