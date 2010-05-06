@@ -45,7 +45,6 @@ module Piggly
 
         def signature(procedure)
           string = "<span class='tK'>CREATE FUNCTION</span> <b><span class='tI'>#{procedure.name}</span></b>"
-          modes  = {'i' => 'IN', 'o' => 'OUT', 'b' => 'INOUT'}
 
           if procedure.arg_names.size <= 1
             string   << " ( "
@@ -58,7 +57,7 @@ module Piggly
           end
 
           arguments = procedure.arg_types.zip(procedure.arg_modes, procedure.arg_names).map do |atype, amode, aname|
-            amode &&= "<span class='tK'>#{amode}</span>#{spacer}"
+            amode &&= "<span class='tK'>#{amode.upcase}</span>#{spacer}"
             aname &&= "<span class='tI'>#{aname}</span>#{spacer}"
             "#{amode}#{aname}<span class='tD'>#{atype}</span>"
           end.join(separator)

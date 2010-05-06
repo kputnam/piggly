@@ -11,6 +11,16 @@ module Piggly
         'boolean'           => 'bool',
         '"char"'            => 'char'
 
+      MODES = Hash.new{|h,k| k }.update \
+        'i' => 'in',
+        'o' => 'out',
+        'b' => 'inout'
+
+      VOLATILITY = Hash.new{|h,k| k }.update \
+         'i' => 'immutable',
+         'v' => 'volatile',
+         's' => 'stable'
+
       class << self
         # Returns a list of all PL/pgSQL stored procedures in the current database
         def all
@@ -21,7 +31,7 @@ module Piggly
               pro.proname     as name,
               pro.proisstrict as strict,
               pro.prosecdef   as secdef,
-              pro.provolatile as volatile,
+              pro.provolatile as volatility,
               pro.proretset   as setof,
               ret.typname     as rettype,
               pro.prosrc      as source,
@@ -54,6 +64,7 @@ module Piggly
 
         # Instantiates a Procedure
         def from_hash(hash)
+          require'pp';pp hash
           new(hash['oid'],
               hash['namespace'],
               hash['name'],
@@ -61,10 +72,10 @@ module Piggly
               hash['secdef'] == 't',
               hash['setof'] == 't',
               ABBREVATIONS[hash['rettype']],
-              hash['volatile'],
-              hash['arg_modes'] ? hash['arg_modes'].split(',').map(&:strip) : [],
+              VOLATILITY[hash['volatility']],
+              hash['arg_modes'] ? hash['arg_modes'].split(',').map{|x| MODES[x.strip] } : [],
               hash['arg_names'] ? hash['arg_names'].split(',').map(&:strip) : [],
-              hash['arg_types'] ? hash['arg_types'].split(',').map(&:strip).map{|x| ABBREVATIONS[x] } : [],
+              hash['arg_types'] ? hash['arg_types'].split(',').map{|x| ABBREVATIONS[x.strip] } : [],
               hash['source'])
         end
 
@@ -77,16 +88,11 @@ module Piggly
       end
 
       attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :rettype,
-                    :volatile, :arg_modes, :arg_names, :arg_types, :source, :identified_using
+                    :volatility, :arg_modes, :arg_names, :arg_types, :source, :identified_using
 
-      def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatile, arg_modes, arg_names, arg_types, source)
-        @oid, @namespace, @name, @strict, @secdef, @rettype, @volatile, @setof, @arg_modes, @arg_names, @arg_types, @source =
-          oid, namespace, name, strict, secdef, rettype, volatile, setof, arg_modes, arg_names, arg_types, source.strip
-      end
-
-      def arg_modes
-        renamed = Hash.new{|h,k| k }.update('i' => 'in', 'o' => 'out', 'b' => 'inout')
-        @arg_modes.map{|m| renamed[m] }
+      def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types, source)
+        @oid, @namespace, @name, @strict, @secdef, @rettype, @volatility, @setof, @arg_modes, @arg_names, @arg_types, @source =
+          oid, namespace, name, strict, secdef, rettype, volatility, setof, arg_modes, arg_names, arg_types, source.strip
       end
 
       # Returns source text for argument list
@@ -98,11 +104,6 @@ module Piggly
 
       # Returns source text for volatility
       def volatility
-        case volatile
-        when 'i'; 'immutable'
-        when 'v'; 'volatile'
-        when 's'; 'stable'
-        end
       end
 
       # Returns source text for return type
