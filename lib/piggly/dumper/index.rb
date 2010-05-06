@@ -23,12 +23,9 @@ module Piggly
 
       # Updates the index with the given list of Procedure values
       def update(procedures)
-        # purge each procedure's related files from the file system
-        changed = outdated(procedures).each(&:purge_source).any?
-
-        # write each updated procedure's source code
-        changed ||= updated(procedures).each(&:store_source).any?
-        changed ||= created(procedures).each(&:store_source).any?
+        changed = outdated(procedures).each(&:purge_source).any? ||
+                  created(procedures).each(&:store_source).any?  ||
+                  updated(procedures).each(&:store_source).any?  ||
 
         @index = procedures.index_by(&:identifier)
 
@@ -88,19 +85,19 @@ module Piggly
 
       # Returns procedures which have differences between the entry in
       # the index and the entry in the given list
-      def updated(procedures)
-        procedures.select{|p| @index.include?(p.identifier) and p != @index[p.identifier] }
+      def updated(others)
+        others.select{|p| @index.include?(p.identifier) and p != @index[p.identifier] }
       end
 
       # Returns procedures in the index that don't exist in the given list
-      def outdated(procedures)
-        index = procedures.index_by(&:identifier)
-        @index.values.reject{|p| index.include?(p.identifier) }
+      def outdated(others)
+        others = others.index_by(&:identifier)
+        procedures.reject{|p| others.include?(p.identifier) }
       end
 
       # Returns procedures in the given list that don't exist in the index
-      def created(procedures)
-        procedures.reject{|p| @index.include?(p.identifier) }
+      def created(others)
+        others.reject{|p| @index.include?(p.identifier) }
       end
 
     private
@@ -113,8 +110,7 @@ module Piggly
           if File.exists?(self.class.path)
             YAML.load(File.read(self.class.path)).inject([]) do |list, p|
               if p.identified_using and p.identifier(p.identified_using) != p.identifier
-                # update location
-                p.rename(p.identifier(p.identified_using))
+                p.rename # identify_procedures_using was changed since the index was written
                 updated = true
               end
 
