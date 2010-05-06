@@ -102,10 +102,6 @@ module Piggly
         end.join(', ')
       end
 
-      # Returns source text for volatility
-      def volatility
-      end
-
       # Returns source text for return type
       def type
         "#{setof ? 'setof ' : ''}#{@rettype}"
