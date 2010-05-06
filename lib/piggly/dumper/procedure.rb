@@ -64,7 +64,6 @@ module Piggly
 
         # Instantiates a Procedure
         def from_hash(hash)
-          require'pp';pp hash
           new(hash['oid'],
               hash['namespace'],
               hash['name'],
