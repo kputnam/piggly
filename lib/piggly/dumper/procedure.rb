@@ -137,24 +137,24 @@ module Piggly
       end
 
       def store_source
-        identified_using = Piggly::Config.identify_procedures_using
+        current = Piggly::Config.identify_procedures_using
 
-        if @identified_using and @identified_using != identified_using
+        if identified_using and identified_using != current
           # the file name scheme changed, so remove our old source file
-          old = source_path(identifier(@identified_using))
-          File.unlink(old) if File.exists?(old)
+          old = source_path(identifier(identified_using))
+          FileUtils.rm_r(old) if File.exists?(old)
         end
 
         puts "Caching source for #{name}"
-        @identified_using = identified_using
+        @identified_using = current
 
         File.open(source_path, 'wb'){|io| io.write source }
       end
 
       def purge_source
-        puts "Purging cached source of #{name}"
+        puts "Purging cached source for #{name}"
 
-        if @identified_using
+        if identifier(@identified_using) != identifier
           old = source_path(identifier(@identified_using))
           FileUtils.rm_r(old) if File.exists?(old)
 
@@ -176,6 +176,8 @@ module Piggly
       end
 
       def rename(from = identifier(identified_using))
+        puts "Renaming cache source for #{name}"
+
         @identified_using = Piggly::Config.identify_procedures_using
         File.rename(source_path(from), source_path)
         File.rename(Piggly::Compiler::Trace.cache_path(source_path(from)),
