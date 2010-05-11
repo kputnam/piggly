@@ -1,6 +1,12 @@
 module Piggly
   module Util
 
+    begin
+      BlankSlate
+    rescue NameError
+      require 'piggly/util/blankslate'
+    end
+
     #
     # Wraps a computation and delays its evaluation until
     # a message is sent to it. Computation can be forced by
