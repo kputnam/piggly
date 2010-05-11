@@ -5,7 +5,7 @@ module Piggly
     include GrammarHelper
 
     describe "SQL statements" do
-      it "parses successfully" do
+      it "parse successfully" do
         node, rest = parse_some(:statement, 'SELECT id FROM users;')
         node.should be_a(Parser::Nodes::Statement)
         node.count{|e| e.is_a?(Parser::Nodes::Sql) }.should == 1

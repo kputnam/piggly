@@ -6,7 +6,7 @@ module Piggly
     include GrammarHelper
 
     describe "assignment statements" do
-      it "parses successfully" do
+      it "parse successfully" do
         node = parse(:statement, "a := 10;")
         node.should be_a(Parser::Nodes::Statement)
         node.count{|e| e.is_a? Parser::Nodes::Assignment }.should == 1
