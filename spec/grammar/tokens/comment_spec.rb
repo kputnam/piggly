@@ -35,7 +35,7 @@ module Piggly
         end
       end
 
-      it "terminate after */ marker" do
+      it "terminates after */ marker" do
         GrammarHelper::COMMENTS.map{|s| "/* #{s} */remaining cruft\n" }.test_each do |s|
           node, rest = parse_some(:tComment, s)
           node.should be_a(Parser::Nodes::TComment)

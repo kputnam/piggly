@@ -85,13 +85,13 @@ module Piggly
         node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 2
       end
 
-      it "should combine trailing whitespace into 'tail' node" do
+      it "combines trailing whitespace into 'tail' node" do
         node, rest = parse_some(:expressionUntilSemiColon, "a := x + y  \t;")
         node.should be_a(Parser::Nodes::Expression)
         node.tail.source_text.should == "  \t"
       end
 
-      it "should combine trailing comments into 'tail' node" do
+      it "combines trailing comments into 'tail' node" do
         node, rest = parse_some(:expressionUntilSemiColon, "a := x + y /* note -- comment */;")
         node.should be_a(Parser::Nodes::Expression)
         node.tail.source_text.should == ' /* note -- comment */'
@@ -180,13 +180,13 @@ module Piggly
         node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 2
       end
 
-      it "should combine trailing whitespace into 'tail' node" do
+      it "combines trailing whitespace into 'tail' node" do
         node, rest = parse_some(:expressionUntilThen, "a := x + y  \tTHEN")
         node.should be_a(Parser::Nodes::Expression)
         node.tail.source_text.should == "  \t"
       end
 
-      it "should combine trailing comments into 'tail' node" do
+      it "combines trailing comments into 'tail' node" do
         node, rest = parse_some(:expressionUntilThen, "a := x + y /* note -- comment */THEN")
         node.should be_a(Parser::Nodes::Expression)
         node.tail.source_text.should == ' /* note -- comment */'
@@ -275,13 +275,13 @@ module Piggly
         node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 2
       end
 
-      it "should combine trailing whitespace into 'tail' node" do
+      it "combines trailing whitespace into 'tail' node" do
         node, rest = parse_some(:expressionUntilLoop, "a := x + y  \tLOOP")
         node.should be_a(Parser::Nodes::Expression)
         node.tail.source_text.should == "  \t"
       end
 
-      it "should combine trailing comments into 'tail' node" do
+      it "combines trailing comments into 'tail' node" do
         node, rest = parse_some(:expressionUntilLoop, "a := x + y /* note -- comment */LOOP")
         node.should be_a(Parser::Nodes::Expression)
         node.tail.source_text.should == ' /* note -- comment */'
