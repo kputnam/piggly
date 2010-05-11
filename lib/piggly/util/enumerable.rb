@@ -10,11 +10,11 @@ module Enumerable
   end unless method_defined?(:count)
 
   # Compute sum of elements, optionally transformed by a block
-  def sum(init = 0)
+  def sum(identity = 0, &block)
     if block_given?
-      inject(init){|sum, e| sum + yield(e) }
+      map(&block).inject{|sum, e| sum + e } || identity
     else
-      inject(init){|sum, e| sum + e }
+      inject{|sum, e| sum + e } || identity
     end
   end unless method_defined?(:sum)
 
