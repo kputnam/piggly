@@ -22,7 +22,7 @@ describe Tags::UnconditionalLoopTag do
     @tag = Tags::UnconditionalLoopTag.new('for-loop')
   end
 
-  it "detects state 00 (0b0000)" do
+  it "starts with state 00 (0b0000)" do
     # - terminates normally
     # - pass through
     # - iterate only once

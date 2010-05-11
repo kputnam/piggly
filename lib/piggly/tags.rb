@@ -1,15 +1,15 @@
 module Piggly
+  #
+  # Coverage is tracked by attaching these compiler-generated tags to various nodes in a stored
+  # procedure's parse tree. These tags each have a unique string identifier which is printed by
+  # various parts of the recompiled stored procedure, and the output is then recognized by
+  # Profile.notice_processor, which calls #ping on the tag corresponding to the printed string.
+  #
+  # After test execution is complete, each AST is walked and Tag values attached to NodeClass
+  # values are used to produce the coverage report
+  #
   module Tags
 
-    #
-    # Coverage is tracked by attaching these compiler-generated tags to various nodes in a stored
-    # procedure's parse tree. These tags each have a unique string identifier which is printed by
-    # various parts of the recompiled stored procedure, and the output is then recognized by
-    # Profile.notice_processor, which calls #ping on the tag corresponding to the printed string.
-    #
-    # After test execution is complete, each AST is walked and Tag values attached to NodeClass
-    # values are used to produce the coverage report
-    #
     class AbstractTag
       PATTERN = /[0-9a-f]{16}/
 
@@ -71,13 +71,13 @@ module Piggly
     end
 
     #
-    # Sequence of statements
+    # Tracks a contiguous sequence of statements
     #
     class BlockTag < EvaluationTag
     end
 
     #
-    # Procedure calls, raise exception, exits, returns
+    # Tracks procedure calls, raise exception, exits, returns
     #
     class UnconditionalBranchTag < EvaluationTag
       # aggregate this coverage data with conditional branches
@@ -86,6 +86,10 @@ module Piggly
       end
     end
 
+    #
+    # Tracks if, catch, case branch, continue when, and exit when statements
+    # where the coverage consists of the condition evaluating true and false
+    #
     class ConditionalBranchTag < AbstractTag
       attr_reader :true, :false
 
@@ -138,6 +142,10 @@ module Piggly
       end
     end
 
+    #
+    # Tracks loops where coverage consists of iterating once, iterating more
+    # than once, passing through, and at least one full iteration
+    #
     class AbstractLoopTag < AbstractTag
       def self.states
         { # never terminates normally (so @pass must be false)
@@ -213,6 +221,9 @@ module Piggly
       end
     end
 
+    #
+    # Tracks loops that have a boolean condition in the loop statement (while loops)
+    #
     class ConditionalLoopTag < AbstractLoopTag
       def ping(value)
         case value
@@ -236,6 +247,9 @@ module Piggly
       end
     end
 
+    #
+    # Tracks loops that don't have a boolean condition in the loop statement (loop and for loops)
+    #
     class UnconditionalLoopTag < AbstractLoopTag
       def self.states
         super.merge \
