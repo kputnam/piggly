@@ -17,13 +17,13 @@ module Piggly
           if m = PATTERN.match(message)
             instance.ping(m.captures[0], m.captures[1])
           else
-            STDERR.puts message
+            $stderr.puts message
           end
         end
       end
     end
 
-    attr_reader :by_id, :by_procedure
+    attr_reader :by_id, :by_cache, :by_procedure
 
     def initialize
       @by_id        = {}
@@ -41,10 +41,10 @@ module Piggly
     def [](object)
       case object
       when String
-        @by_id[object] or
+        by_id[object] or
           raise "No tag with id #{object}"
       when Piggly::Dumper::Procedure
-        @by_procedure[object.oid] or
+        by_procedure[object.oid] or
           raise "No tags for procedure #{object.signature}"
       end
     end
@@ -59,13 +59,13 @@ module Piggly
       summary = Hash.new{|h,k| h[k] = Hash.new }
 
       if procedure
-        if @by_procedure.include?(procedure.oid)
-          grouped = @by_procedure[procedure.oid].group_by(&:type)
+        if by_procedure.include?(procedure.oid)
+          grouped = by_procedure[procedure.oid].group_by(&:type)
         else
           grouped = {}
         end
       else
-        grouped = @by_id.values.group_by(&:type)
+        grouped = by_id.values.group_by(&:type)
       end
 
       grouped.each do |type, ts|
@@ -78,12 +78,31 @@ module Piggly
 
     # Resets each tag's coverage stats
     def clear
-      @by_id.each{|id, tag| tag.clear }
+      by_id.values.each(&:clear)
     end
 
     # Write coverage stats to the disk cache
     def store
-      @by_cache.each{|cache, tags| cache[:tags] = tags }
+      by_cache.each{|cache, tags| cache[:tags] = tags }
+    end
+
+    def empty?(tags)
+      tags.all?{|t| t.to_f == 0 }
+    end
+
+    def difference(procedure, tags)
+      current  = by_procedure[procedure.oid].group_by(&:type)
+      previous = tags.group_by(&:type)
+
+      current.default = []
+      previous.default = []
+
+      (current.keys | previous.keys).map do |type|
+        pct = current[type].sum(&:to_f) / current[type].size -
+              previous[type].sum(&:to_f) / previous[type].size
+
+        "#{'%+0.1f' % pct}% #{type}"
+      end.join(', ')
     end
 
   end

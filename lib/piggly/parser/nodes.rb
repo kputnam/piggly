@@ -251,8 +251,8 @@ module Piggly
         end
       end
 
-      # Tokens have no children
-      class Token < NodeClass
+      # Terminals have no children
+      class Terminal < NodeClass
         def initialize(input, interval, elements = nil)
           # prevent children from being assigned
           super(input, interval, nil)
@@ -261,6 +261,9 @@ module Piggly
         def terminal?
           true
         end
+      end
+
+      class Token < Terminal
       end
 
       # This seems like it should be a Token, but it may contain TComment children
@@ -309,29 +312,11 @@ module Piggly
         def style; 'tL'; end
       end
 
-      # Text nodes have no children
-      class TextNode < NodeClass
-        def initialize(input, interval, elements = nil)
-          # prevent children from being assigned
-          super(input, interval, nil)
-        end
-
-        def terminal?
-          true
-        end
+      class TextNode < Terminal
       end
       
       # Stub nodes have no children, or content
-      class StubNode < NodeClass
-        def initialize(input, interval, elements = nil)
-          # prevent children from being assigned
-          super(input, interval, nil)
-        end
-
-        def terminal?
-          true
-        end
-
+      class StubNode < Terminal
         def stub?
           true
         end
