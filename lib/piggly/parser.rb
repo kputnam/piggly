@@ -31,9 +31,7 @@ module Piggly
 
       # Returns treetop parser (recompiled as needed)
       def parser
-        require 'treetop'
-        require 'piggly/parser/treetop_ruby19_patch'
-        require nodes_path
+        load_support
 
         if File.stale?(parser_path, grammar_path)
           # regenerate the parser when the grammar is updated
@@ -45,6 +43,15 @@ module Piggly
 
         ::PigglyParser.new
       end
+    
+    private
+
+      def load_support
+        require 'treetop'
+        require 'piggly/parser/treetop_ruby19_patch'
+        require nodes_path
+      end
+
     end
 
   end

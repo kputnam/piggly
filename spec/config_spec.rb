@@ -44,8 +44,7 @@ describe Config do
   
   describe "mkpath" do
     it "creates root if doesn't exist" do
-      FileUtils.stub!(:makedirs).and_return(true)
-      FileUtils.should_receive(:makedirs).with('x/y').once
+      FileUtils.should_receive(:makedirs).with('x/y').once.and_return(true)
       Config.mkpath('x/y', 'z')
     end
 
