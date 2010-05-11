@@ -211,7 +211,11 @@ module Piggly
         puts "Creating reports"
 
         benchmark do
+          profile = Piggly::Profile.instance
+
           procedures.each do |p|
+            # don't recompile yet again if the procedure changed since tracing it
+            # because that would generate new tag IDs that won't match the profile
             unless Piggly::Compiler::Trace.stale?(p.source_path)
               Piggly::Util::ProcessQueue.child do
 
@@ -221,8 +225,13 @@ module Piggly
 
                 # only compile the report if the source or the coverage profile changed
                 if File.stale?(path, p.source_path) or data[:tags] != live
-                  puts "Reporting coverage for #{p.name}"
-                  result = Piggly::Compiler::Report.compile(p, Piggly::Profile.instance)
+
+                  unless profile.empty?(data[:tags])
+                    changes = ": #{profile.difference(p, data[:tags])}"
+                  end
+
+                  puts "Reporting coverage for #{p.name}#{changes}"
+                  result = Piggly::Compiler::Report.compile(p, profile)
                   Piggly::Reporter::Html.output(p, result[:html], result[:lines])
                 end
 
