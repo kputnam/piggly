@@ -125,13 +125,35 @@ module Piggly
   end
 
   describe Compiler::Cacheable::CacheDirectory do
+    before do
+      @cache = Compiler::Cacheable::CacheDirectory.new('directory-path')
+    end
+
     describe "[]=" do
-      it "stores the new entry"
-      it "writes through to disk"
+      it "stores the new entry" do
+        @cache.stub(:write)
+        @cache[:foo] = 'data'
+        @cache[:foo].should == 'data'
+        @cache['foo'].should == 'data'
+      end
+
+      it "writes through to disk" do
+        @cache.should_receive(:write).
+          with('foo' => 'data')
+        @cache['foo'] = 'data'
+      end
     end
 
     describe "update" do
-      it "stores new entries"
+      it "stores new entries" do
+        @cache.stub(:write)
+        @cache.update(:abc => 'abacus', :xyz => 'xylophone')
+        @cache[:abc].should == 'abacus'
+        @cache[:xyz].should == 'xylophone'
+        @cache['abc'].should == 'abacus'
+        @cache['xyz'].should == 'xylophone'
+      end
+
       it "stores updated entries"
       it "writes through to disk"
     end
@@ -161,7 +183,6 @@ module Piggly
       end
     end
 
-    describe "keys"
   end
 
 end
