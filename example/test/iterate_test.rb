@@ -32,7 +32,7 @@ class IterateTest < Test::Unit::TestCase
   def test_returns_one_row_from_one_element_array_with_non_null_element
     assert_equal ['1'], call_iterate(['1'])
   end
-  
+ 
   def test_returns_second_element_from_two_element_array_with_one_null_and_one_non_null_element
     assert_equal ['2'], call_iterate([nil, '2'])
   end
@@ -41,9 +41,9 @@ class IterateTest < Test::Unit::TestCase
     assert_equal ['1'], call_iterate(['1', nil])
   end
 
-  def test_returns_both_elements_from_two_element_array_with_non_null_elements
-    assert_equal ['1', '2'], call_iterate(['1', '2'])
-  end
+# def test_returns_both_elements_from_two_element_array_with_non_null_elements
+#   assert_equal ['1', '2'], call_iterate(['1', '2'])
+# end
 
 private
 

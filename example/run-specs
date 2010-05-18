@@ -1,2 +1,2 @@
 #!/bin/sh
-../bin/piggly 'spec/**/*_spec.rb'
+../bin/piggly -a 'spec/**/*_spec.rb'
