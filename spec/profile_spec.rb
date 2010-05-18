@@ -113,9 +113,31 @@ describe Profile do
   end
 
   describe "summary" do
+    context "when given a procedure" do
+    end
+
+    context "when not given a procedure" do
+    end
   end
 
   describe "clear" do
+    before do
+      @first  = mock('first tag',  :id => 'first')
+      @second = mock('second tag', :id => 'second')
+      @third  = mock('third tag',  :id => 'third')
+      index   = { @first.id  => @first,
+                  @second.id => @second,
+                  @third.id  => @third }
+      @profile.stub(:by_id).
+        and_return(index)
+    end
+
+    it "calls clear on each tag" do
+      @first.should_receive(:clear)
+      @second.should_receive(:clear)
+      @third.should_receive(:clear)
+      @profile.clear
+    end
   end
 
   describe "store" do
