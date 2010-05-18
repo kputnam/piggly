@@ -143,7 +143,9 @@ module Piggly
             tree = Piggly::Parser.parse(File.read(procedure.source_path))
             data = compile(tree, *args, &block)
             
-            CacheDirectory.lookup(cachedir).replace(data)
+            cache = CacheDirectory.lookup(cachedir)
+            cache.replace(data)
+            cache
           else
             CacheDirectory.lookup(cachedir)
           end
