@@ -3,56 +3,6 @@ require 'ostruct'
 
 module Piggly
 
-# MockSyntaxNode
-class N < OpenStruct
-  def self.terminal(value)
-    new :value     => value,
-        :terminal? => true
-  end
-
-  def self.space
-    terminal(' ')
-  end
-
-  def self.node(*children)
-    new :elements => children
-  end
-
-  class Branch < N
-    def elements
-      children[0..-3] + [stubNode] + children[-2..-1]
-    end
-  end
-
-  def self.branch(*children)
-    raise ArgumentError unless children.size > 2
-    Branch.new(:body     => children[-2],
-               :stubNode => terminal(''),
-               :children => children)
-  end
-
-  def initialize(hash)
-    super({:terminal? => false}.update(hash))
-  end
-
-  def trace?
-    respond_to?(:stubNode)
-  end
-
-  def interval(start=0)
-    @start ||= start
-    @stop  ||= if terminal?
-                 @start + value.size
-               else
-                 # recursively compute intervals
-                 elements.inject(@start) do |prev, e|
-                   e.interval(prev).end
-                 end
-               end
-    @start...@stop
-  end
-end
-
 =begin
 describe Compiler::Trace, "with terminal root node" do
   before do
