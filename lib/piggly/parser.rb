@@ -5,6 +5,8 @@ module Piggly
   #
   module Parser
 
+    autoload :Nodes, 'piggly/parser/nodes'
+
     class Failure < RuntimeError; end
 
     class << self
