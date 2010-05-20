@@ -38,7 +38,7 @@ describe Profile do
     context "when message doesn't match PATTERN" do
       it "prints the message to stderr" do
         message = "WARNING:  Parameter was NULL and I don't like it!"
-        $stderr.should_receive(:puts, message)
+        $stderr.should_receive(:puts).with(message)
 
         Profile.notice_processor.call(message)
       end
