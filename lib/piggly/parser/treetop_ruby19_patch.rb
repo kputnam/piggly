@@ -10,7 +10,7 @@ module Treetop
             super
           end
         end
-      end if RUBY_VERSION > '1.9.0'
+      end if RUBY_VERSION >= '1.9.0'
 
     end
   end
