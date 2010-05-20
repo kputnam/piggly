@@ -4,13 +4,13 @@ module Piggly
 
   describe Util::Cacheable do
 
-    class ExampleClass;           include Util::Cacheable; end
-    class ExampleCacheClass;      include Util::Cacheable; end
-    class PigglyExampleClassHTML; include Util::Cacheable; end
-    class PigglyExampleHTMLClass; include Util::Cacheable; end
-    class HTMLPiggly;             include Util::Cacheable; end
+    class ExampleClass;           include Piggly::Util::Cacheable; end
+    class ExampleCacheClass;      include Piggly::Util::Cacheable; end
+    class PigglyExampleClassHTML; include Piggly::Util::Cacheable; end
+    class PigglyExampleHTMLClass; include Piggly::Util::Cacheable; end
+    class HTMLPiggly;             include Piggly::Util::Cacheable; end
     class ExampleRedefined
-      include Util::Cacheable
+      include Piggly::Util::Cacheable
       def self.cache_path(file)
         'redefined'
       end

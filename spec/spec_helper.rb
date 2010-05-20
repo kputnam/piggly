@@ -7,6 +7,9 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'piggly'
 #  require File.expand_path(m)
 #end
 
+# load runtime dependencies
+Piggly::Parser.parser
+
 module Piggly
   module GrammarHelper
 
