@@ -1,9 +1,7 @@
-require File.join(File.dirname(__FILE__), 'traversal')
-
 NodeClass = Treetop::Runtime::SyntaxNode
 
 class NodeClass
-  include Piggly::Parser::Nodes::Traversal
+  include Piggly::Parser::Traversal
 
   # The 'text_value' method can be used to read the parse tree as Treetop
   # originally read it. The 'source_text' method returns redefined value or falls
