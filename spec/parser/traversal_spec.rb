@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Piggly
 
-  describe Parser::Nodes::Traversal do
+  describe Parser::Traversal do
     describe "fold"
     describe "reduce"
     describe "count"
