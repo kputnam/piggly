@@ -23,6 +23,10 @@ module Piggly
         # record trace messages
         connection.set_notice_processor(&Piggly::Profile.notice_processor)
 
+        # prevent the notice processor from being subverted
+        def connection.set_notice_processor
+        end
+
         # install tracing functions
         connection.exec <<-SQL
           -- signals that a conditional expression was executed
