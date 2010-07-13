@@ -13,6 +13,10 @@ module Piggly
         def main(argv)
           benchmark do
             tests, filters = parse_options(argv)
+
+            # don't let rspec get these when loading spec files
+            ARGV.clear
+
             load_tests(tests)
             Piggly::Command.connect_to_database
 
@@ -96,7 +100,7 @@ module Piggly
 
         def load_tests(tests)
           puts "Loading #{tests.size} test files"
-          benchmark { tests.each{|file| load file } }
+          benchmark { tests.each{|file| load file }}
         end
 
         #
@@ -114,14 +118,14 @@ module Piggly
         end
 
         def clear_coverage
-          Piggly::Command::Untrace.clear_coverage
+          Piggly::Command::Report.clear_coverage
         end
 
         def execute_tests
-          if defined? Test::Unit::AutoRunner
-            Test::Unit::AutoRunner.run
-          elsif defined? Spec::Runner
-            Spec::Runner.run
+          if defined? ::Test::Unit::AutoRunner
+            ::Test::Unit::AutoRunner.run
+          elsif defined? ::Spec::Runner
+            ::Spec::Runner.run
           else
             raise "Neither RSpec nor Test::Unit were detected"
           end
