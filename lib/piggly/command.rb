@@ -37,9 +37,11 @@ module Piggly
         Command.load_activerecord
         ActiveRecord::Base.connection.active?
       rescue
-        begin
-          Command.opt_database('database.yml')
-        rescue
+        if File.exists?('piggly/database.yml')
+          Command.opt_database('piggly/database.yml')
+        elsif File.exists?('config/database.yml')
+          Command.opt_database('config/database.yml')
+        else
           ActiveRecord::Base.establish_connection
         end
       end
@@ -71,7 +73,7 @@ module Piggly
       end
 
       def opt_include_path(paths)
-        $:.concat(paths.split(':'))
+        $:.concat paths.split(':')
       end
 
       def opt_aggregate(switch)
