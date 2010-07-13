@@ -47,7 +47,7 @@ module Piggly
 
           procedures.each do |p|
             Piggly::Util::ProcessQueue.child do
-              result = Piggly::Compiler::Trace.cache(p, p.oid)
+              Piggly::Compiler::Trace.cache(p, p.oid)
             end
           end
 
