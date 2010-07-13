@@ -4,6 +4,7 @@ require 'digest/md5'
 module Piggly
   autoload :VERSION,    'piggly/version'
   autoload :Config,     'piggly/config'
+  autoload :Command,    'piggly/command'
   autoload :Compiler,   'piggly/compiler'
   autoload :Dumper,     'piggly/dumper'
   autoload :Parser,     'piggly/parser'

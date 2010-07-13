@@ -134,10 +134,9 @@ module Piggly
 
       def store_source
         if source.include?('$PIGGLY$')
-          raise "\n" +
-                "  Procedure `#{name}' is already instrumented.\n" +
-                "  This means the original source wasn't restored after the\n" +
-                "  last coverage run. You must restore the source manually."
+          raise "Procedure `#{name}' is already instrumented. " +
+                "This means the original source wasn't restored after the " +
+                "last coverage run. You must restore the source manually."
         end
 
         current = Piggly::Config.identify_procedures_using
