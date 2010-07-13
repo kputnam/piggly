@@ -30,7 +30,7 @@ module Piggly
 
       def parser_path;  File.join(File.dirname(__FILE__), 'parser', 'parser.rb')  end
       def grammar_path; File.join(File.dirname(__FILE__), 'parser', 'grammar.tt') end
-      def nodes_path;   File.join('piggly', 'parser', 'nodes.rb')   end
+      def nodes_path;   File.join(File.dirname(__FILE__), 'parser', 'nodes.rb')   end
 
       # Returns treetop parser (recompiled as needed)
       def parser
@@ -52,7 +52,7 @@ module Piggly
       def load_support
         require 'treetop'
         require 'piggly/parser/treetop_ruby19_patch'
-        require nodes_path
+        require 'piggly/parser/nodes'
       end
 
     end

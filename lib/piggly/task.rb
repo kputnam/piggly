@@ -45,8 +45,9 @@ module Piggly
           run_code  = (piggly_path.nil?) ? '-S piggly' : quote(piggly_path)
           opts = @ruby_opts.clone
           opts.push "-I#{Array(@libs).join(File::PATH_SEPARATOR)}"
-          opts.push run_code
           opts.push '-w' if @warning
+          opts.push run_code
+          opts.push 'test'
 
           ruby opts.join(' ') + ' ' +
                @piggly_opts   + ' ' +
