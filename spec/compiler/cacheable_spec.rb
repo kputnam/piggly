@@ -44,9 +44,9 @@ module Piggly
 
         it "parses the procedure source" do
           @compiler.stub(:compile).
-            and_return(mock('result', :null_object => true))
+            and_return(mock('result').as_null_object)
           Compiler::Cacheable::CacheDirectory.stub(:lookup).
-            and_return(mock('cache', :null_object => true))
+            and_return(mock('cache').as_null_object)
 
           Parser.should_receive(:parse).
             with(@procedure.source)
@@ -55,19 +55,19 @@ module Piggly
         end
 
         it "passes the parse tree and transient arguments to the compiler" do
-          tree  = mock('parse tree', :null_object => true)
+          tree  = mock('parse tree').as_null_object
           args  = %w(a b c)
           block = lambda{|a,b| b }
 
           Parser.stub(:parse).and_return(tree)
           Compiler::Cacheable::CacheDirectory.stub(:lookup).
-            and_return(mock('cache', :null_object => true))
+            and_return(mock('cache').as_null_object)
 
           # calling cache method below should pass the parse tree plus any
           # arguments given to cache along to the abstract 'compile' method
           @compiler.should_receive(:compile).
             with(tree, *args.push(block)).
-            and_return(mock('result', :null_object => true))
+            and_return(mock('result').as_null_object)
 
           @compiler.cache(@procedure, *args, &block)
         end
@@ -77,7 +77,7 @@ module Piggly
           result = mock('result')
 
           Parser.stub(:parse).
-            and_return(mock('parse tree', :null_object => true))
+            and_return(mock('parse tree').as_null_object)
           @compiler.should_receive(:compile).
             # with parse tree
             and_return(result)
@@ -92,7 +92,7 @@ module Piggly
 
         it "returns the cache object" do
           Parser.stub(:parse).
-            and_return(mock('parse tree', :null_object => true))
+            and_return(mock('parse tree').as_null_object)
           @compiler.should_receive(:compile).
             and_return(mock('result'))
 

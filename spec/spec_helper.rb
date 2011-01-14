@@ -1,6 +1,10 @@
-require 'rubygems'
-require 'spec'
+begin
+  require 'spec'
+rescue LoadError
+  require 'rspec'
+end
 
+require 'ostruct'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'piggly'))
 
 #Dir[File.join(File.dirname(__FILE__), 'mocks', '*')].each do |m|
