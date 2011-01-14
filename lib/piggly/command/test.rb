@@ -47,9 +47,9 @@ module Piggly
 
         def benchmark
           start = Time.now
-          yield.tap do
-            puts " > Completed in #{'%0.2f' % (Time.now - start)} seconds"
-          end
+          value = yield
+          puts " > Completed in #{'%0.2f' % (Time.now - start)} seconds"
+          return value
         end
 
         #

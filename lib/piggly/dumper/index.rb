@@ -23,11 +23,11 @@ module Piggly
 
       # Updates the index with the given list of Procedure values
       def update(procedures)
-        changed = outdated(procedures).each(&:purge_source).any? ||
-                  created(procedures).each(&:store_source).any?  ||
-                  updated(procedures).each(&:store_source).any?
+        changed = outdated(procedures).each{|x| x.purge_source }.any? ||
+                  created(procedures).each{|x| x.store_source }.any?  ||
+                  updated(procedures).each{|x| x.store_source }.any?
 
-        @index = procedures.index_by(&:identifier)
+        @index = procedures.index_by{|x| x.identifier }
 
         store if changed
       end
@@ -66,7 +66,7 @@ module Piggly
               else
                 # ignore OUT arguments
                 args = procedure.arg_types.zip(procedure.arg_modes).
-                  select{|_, m| m != 'out' }.map(&:first).join(', ')
+                  select{|_, m| m != 'out' }.map{|x| x.first }.join(', ')
 
                 if samenames.none?{|p| p.arg_types == procedure.arg_types }
                   "#{procedure.name} (#{args})"
@@ -93,7 +93,7 @@ module Piggly
 
       # Returns procedures in the index that don't exist in the given list
       def outdated(others)
-        others = others.index_by(&:identifier)
+        others = others.index_by{|x| x.identifier }
         procedures.reject{|p| others.include?(p.identifier) }
       end
 
@@ -124,7 +124,7 @@ module Piggly
                 puts "Failed to load source for #{p.name}"
                 list
               end
-            end.index_by(&:identifier)
+            end.index_by{|x| x.identifier }
           else
             Hash.new
           end

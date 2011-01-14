@@ -45,7 +45,7 @@ module Piggly
       it "should collect elements into subcollections" do
         @array.group_by{ :a }.should == { :a => @array }
         @array.group_by{|x| x <= 'b'}.should == { true => %w(a b), false => %w(c d) }
-        @range.group_by(&:to_i).should == { 0 => %w(w x y z) }
+        @range.group_by{|x| x.to_i }.should == { 0 => %w(w x y z) }
         @empty.group_by{ false }.should == {}
       end
     end
