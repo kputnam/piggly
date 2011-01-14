@@ -60,17 +60,17 @@ module Piggly
 
       if procedure
         if by_procedure.include?(procedure.oid)
-          grouped = by_procedure[procedure.oid].group_by(&:type)
+          grouped = by_procedure[procedure.oid].group_by{|x| x.type }
         else
           grouped = {}
         end
       else
-        grouped = by_id.values.group_by(&:type)
+        grouped = by_id.values.group_by{|x| x.type }
       end
 
       grouped.each do |type, ts|
         summary[type][:count]   = ts.size
-        summary[type][:percent] = ts.sum(&:to_f) / ts.size
+        summary[type][:percent] = ts.sum{|x| x.to_f } / ts.size
       end
 
       summary
@@ -78,7 +78,7 @@ module Piggly
 
     # Resets each tag's coverage stats
     def clear
-      by_id.values.each(&:clear)
+      by_id.values.each{|x| x.clear }
     end
 
     # Write coverage stats to the disk cache
@@ -91,15 +91,15 @@ module Piggly
     end
 
     def difference(procedure, tags)
-      current  = by_procedure[procedure.oid].group_by(&:type)
-      previous = tags.group_by(&:type)
+      current  = by_procedure[procedure.oid].group_by{|x| x.type }
+      previous = tags.group_by{|x| x.type }
 
       current.default = []
       previous.default = []
 
       (current.keys | previous.keys).map do |type|
-        pct = current[type].sum(&:to_f) / current[type].size -
-              previous[type].sum(&:to_f) / previous[type].size
+        pct = current[type].sum{|x| x.to_f } / current[type].size -
+              previous[type].sum{|x| x.to_f } / previous[type].size
 
         "#{'%+0.1f' % pct}% #{type}"
       end.join(', ')

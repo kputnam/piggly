@@ -1,14 +1,8 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require 'rubygems'
-$:.push File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'piggly'
 
 # Number of children to fork for parallel tasks
 Piggly::Util::ProcessQueue.children = 2
-
-STDOUT.sync = true
-
-if __FILE__ == $0
-  Piggly::Command.main(ARGV)
-end
+Piggly::Command.main(ARGV)
