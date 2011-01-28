@@ -105,24 +105,26 @@ module Piggly
           queue   = Piggly::Util::ProcessQueue.new
 
           procedures.each do |p|
-            # don't recompile yet again if the procedure changed since tracing it
-            # because that would generate new tag IDs that won't match the profile
-            unless Piggly::Compiler::Trace.stale?(p.source_path)
-              queue.add do
-                path = Piggly::Reporter.report_path(p.source_path, '.html')
-                data = Piggly::Compiler::Trace.cache(p, p.oid)
-                live = Piggly::Profile.instance[p] rescue nil
+            queue.add do
+              path = Piggly::Reporter.report_path(p.source_path, '.html')
+              data = Piggly::Compiler::Trace.cache(p, p.oid)
+              live = Piggly::Profile.instance[p] rescue nil
 
-                # only compile the report if the source or the coverage profile changed
-                if File.stale?(path, p.source_path) or data[:tags] != live
-                  unless profile.empty?(data[:tags])
-                    changes = ": #{profile.difference(p, data[:tags])}"
-                  end
+              if File.exists?(p.source_path)
+                needed   = Piggly::Util::File.stale?(path, p.source_path)
+                needed ||= data[:tags] != live
+              else
+                needed = false
+              end
 
-                  puts "Reporting coverage for #{p.name}#{changes}"
-                  result = Piggly::Compiler::Report.compile(p, profile)
-                  Piggly::Reporter::Html.output(p, result[:html], result[:lines])
+              if needed
+                unless profile.empty?(data[:tags])
+                  changes = ": #{profile.difference(p, data[:tags])}"
                 end
+
+                puts "Reporting coverage for #{p.name}#{changes}"
+                result = Piggly::Compiler::Report.compile(p, profile)
+                Piggly::Reporter::Html.output(p, result[:html], result[:lines])
               end
             end
           end
