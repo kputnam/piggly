@@ -8,6 +8,9 @@ module Piggly
         'character'         => 'char',
         'integer'           => 'int',
         'int4'              => 'int',
+        'int8'              => 'bigint',
+        'float4'            => 'float',
+        'float8'            => 'double',
         'boolean'           => 'bool',
         '"char"'            => 'char'
 
@@ -72,9 +75,9 @@ module Piggly
               hash['setof'] == 't',
               ABBREVATIONS[hash['rettype']],
               VOLATILITY[hash['volatility']],
-              hash['arg_modes'] ? hash['arg_modes'].split(',').map{|x| MODES[x.strip] } : [],
-              hash['arg_names'] ? hash['arg_names'].split(',').map{|x| x.strip } : [],
-              hash['arg_types'] ? hash['arg_types'].split(',').map{|x| ABBREVATIONS[x.strip] } : [],
+              hash['arg_modes'].to_s.split(',').map{|x| MODES[x.strip] },
+              hash['arg_names'].to_s.split(',').map{|x| x.strip },
+              hash['arg_types'].to_s.split(',').map{|x| ABBREVATIONS[x.strip] },
               hash['source'])
         end
 
@@ -96,36 +99,36 @@ module Piggly
 
       # Returns source text for argument list
       def arguments
-        arg_types.zip(arg_names, arg_modes).map do |atype, aname, amode|
-          "#{amode + ' ' if amode}#{aname + ' ' if aname} #{atype}"
+        @arg_types.zip(@arg_names, @arg_modes).map do |atype, aname, amode|
+          "#{amode + ' ' if amode}#{aname + ' ' if aname}#{atype}"
         end.join(', ')
       end
 
       # Returns source text for return type
       def type
-        "#{setof ? 'setof ' : ''}#{@rettype}"
+        "#{@setof ? 'setof ' : ''}#{@rettype}"
       end
 
       # Returns source text for strictness
       def strictness
-        strict ? 'strict' : ''
+        @strict ? 'strict' : ''
       end
 
       # Returns source text for security
       def security
-        secdef ? 'security definer' : ''
+        @secdef ? 'security definer' : ''
       end
 
       # Returns source SQL function definition statement
       def definition(source = @source)
-        [%[create or replace function "#{namespace}"."#{name}" (#{arguments})],
-         %[ #{strictness} #{security} returns #{type} as $PIGGLY_BODY$],
-         source,
-         %[$PIGGLY_BODY$ language plpgsql #{volatility}]].join("\n")
+        [%[create or replace function "#{@namespace}"."#{@name}" (#{arguments})],
+         %[ #{strictness} #{security} returns #{@type} as $PIGGLY_BODY$],
+         @source,
+         %[$PIGGLY_BODY$ language plpgsql #{@volatility}]].join("\n")
       end
 
       def signature
-        "#{type} #{namespace}.#{name}(#{arg_types.join(', ')})"
+        "#{@type} #{@namespace}.#{@name}(#{@arg_types.join(', ')})"
       end
 
       def source_path(filename = identifier)
@@ -133,24 +136,22 @@ module Piggly
       end
 
       def store_source
-        if source.include?('$PIGGLY$')
-          raise "Procedure `#{name}' is already instrumented. " +
+        if @source.include?('$PIGGLY$')
+          raise "Procedure `#{@name}' is already instrumented. " +
                 "This means the original source wasn't restored after the " +
                 "last coverage run. You must restore the source manually."
         end
 
         current = Piggly::Config.identify_procedures_using
 
-        if identified_using and identified_using != current
-          # the file name scheme changed, so remove our old source file
-          old = source_path(identifier(identified_using))
-          FileUtils.rm_r(old) if File.exists?(old)
+        if @identified_using and @identified_using != current
+          purge_source(@identified_using)
         end
 
         puts "Caching source for #{name}"
         @identified_using = current
 
-        File.open(source_path, 'wb'){|io| io.write source }
+        File.open(source_path, 'wb'){|io| io.write(@source) }
       end
 
       def purge_source
@@ -177,7 +178,7 @@ module Piggly
         FileUtils.rm_r(new) if File.exists?(new)
       end
 
-      def rename(from = identifier(identified_using))
+      def rename(from = identifier(@identified_using))
         puts "Renaming cache source for #{name}"
 
         @identified_using = Piggly::Config.identify_procedures_using
@@ -189,9 +190,9 @@ module Piggly
       def identifier(method = Piggly::Config.identify_procedures_using)
         case method.to_s
         when 'name'
-          name
+          @name
         when 'oid'
-          oid
+          @oid
         when 'signature'
           # prevent Errno::ENAMETOOLONG
           Digest::MD5.hexdigest(signature)

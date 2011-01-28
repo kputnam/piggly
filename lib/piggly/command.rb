@@ -21,20 +21,22 @@ module Piggly
       def parse_options(argv)
         return if argv.empty?
 
-        case argv.first.downcase
+        first, *rest = argv
+        case first.downcase
         when 'report'
-          [Report, argv[1 .. -1]]
+          [Report, rest]
         when 'test'
-          [Test, argv[1 .. -1]]
+          [Test, rest]
         when 'trace'
-          [Trace, argv[1 .. -1]]
+          [Trace, rest]
         when 'untrace'
-          [Untrace, argv[1 .. -1]]
+          [Untrace, rest]
         end
       end
 
       def connect_to_database
-        Command.load_activerecord
+        load_activerecord
+
         ActiveRecord::Base.connection.active?
       rescue
         if File.exists?('piggly/database.yml')
