@@ -12,6 +12,10 @@ module Piggly
         connection.exec(procedure.definition(result[:code]))
         
         Piggly::Profile.instance.add(procedure, result[:tags], result)
+      rescue
+        $!.message << "\nError installing traced procedure #{procedure.name} "
+        $!.message << "from #{procedure.source_path}"
+        raise
       end
 
       def untrace(procedure)
