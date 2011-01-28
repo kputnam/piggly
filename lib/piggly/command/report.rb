@@ -102,20 +102,19 @@ module Piggly
           puts "Creating reports"
 
           profile = Piggly::Profile.instance
+          queue   = Piggly::Util::ProcessQueue.new
 
           procedures.each do |p|
             # don't recompile yet again if the procedure changed since tracing it
             # because that would generate new tag IDs that won't match the profile
             unless Piggly::Compiler::Trace.stale?(p.source_path)
-              Piggly::Util::ProcessQueue.child do
-
+              queue.add do
                 path = Piggly::Reporter.report_path(p.source_path, '.html')
                 data = Piggly::Compiler::Trace.cache(p, p.oid)
                 live = Piggly::Profile.instance[p] rescue nil
 
                 # only compile the report if the source or the coverage profile changed
                 if File.stale?(path, p.source_path) or data[:tags] != live
-
                   unless profile.empty?(data[:tags])
                     changes = ": #{profile.difference(p, data[:tags])}"
                   end
@@ -124,12 +123,11 @@ module Piggly
                   result = Piggly::Compiler::Report.compile(p, profile)
                   Piggly::Reporter::Html.output(p, result[:html], result[:lines])
                 end
-
               end
             end
           end
 
-          Piggly::Util::ProcessQueue.start
+          queue.execute
         end
 
         def parse_options(argv)

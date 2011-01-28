@@ -17,7 +17,7 @@ module Piggly
           with('source.sql').
           and_return('source.cache')
 
-        File.should_receive(:stale?).
+        Util::File.should_receive(:stale?).
           with('source.cache', 'source.sql', 'parser.rb', 'grammar.tt', 'nodes.rb')
 
         @compiler.stale?('source.sql')

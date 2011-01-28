@@ -73,7 +73,7 @@ module Piggly
               ABBREVATIONS[hash['rettype']],
               VOLATILITY[hash['volatility']],
               hash['arg_modes'] ? hash['arg_modes'].split(',').map{|x| MODES[x.strip] } : [],
-              hash['arg_names'] ? hash['arg_names'].split(',').map(&:strip) : [],
+              hash['arg_names'] ? hash['arg_names'].split(',').map{|x| x.strip } : [],
               hash['arg_types'] ? hash['arg_types'].split(',').map{|x| ABBREVATIONS[x.strip] } : [],
               hash['source'])
         end
