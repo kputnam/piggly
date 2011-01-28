@@ -128,7 +128,7 @@ module Piggly
 
         def stale?(path)
           # is the cache_path is older than its source path or the other files?
-          File.stale?(cache_path(path), path, *cache_sources)
+          Piggly::Util::File.stale?(cache_path(path), path, *cache_sources)
         end
 
         def cache(procedure, *args, &block)

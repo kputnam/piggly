@@ -60,17 +60,17 @@ module Piggly
 
       if procedure
         if by_procedure.include?(procedure.oid)
-          grouped = by_procedure[procedure.oid].group_by{|x| x.type }
+          grouped = Piggly::Util::Enumerable.group_by(by_procedure[procedure.oid]){|x| x.type }
         else
           grouped = {}
         end
       else
-        grouped = by_id.values.group_by{|x| x.type }
+        grouped = Piggly::Util::Enumerable.group_by(by_id.values){|x| x.type }
       end
 
       grouped.each do |type, ts|
         summary[type][:count]   = ts.size
-        summary[type][:percent] = ts.sum{|x| x.to_f } / ts.size
+        summary[type][:percent] = Piggly::Util::Enumerable.sum(ts){|x| x.to_f } / ts.size
       end
 
       summary
@@ -91,15 +91,15 @@ module Piggly
     end
 
     def difference(procedure, tags)
-      current  = by_procedure[procedure.oid].group_by{|x| x.type }
-      previous = tags.group_by{|x| x.type }
+      current  = Piggly::Util::Enumerable.group_by(by_procedure[procedure.oid]){|x| x.type }
+      previous = Piggly::Util::Enumerable.group_by(tags){|x| x.type }
 
       current.default = []
       previous.default = []
 
       (current.keys | previous.keys).map do |type|
-        pct = current[type].sum{|x| x.to_f } / current[type].size -
-              previous[type].sum{|x| x.to_f } / previous[type].size
+        pct = Piggly::Util::Enumerable.sum(current[type]){|x| x.to_f } / current[type].size -
+              Piggly::Util::Enumerable.sum(previous[type]){|x| x.to_f } / previous[type].size
 
         "#{'%+0.1f' % pct}% #{type}"
       end.join(', ')

@@ -188,7 +188,7 @@ module Piggly
         # these combinations are ignored, because adding tests for them will probably not reveal bugs
         #    (1,2)    - loop iterated at least twice but terminated early
         #    (1)      - loop iterated only once but terminated early
-        100 * ([@pass, @once, @twice, @ends].count{|x| x } / 4.0)
+        100 * (Piggly::Util::Enumerable.count([@pass, @once, @twice, @ends]){|x| x } / 4.0)
       end
 
       def complete?

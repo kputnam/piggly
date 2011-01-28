@@ -45,13 +45,11 @@ module Piggly
           # force parser to load before we start forking
           Piggly::Parser.parser
 
-          procedures.each do |p|
-            Piggly::Util::ProcessQueue.child do
-              Piggly::Compiler::Trace.cache(p, p.oid)
-            end
-          end
+          queue = Piggly::Util::ProcessQueue.new
+          procedures.each{|p| queue.add { Piggly::Compiler::Trace.cache(p, p.oid) }}
+          queue.execute
 
-          Piggly::Util::ProcessQueue.start
+          Piggly::Installer.install_trace_support
 
           procedures.each do |p|
             begin
@@ -60,8 +58,6 @@ module Piggly
               puts $!
             end
           end
-
-          Piggly::Installer.install_trace_support
         end
 
         #

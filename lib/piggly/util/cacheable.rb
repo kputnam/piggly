@@ -11,11 +11,11 @@ module Piggly
           classdir = name[/^(?:.+::)?(.+?)([A-Z][^A-Z]+)?$/, 1]
 
           # md5 the full path to prevent collisions
-          full = File.expand_path(file)
-          hash = Digest::MD5.hexdigest(File.dirname(full))
-          base = File.basename(file)
+          full = ::File.expand_path(file)
+          hash = Digest::MD5.hexdigest(::File.dirname(full))
+          base = ::File.basename(file)
 
-          Piggly::Config.mkpath(File.join(Config.cache_root, classdir), base)
+          Piggly::Config.mkpath(::File.join(Config.cache_root, classdir), base)
         end
       end
 

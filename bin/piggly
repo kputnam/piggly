@@ -4,5 +4,5 @@ require 'rubygems'
 require 'piggly'
 
 # Number of children to fork for parallel tasks
-Piggly::Util::ProcessQueue.children = 2
+Piggly::Util::ProcessQueue.concurrent = 2
 Piggly::Command.main(ARGV)

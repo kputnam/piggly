@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-module Piggly
+module Piggly::Util
 
   describe File, "cache invalidation" do
     before do
       mtime = Hash['a' => 1,  'b' => 2,  'c' => 3]
-      File.stub(:mtime).and_return{|f| mtime.fetch(f) }
-      File.stub(:exists?).and_return{|f| mtime.include?(f) }
+      ::File.stub(:mtime).and_return{|f| mtime.fetch(f) }
+      ::File.stub(:exists?).and_return{|f| mtime.include?(f) }
     end
 
     it "invalidates non-existant cache file" do

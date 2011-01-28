@@ -36,7 +36,7 @@ module Piggly
       def parser
         load_support
 
-        if File.stale?(parser_path, grammar_path)
+        if Piggly::Util::File.stale?(parser_path, grammar_path)
           # regenerate the parser when the grammar is updated
           Treetop::Compiler::GrammarCompiler.new.compile(grammar_path, parser_path)
           load parser_path

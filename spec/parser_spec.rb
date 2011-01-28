@@ -70,7 +70,7 @@ describe Parser do
 
     context "when the grammar is older than the generated parser" do
       before do
-        File.stub(:stale?).and_return(false)
+        Util::File.stub(:stale?).and_return(false)
       end
 
       it "does not regenerate the parser" do
@@ -88,7 +88,7 @@ describe Parser do
 
     context "when the generated parser is older than the grammar" do
       before do
-        File.stub(:stale?).and_return(true)
+        Util::File.stub(:stale?).and_return(true)
       end
 
       it "regenerates the parser and loads it" do

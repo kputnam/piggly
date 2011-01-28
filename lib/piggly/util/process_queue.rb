@@ -6,49 +6,58 @@ module Piggly
     #
     class ProcessQueue
 
-      def self.children=(value)
-        @children = value
+      def self.concurrent=(count)
+        @concurrent = count
       end
 
-      def self.size
-        items.size
+      def self.concurrent
+        @concurrent || 1
       end
 
-      # add a compile job to the queue
-      def self.queue(&block)
-        items << block
+      def initialize(concurrent = self.concurrent)
+        @concurrent, @items = concurrent, []
       end
 
-      def self.child
-        queue { yield }
+      def concurrent=(value)
+        @concurrent = value
       end
 
-      def self.start
-        @active     = 0
-        @children ||= 1
+      def size
+        @items.size
+      end
 
-        while block = items.shift
-          if @active >= @children
+      def queue(&block)
+        @items << block
+      end
+
+      alias add queue
+
+      def execute
+        active = 0
+
+        # enable enterprise ruby feature
+        GC.copy_on_write_friendly = true if GC.respond_to?(:copy_on_write_friendly=)
+
+        while block = @items.shift
+          if active >= @concurrent
             pid = Process.wait
-            @active -= 1
+            active -= 1
           end
 
-          # enable enterprise ruby feature
-          GC.copy_on_write_friendly = true if GC.respond_to?(:copy_on_write_friendly=)
-
           # use exit! to avoid auto-running any test suites
-          pid = Process.fork{ block.call; exit! 0 }
+          pid = Process.fork do
+            begin
+              block.call
+              exit! 0
+            rescue Exception
+              exit! 1
+            end
+          end
 
-          @active += 1
+          active += 1
         end
 
         Process.waitall
-      end
-
-    private
-
-      def self.items
-        @items ||= []
       end
 
     end

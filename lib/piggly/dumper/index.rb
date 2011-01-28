@@ -27,7 +27,7 @@ module Piggly
                   created(procedures).each{|x| x.store_source }.any?  ||
                   updated(procedures).each{|x| x.store_source }.any?
 
-        @index = procedures.index_by{|x| x.identifier }
+        @index = Piggly::Util::Enumerable.index_by(procedures){|x| x.identifier }
 
         store if changed
       end
@@ -93,7 +93,7 @@ module Piggly
 
       # Returns procedures in the index that don't exist in the given list
       def outdated(others)
-        others = others.index_by{|x| x.identifier }
+        others = Piggly::Util::Enumerable.index_by(others){|x| x.identifier }
         procedures.reject{|p| others.include?(p.identifier) }
       end
 
@@ -110,7 +110,7 @@ module Piggly
 
         @index = 
           if File.exists?(self.class.path)
-            YAML.load(File.read(self.class.path)).inject([]) do |list, p|
+            contents = YAML.load(File.read(self.class.path)).inject([]) do |list, p|
               if p.identified_using and p.identifier(p.identified_using) != p.identifier
                 p.rename # identify_procedures_using was changed since the index was written
                 updated = true
@@ -124,7 +124,8 @@ module Piggly
                 puts "Failed to load source for #{p.name}"
                 list
               end
-            end.index_by{|x| x.identifier }
+            end
+            Piggly::Util::Enumerable.index_by(contents){|x| x.identifier }
           else
             Hash.new
           end
