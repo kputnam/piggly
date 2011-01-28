@@ -15,7 +15,6 @@ module Piggly
     class Thunk < BlankSlate
       def initialize(&block)
         @block  = block
-        @called = false
       end
 
       def force!
