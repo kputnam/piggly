@@ -15,7 +15,7 @@ module Piggly
       end
 
       def untrace(procedure)
-        connection.exec(procedure.definition)
+        connection.exec(procedure.definition(procedure.source))
       end
 
       # Installs necessary instrumentation support

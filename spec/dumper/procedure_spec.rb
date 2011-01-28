@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Piggly
   
-  describe Dumper::Procedure do
+  describe Dumper::ReifiedProcedure do
     describe "all" do
       before do
         # stub connection
@@ -23,6 +23,28 @@ module Piggly
       it "leaves alone unknown argument modes"
     end
 
+    describe "store_source" do
+      context "when source is already instrumented" do
+        it "raises an error"
+      end
+
+      context "when the procedure was identified using the current configuration setting" do
+        it "does not attempt to remove any files"
+        it "writes to the current location"
+        it "has the current identified_using property"
+      end
+
+      context "when the procedure was identified using some other configuration setting" do
+        it "removes any old report files"
+        it "removes any old trace cache files"
+        it "removes the old source cache files"
+        it "writes to the current location"
+        it "updates the identified_using property"
+      end
+    end
+  end
+
+  describe Dumper::SkeletonProcedure do
     describe "definition" do
       it "specifies namespace and function name"
       it "specifies source code between dollar-quoted string tags"
@@ -69,26 +91,6 @@ module Piggly
       it "is within the Dumper directory"
     end
 
-    describe "store_source" do
-      context "when source is already instrumented" do
-        it "raises an error"
-      end
-
-      context "when the procedure was identified using the current configuration setting" do
-        it "does not attempt to remove any files"
-        it "writes to the current location"
-        it "has the current identified_using property"
-      end
-
-      context "when the procedure was identified using some other configuration setting" do
-        it "removes any old report files"
-        it "removes any old trace cache files"
-        it "removes the old source cache files"
-        it "writes to the current location"
-        it "updates the identified_using property"
-      end
-    end
-
     describe "purge_source" do
       context "when the procedure was identified using the current configuration setting" do
         it "removes any old report files"
@@ -106,19 +108,6 @@ module Piggly
         it "removes the current source cache files"
         it "doesn't attempt to remove any other files"
       end
-    end
-
-    describe "rename" do
-      it "updates the identified_using property"
-      it "renames the report files"
-      it "renames the trace cache files"
-      it "renames the source cache files"
-    end
-
-    describe "identifier" do
-      context "when method is 'name'"
-      context "when method is 'oid'"
-      context "when method is 'signature'"
     end
 
     describe "equality operator"
