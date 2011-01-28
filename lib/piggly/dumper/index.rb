@@ -14,22 +14,35 @@ module Piggly
       end
 
       def self.instance
-        @instance ||= new
+        @instance ||= new(path)
       end
 
-      def initialize
-        load
+      def initialize(path)
+        @path  = path
+        @index = load_index
       end
 
       # Updates the index with the given list of Procedure values
       def update(procedures)
-        changed = outdated(procedures).each{|x| x.purge_source }.any? ||
-                  created(procedures).each{|x| x.store_source }.any?  ||
-                  updated(procedures).each{|x| x.store_source }.any?
+        newest = Piggly::Util::Enumerable.index_by(procedures){|x| x.identifier }
 
-        @index = Piggly::Util::Enumerable.index_by(procedures){|x| x.identifier }
+        removed = @index.values.reject{|p| newest.include?(p.identifier) }
+        removed.each{|p| p.purge_source }
 
-        store if changed
+        added = procedures.reject{|p| @index.include?(p.identifier) }
+        added.each{|p| p.store_source }
+
+        changed = procedures.select do |p|
+          if mine = @index[p.identifier]
+            # If both are skeletons, they will have the same source because they
+            # are read from the same file, so don't bother checking that case
+            not (mine.skeleton? and p.skeleton?) and mine.source != p.source
+          end
+        end
+        changed.each{|p| p.store_source }
+
+        @index = newest
+        store_index
       end
 
       # Returns a list of Procedure values from the index
@@ -39,7 +52,8 @@ module Piggly
 
       # Returns the Procedure with the given identifier
       def [](identifier)
-        @index[identifier].dup
+        p = @index[identifier]
+        p.dup if p
       end
 
       # Returns the shortest human-readable label that distinctly identifies
@@ -83,60 +97,23 @@ module Piggly
         end
       end
 
-    protected
-
-      # Returns procedures which have differences between the entry in
-      # the index and the entry in the given list
-      def updated(others)
-        others.select{|p| @index.include?(p.identifier) and p != @index[p.identifier] }
-      end
-
-      # Returns procedures in the index that don't exist in the given list
-      def outdated(others)
-        others = Piggly::Util::Enumerable.index_by(others){|x| x.identifier }
-        procedures.reject{|p| others.include?(p.identifier) }
-      end
-
-      # Returns procedures in the given list that don't exist in the index
-      def created(others)
-        others.reject{|p| @index.include?(p.identifier) }
-      end
-
     private
 
       # Load the index from disk
-      def load
-        updated = false
-
-        @index = 
-          if File.exists?(self.class.path)
-            contents = YAML.load(File.read(self.class.path)).inject([]) do |list, p|
-              if p.identified_using and p.identifier(p.identified_using) != p.identifier
-                p.rename # identify_procedures_using was changed since the index was written
-                updated = true
-              end
-
-              begin
-                # read each procedure's source code
-                p.source = File.read(p.source_path)
-                list << p
-              rescue Errno::ENOENT
-                puts "Failed to load source for #{p.name}"
-                list
-              end
-            end
-            Piggly::Util::Enumerable.index_by(contents){|x| x.identifier }
+      def load_index
+        contents =
+          unless File.exists?(@path)
+            []
           else
-            Hash.new
+            YAML.load(File.read(@path))
           end
 
-        store if updated
+        Piggly::Util::Enumerable.index_by(contents){|x| x.identifier }
       end
 
       # Write the index to disk
-      def store
-        # remove each procedure's source code before writing the index
-        File.open(self.class.path, 'wb'){|io| YAML.dump(procedures.map{|o| o.dup.tap{|c| c.source = nil }}, io) }
+      def store_index
+        File.open(@path, 'wb'){|io| YAML.dump(procedures.map{|p| p.skeleton }, io) }
       end
 
     end

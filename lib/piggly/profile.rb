@@ -43,7 +43,8 @@ module Piggly
       when String
         by_id[object] or
           raise "No tag with id #{object}"
-      when Piggly::Dumper::Procedure
+      when Piggly::Dumper::ReifiedProcedure,
+           Piggly::Dumper::SkeletonProcedure
         by_procedure[object.oid] or
           raise "No tags for procedure #{object.signature}"
       end

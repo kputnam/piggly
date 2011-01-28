@@ -1,7 +1,94 @@
 module Piggly
   module Dumper
-    class Procedure
 
+    #
+    # Encapsulates all the information about a stored procedure, except the
+    # procedure's source code is assumed to be on disk and is loaded as needed
+    # instead of stored as an instance variable
+    #
+    class SkeletonProcedure
+      attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :rettype,
+                    :volatility, :arg_modes, :arg_names, :arg_types, :identifier
+
+      def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types)
+        @oid, @namespace, @name, @strict, @secdef, @rettype, @volatility, @setof, @arg_modes, @arg_names, @arg_types =
+          oid, namespace, name, strict, secdef, rettype, volatility, setof, arg_modes, arg_names, arg_types
+
+        @identifier = Digest::MD5.hexdigest(signature)
+      end
+
+      # Returns source text for argument list
+      def arguments
+        @arg_types.zip(@arg_names, @arg_modes).map do |_type, _name, _mode|
+          "#{_mode + ' ' if _mode}#{_name + ' ' if _name}#{_type}"
+        end.join(', ')
+      end
+
+      # Returns source text for return type
+      def type
+        "#{@setof ? 'setof ' : ''}#{@rettype}"
+      end
+
+      # Returns source text for strictness
+      def strictness
+        @strict ? 'strict' : ''
+      end
+
+      # Returns source text for security
+      def security
+        @secdef ? 'security definer' : ''
+      end
+
+      # Returns source SQL function definition statement
+      def definition(source)
+        [%[create or replace function "#{@namespace}"."#{@name}" (#{arguments})],
+         %[ #{strictness} #{security} returns #{type} as $PIGGLY_BODY$],
+         source,
+         %[$PIGGLY_BODY$ language plpgsql #{@volatility}]].join("\n")
+      end
+
+      def signature
+        "#{@namespace}.#{@name}(#{@arg_types.join(', ')})"
+      end
+
+      def source
+        load_source
+      end
+
+      def source_path
+        Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), "#{@identifier}.plpgsql")
+      end
+
+      def load_source
+        File.read(source_path)
+      end
+
+      def purge_source
+        puts "Purging cached source for #{@name}"
+
+        FileUtils.rm_r(source_path) if File.exists?(source_path)
+
+        file = Piggly::Compiler::Trace.cache_path(source_path)
+        FileUtils.rm_r(file) if File.exists?(file)
+
+        file = Piggly::Reporter.report_path(source_path, '.html')
+        FileUtils.rm_r(file) if File.exists?(file)
+      end
+
+      def skeleton
+        self
+      end
+
+      def skeleton?
+        true
+      end
+    end
+
+    #
+    # Differs from SkeletonProcedure in that the procedure source code is stored
+    # as an instance variable. The store_source method is also added
+    #
+    class ReifiedProcedure < SkeletonProcedure
       MODES = Hash.new{|h,k| k }.update \
         'i' => 'in',
         'o' => 'out',
@@ -15,14 +102,14 @@ module Piggly
       class << self
         def fmt_type(type)
           case type
-          when /^character varying(.+)/ then "varchar#{$1}"
-          when /^character(.+)/         then "char#{$1}"
-          when /"char"(.+)/   then "char#{$1}"
-          when /^integer(.+)/ then "int#{$1}"
-          when /^int4(.+)/    then "int#{$1}"
-          when /^int8(.+)/    then "bigint#{$1}"
-          when /^float4(.+)/  then "float#{$1}"
-          when /^boolean(.+)/ then "bool#{$1}"
+          when /^character varying(.*)/ then "varchar#{$1}"
+          when /^character(.*)/         then "char#{$1}"
+          when /"char"(.*)/   then "char#{$1}"
+          when /^integer(.*)/ then "int#{$1}"
+          when /^int4(.*)/    then "int#{$1}"
+          when /^int8(.*)/    then "bigint#{$1}"
+          when /^float4(.*)/  then "float#{$1}"
+          when /^boolean(.*)/ then "bool#{$1}"
           else type
           end
         end
@@ -75,7 +162,6 @@ module Piggly
           SQL
         end
 
-        # Instantiates a Procedure
         def from_hash(hash)
           new(hash['oid'],
               hash['namespace'],
@@ -99,50 +185,11 @@ module Piggly
         end
       end
 
-      attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :rettype,
-                    :volatility, :arg_modes, :arg_names, :arg_types, :source, :identified_using
+      attr_reader :source
 
       def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types, source)
-        @oid, @namespace, @name, @strict, @secdef, @rettype, @volatility, @setof, @arg_modes, @arg_names, @arg_types, @source =
-          oid, namespace, name, strict, secdef, rettype, volatility, setof, arg_modes, arg_names, arg_types, source.strip
-      end
-
-      # Returns source text for argument list
-      def arguments
-        @arg_types.zip(@arg_names, @arg_modes).map do |atype, aname, amode|
-          "#{amode + ' ' if amode}#{aname + ' ' if aname}#{atype}"
-        end.join(', ')
-      end
-
-      # Returns source text for return type
-      def type
-        "#{@setof ? 'setof ' : ''}#{@rettype}"
-      end
-
-      # Returns source text for strictness
-      def strictness
-        @strict ? 'strict' : ''
-      end
-
-      # Returns source text for security
-      def security
-        @secdef ? 'security definer' : ''
-      end
-
-      # Returns source SQL function definition statement
-      def definition(source = @source)
-        [%[create or replace function "#{@namespace}"."#{@name}" (#{arguments})],
-         %[ #{strictness} #{security} returns #{@type} as $PIGGLY_BODY$],
-         @source,
-         %[$PIGGLY_BODY$ language plpgsql #{@volatility}]].join("\n")
-      end
-
-      def signature
-        "#{@type} #{@namespace}.#{@name}(#{@arg_types.join(', ')})"
-      end
-
-      def source_path(filename = identifier)
-        Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), "#{filename}.plpgsql")
+        super(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types)
+        @source = source.strip
       end
 
       def store_source
@@ -152,67 +199,20 @@ module Piggly
                 "last coverage run. You must restore the source manually."
         end
 
-        current = Piggly::Config.identify_procedures_using
-
-        if @identified_using and @identified_using != current
-          purge_source(@identified_using)
-        end
-
-        puts "Caching source for #{name}"
-        @identified_using = current
+        puts "Caching source for #{@name}"
 
         File.open(source_path, 'wb'){|io| io.write(@source) }
       end
 
-      def purge_source
-        puts "Purging cached source for #{name}"
-
-        if identifier(@identified_using) != identifier
-          old = source_path(identifier(@identified_using))
-          FileUtils.rm_r(old) if File.exists?(old)
-
-          old = Piggly::Compiler::Trace.cache_path(identifier(@identified_using))
-          FileUtils.rm_r(old) if File.exists?(old)
-
-          old = Piggly::Reporter.report_path(identifier(@identified_using), '.html')
-          FileUtils.rm_r(old) if File.exists?(old)
-        end
-
-        new = source_path
-        FileUtils.rm_r(new) if File.exists?(new)
-
-        new = Piggly::Compiler::Trace.cache_path(source_path(identifier))
-        FileUtils.rm_r(new) if File.exists?(new)
-
-        new = Piggly::Reporter.report_path(source_path(identifier), '.html')
-        FileUtils.rm_r(new) if File.exists?(new)
+      def skeleton
+        SkeletonProcedure.new(oid, namespace, name, strict, secdef, setof,
+                              rettype, volatility, arg_modes, arg_names, arg_types)
       end
 
-      def rename(from = identifier(@identified_using))
-        puts "Renaming cache source for #{name}"
-
-        @identified_using = Piggly::Config.identify_procedures_using
-        File.rename(source_path(from), source_path)
-        File.rename(Piggly::Compiler::Trace.cache_path(source_path(from)),
-                    Piggly::Compiler::Trace.cache_path(source_path))
+      def skeleton?
+        false
       end
-
-      def identifier(method = Piggly::Config.identify_procedures_using)
-        case method.to_s
-        when 'name' then @name
-        when 'oid'  then @oid
-        when 'signature'
-          # prevent Errno::ENAMETOOLONG
-          Digest::MD5.hexdigest(signature)
-        else
-          raise "Procedure identifier method #{method.inspect} is not recognized"
-        end
-      end
-
-      def ==(other)
-        definition == other.definition
-      end
-
     end
+
   end
 end

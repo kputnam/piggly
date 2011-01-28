@@ -27,7 +27,7 @@ module Piggly
         #
         def dump_procedures(filters)
           index = Piggly::Dumper::Index.instance
-          index.update(Piggly::Dumper::Procedure.all)
+          index.update(Piggly::Dumper::ReifiedProcedure.all)
 
           if filters.empty?
             index.procedures

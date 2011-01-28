@@ -11,7 +11,7 @@ module Piggly
     context "when cache file doesn't exist" do
       before do
         File.stub(:exists?).with(Dumper::Index.path).and_return(false)
-        @index = Dumper::Index.new
+        @index = Dumper::Index.new(Dumper::Index.path)
       end
 
       it "is empty" do
@@ -27,7 +27,7 @@ module Piggly
       context "when the cache index file is empty" do
         before do
           File.stub(:read).with(Dumper::Index.path).and_return([].to_yaml)
-          @index = Dumper::Index.new
+          @index = Dumper::Index.new(Dumper::Index.path)
         end
 
         it "is empty" do
@@ -39,12 +39,12 @@ module Piggly
         before do
           Piggly::Config.stub(:identify_procedures_using).and_return('oid')
 
-          @first  = Dumper::Procedure.from_hash \
+          @first  = Dumper::ReifiedProcedure.from_hash \
             'oid'    => '1000',
             'name'   => 'iterate',
             'source' => 'FIRST PROCEDURE SOURCE CODE'
 
-          @second = Dumper::Procedure.from_hash \
+          @second = Dumper::ReifiedProcedure.from_hash \
             'oid'    => '2000',
             'name'   => 'login',
             'source' => 'SECOND PROCEDURE SOURCE CODE'
@@ -53,7 +53,7 @@ module Piggly
           File.stub(:read).with(@second.source_path).and_return(@second.source)
           File.stub(:read).with(Dumper::Index.path).and_return([@first, @second].to_yaml)
 
-          @index = Dumper::Index.new
+          @index = Dumper::Index.new(Dumper::Index.path)
         end
 
         it "has two procedures" do
