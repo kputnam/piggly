@@ -16,8 +16,15 @@ ActiveRecord::Base.establish_connection \
   'database'  => 'piggly',
   'username'  => 'piggly',
   'password'  => 'secret',
-  'host'      => 'localhost',
-  'port'      => '5432'
+  'host'      => 'localhost'
+
+def connection
+  ActiveRecord::Base.connection
+end
+
+connection.execute(File.read(File.dirname(__FILE__) + '/../proc/iterate.sql'))
+connection.execute(File.read(File.dirname(__FILE__) + '/../proc/scramble.sql'))
+connection.execute(File.read(File.dirname(__FILE__) + '/../proc/snippets.sql'))
 
 class IterateTest < Test::Unit::TestCase
 
@@ -32,7 +39,7 @@ class IterateTest < Test::Unit::TestCase
   def test_returns_one_row_from_one_element_array_with_non_null_element
     assert_equal ['1'], call_iterate(['1'])
   end
- 
+
   def test_returns_second_element_from_two_element_array_with_one_null_and_one_non_null_element
     assert_equal ['2'], call_iterate([nil, '2'])
   end
@@ -41,9 +48,9 @@ class IterateTest < Test::Unit::TestCase
     assert_equal ['1'], call_iterate(['1', nil])
   end
 
-# def test_returns_both_elements_from_two_element_array_with_non_null_elements
-#   assert_equal ['1', '2'], call_iterate(['1', '2'])
-# end
+  def test_returns_both_elements_from_two_element_array_with_non_null_elements
+    assert_equal ['1', '2'], call_iterate(['1', '2'])
+  end
 
 private
 

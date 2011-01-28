@@ -1,2 +1,3 @@
 #!/bin/sh
-../bin/piggly 'test/**/*_test.rb'
+ROOT=$(dirname $(dirname $0))
+ruby -I"$ROOT/lib" "$ROOT/bin/piggly" test "$ROOT/example/test/**/*_test.rb"

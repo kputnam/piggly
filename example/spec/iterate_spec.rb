@@ -1,5 +1,9 @@
 require 'active_record'
-require 'spec'
+begin
+  require 'rspec'
+rescue LoadError
+  require 'spec'
+end
 
 =begin
   user$ sudo -s
@@ -19,12 +23,15 @@ ActiveRecord::Base.establish_connection \
   'database'  => 'piggly',
   'username'  => 'piggly',
   'password'  => 'secret',
-  'host'      => 'localhost',
-  'port'      => '5432'
+  'host'      => 'localhost'
 
 def connection
   ActiveRecord::Base.connection
 end
+
+connection.execute(File.read(File.dirname(__FILE__) + '/../proc/iterate.sql'))
+connection.execute(File.read(File.dirname(__FILE__) + '/../proc/scramble.sql'))
+connection.execute(File.read(File.dirname(__FILE__) + '/../proc/snippets.sql'))
 
 def call_iterate(argument)
   connection.select_values <<-SQL
