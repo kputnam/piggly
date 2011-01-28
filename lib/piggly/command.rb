@@ -44,7 +44,8 @@ module Piggly
         elsif File.exists?('config/database.yml')
           Command.opt_database('config/database.yml')
         else
-          ActiveRecord::Base.establish_connection
+          raise
+        # ActiveRecord::Base.establish_connection
         end
       end
 

@@ -14,7 +14,7 @@ module Piggly
         @concurrent || 1
       end
 
-      def initialize(concurrent = self.concurrent)
+      def initialize(concurrent = self.class.concurrent)
         @concurrent, @items = concurrent, []
       end
 
@@ -50,6 +50,8 @@ module Piggly
               block.call
               exit! 0
             rescue Exception
+              $stderr.puts $!
+              $stderr.puts "\t" + $!.backtrace.join("\n\t")
               exit! 1
             end
           end
