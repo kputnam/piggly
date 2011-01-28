@@ -18,10 +18,18 @@ while sleep 2 do
     $stdout.puts "Changes:\n  " + rerun.join("\n  ")
     $stdout.write "Forking spec..."
     
-    Process.waitpid fork{ exec 'ruby', '-I', 'spec', '-S', 'spec', '-fh:spec.html', '-L', 'mtime', *rerun }
-    Process.waitpid fork{ STDERR.reopen('/dev/null'); STDOUT.reopen('/dev/null');
-                         #exec "opera", "-noraise", "-activetab", "spec.html" }
-                          exec "open", "spec.html" }
+    Process.waitpid(fork do
+      STDOUT.reopen('spec.html')
+      exec 'ruby', '-I', 'spec', '-S', 'rspec', '-fh', *rerun
+    end)
+
+    Process.waitpid(fork do
+      STDERR.reopen('/dev/null')
+      STDOUT.reopen('/dev/null')
+     #exec "opera", "-noraise", "-activetab", "spec.html" }
+      exec "open", "spec.html"
+    end)
+
     $stdout.puts "done"
   end
 end
