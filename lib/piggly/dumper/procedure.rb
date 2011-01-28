@@ -2,18 +2,6 @@ module Piggly
   module Dumper
     class Procedure
 
-      # return the key if it's not a member
-      ABBREVATIONS = Hash.new{|h,k| k }.update \
-        'character varying' => 'varchar',
-        'character'         => 'char',
-        'integer'           => 'int',
-        'int4'              => 'int',
-        'int8'              => 'bigint',
-        'float4'            => 'float',
-        'float8'            => 'double',
-        'boolean'           => 'bool',
-        '"char"'            => 'char'
-
       MODES = Hash.new{|h,k| k }.update \
         'i' => 'in',
         'o' => 'out',
@@ -25,6 +13,28 @@ module Piggly
          's' => 'stable'
 
       class << self
+        def fmt_type(type)
+          case type
+          when /^character varying(.+)/ then "varchar#{$1}"
+          when /^character(.+)/         then "char#{$1}"
+          when /"char"(.+)/   then "char#{$1}"
+          when /^integer(.+)/ then "int#{$1}"
+          when /^int4(.+)/    then "int#{$1}"
+          when /^int8(.+)/    then "bigint#{$1}"
+          when /^float4(.+)/  then "float#{$1}"
+          when /^boolean(.+)/ then "bool#{$1}"
+          else type
+          end
+        end
+
+        def fmt_mode(mode)
+          MODES[mode]
+        end
+
+        def fmt_volatility(mode)
+          VOLATILITY[mode]
+        end
+
         # Returns a list of all PL/pgSQL stored procedures in the current database
         def all
           connection.select_all(<<-SQL).map{|x| from_hash(x) }
@@ -73,11 +83,11 @@ module Piggly
               hash['strict'] == 't',
               hash['secdef'] == 't',
               hash['setof'] == 't',
-              ABBREVATIONS[hash['rettype']],
-              VOLATILITY[hash['volatility']],
-              hash['arg_modes'].to_s.split(',').map{|x| MODES[x.strip] },
+              fmt_type(hash['rettype']),
+              fmt_volatility(hash['volatility']),
+              hash['arg_modes'].to_s.split(',').map{|x| fmt_mode(x.strip) },
               hash['arg_names'].to_s.split(',').map{|x| x.strip },
-              hash['arg_types'].to_s.split(',').map{|x| ABBREVATIONS[x.strip] },
+              hash['arg_types'].to_s.split(',').map{|x| fmt_type(x.strip) },
               hash['source'])
         end
 
@@ -189,10 +199,8 @@ module Piggly
 
       def identifier(method = Piggly::Config.identify_procedures_using)
         case method.to_s
-        when 'name'
-          @name
-        when 'oid'
-          @oid
+        when 'name' then @name
+        when 'oid'  then @oid
         when 'signature'
           # prevent Errno::ENAMETOOLONG
           Digest::MD5.hexdigest(signature)
