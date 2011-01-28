@@ -124,10 +124,14 @@ module Piggly
         def execute_tests
           if defined? ::Test::Unit::AutoRunner
             ::Test::Unit::AutoRunner.run
+          elsif defined? ::RSpec::Core
+            ::Rspec::Core::Runner.run(ARGV, $stderr, $stdout)
           elsif defined? ::Spec::Runner
             ::Spec::Runner.run
+          elsif defined? ::MiniTest::Unit
+            ::MiniTest::Unit.new.run(ARGV)
           else
-            raise "Neither RSpec nor Test::Unit were detected"
+            raise "Neither Test::Unit, MiniTest, nor RSpec were detected"
           end
         end
 
