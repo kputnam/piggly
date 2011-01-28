@@ -42,7 +42,7 @@ module Piggly
             
             @tags << node.cond.tag(@oid)
 
-            node.condStub.source_text  = "#{pre}piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, #{cond})"
+            node.condStub.source_text  = "#{pre}piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, (#{cond}))"
             node.condStub.source_text << traverse(node.cond.tail) # preserve trailing whitespace
           end
 
