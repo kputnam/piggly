@@ -48,7 +48,6 @@ module Piggly
 
           opts = OptionParser.new do |opts|
             opts.on("-c", "--cache-root PATH", "Local cache directory", &Command.method(:opt_cache_root))
-            opts.on("-k", "--cache-key MODE", "Use MODE [name|signature|oid] as cache key for each procedure", &Command.method(:opt_cache_key))
             opts.on("-d", "--database PATH", "Read 'piggly' database adapter settings from YAML file at PATH", &Command.method(:opt_database))
 
             opts.on("-n", "--name PATTERN", "Untrace stored procedures matching PATTERN") do |opt|
