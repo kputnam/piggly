@@ -3,7 +3,7 @@ require 'rake/tasklib'
 require 'piggly'
 
 module Piggly
-  class Task < Rake::TaskLib
+  class TestTask < Rake::TaskLib
     attr_accessor :name,          # Name of the test task
                   :libs,          # List of paths added to $LOAD_PATH before running tests
                   :test_files,    # List of ruby test files to load
@@ -11,7 +11,6 @@ module Piggly
                   :warning,       # Execute ruby -w if true
                   :report_root,   # Where to store reports (default piggly/report)
                   :cache_root,    # Where to store compiler cache (default piggly/cache)
-                  :cache_key,     # Stored procedure's attribute to use as a cache key
                   :aggregate,     # Accumulate coverage from the previous run (default false)
                   :procedures,    # List of procedure names or regular expressions, match all by default
                   :piggly_opts,
@@ -26,7 +25,6 @@ module Piggly
       @ruby_opts   = []
       @report_root = Piggly::Config.report_root
       @cache_root  = Piggly::Config.cache_root
-      @cache_key   = Piggly::Config.identify_procedures_using
       @procedures  = []
       @piggly_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'bin', 'piggly'))
       @piggly_opts = ''
@@ -53,7 +51,6 @@ module Piggly
                @piggly_opts   + ' ' +
                %{-o #{quote @report_root} } +
                %{-c #{quote @cache_root} } +
-               %{-k #{quote @cache_key} } +
                procedures.map{|x| '-n ' + quote(x) }.join(' ') + ' ' +
                test_files.map{|x|         quote(x) }.join(' ')
         end

@@ -146,7 +146,6 @@ module Piggly
             end
 
             opts.on("-c", "--cache-root PATH", "Local cache directory", &Command.method(:opt_cache_root))
-            opts.on("-k", "--cache-key MODE", "Use MODE [name|signature|oid] as cache key for each procedure", &Command.method(:opt_cache_key))
             opts.on("-o", "--report-root PATH", "Report output directory", &Command.method(:opt_report_root))
             opts.on("-a", "--aggregate", "Aggregate data from the previous run", &Command.method(:opt_aggregate))
 

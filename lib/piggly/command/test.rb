@@ -62,7 +62,6 @@ module Piggly
             opts.on("-I", "--include PATHS", "Prepend paths to $LOAD_PATH (colon separated list)", &Command.method(:opt_include_path))
             opts.on("-o", "--report-root PATH", "Report output directory", &Command.method(:opt_report_root))
             opts.on("-c", "--cache-root PATH", "Local cache directory", &Command.method(:opt_cache_root))
-            opts.on("-k", "--cache-key MODE", "Use MODE [name|signature|oid] as cache key for each procedure", &Command.method(:opt_cache_key))
 
             opts.on("-n", "--name PATTERN", "Trace stored procedures matching PATTERN") do |opt|
               if m = opt.match(%r{^/(.+)/$})
