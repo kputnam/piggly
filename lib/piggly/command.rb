@@ -1,10 +1,10 @@
 module Piggly
   module Command
 
-    autoload :Report,   'piggly/command/report'
-    autoload :Test,     'piggly/command/test'
-    autoload :Trace,    'piggly/command/trace'
-    autoload :Untrace,  'piggly/command/untrace'
+    autoload :Report,   "piggly/command/report"
+    autoload :Test,     "piggly/command/test"
+    autoload :Trace,    "piggly/command/trace"
+    autoload :Untrace,  "piggly/command/untrace"
 
     class << self
       def main(argv)
@@ -23,15 +23,40 @@ module Piggly
 
         first, *rest = argv
         case first.downcase
-        when 'report'
+        when "report"
           [Report, rest]
-        when 'test'
+        when "test"
           [Test, rest]
-        when 'trace'
+        when "trace"
           [Trace, rest]
-        when 'untrace'
+        when "untrace"
           [Untrace, rest]
         end
+      end
+
+      def opt_cache_root(dir)
+        Config.cache_root = dir
+      end
+
+      def opt_cache_key(mode)
+        Config.identify_procedures_using = mode
+      end
+
+      def opt_report_root(dir)
+        Config.report_root = dir
+      end
+
+      def opt_include_path(paths)
+        $:.concat paths.split(":")
+      end
+
+      def opt_aggregate(switch)
+        Config.aggregate = switch
+      end
+
+      def opt_version(*args)
+        puts "piggly #{Piggly::VERSION::STRING} #{Piggly::VERSION::RELEASE_DATE}"
+        exit!
       end
 
       def connect_to_database
@@ -39,10 +64,10 @@ module Piggly
 
         ActiveRecord::Base.connection.active?
       rescue
-        if File.exists?('piggly/database.yml')
-          Command.opt_database('piggly/database.yml')
-        elsif File.exists?('config/database.yml')
-          Command.opt_database('config/database.yml')
+        if File.exists?("piggly/database.yml")
+          Command.opt_database("piggly/database.yml")
+        elsif File.exists?("config/database.yml")
+          Command.opt_database("config/database.yml")
         else
           raise
         # ActiveRecord::Base.establish_connection
@@ -53,44 +78,19 @@ module Piggly
         load_activerecord
 
         begin
-          require 'erb'
+          require "erb"
           ActiveRecord::Base.configurations = YAML.load(ERB.new(IO.read(path)).result)
         rescue LoadError
           ActiveRecord::Base.configurations = YAML.load(IO.read(path))
         end
         
-        ActiveRecord::Base.establish_connection 'piggly'
+        ActiveRecord::Base.establish_connection "piggly"
         ActiveRecord::Base.connection.active?
       end
 
-      def opt_cache_root(dir)
-        Piggly::Config.cache_root = dir
-      end
-
-      def opt_cache_key(mode)
-        Piggly::Config.identify_procedures_using = mode
-      end
-
-      def opt_report_root(dir)
-        Piggly::Config.report_root = dir
-      end
-
-      def opt_include_path(paths)
-        $:.concat paths.split(':')
-      end
-
-      def opt_aggregate(switch)
-        Piggly::Config.aggregate = switch
-      end
-
-      def opt_version(*args)
-        puts "piggly #{Piggly::VERSION::STRING} #{Piggly::VERSION::RELEASE_DATE}"
-        exit!
-      end
-
       def load_activerecord
-        require 'active_record'
-        require 'pg'
+        require "active_record"
+        require "pg"
       end
     end
 

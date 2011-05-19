@@ -5,18 +5,21 @@ module Piggly
       # Count number of elements, optionally filtered by a block
       def self.count(enum)
         if block_given?
-          enum.inject(0){|count, x| count + (yield(x) ? 1 : 0) }
+          enum.inject(0){|count,e| yield(e) ? count + 1 : count }
         else
-          enum.size
+          enum.length
         end
       end
 
       # Compute sum of elements, optionally transformed by a block
-      def self.sum(enum, identity = 0, &block)
+      def self.sum(enum, default = 0)
+        return default if enum.empty?
+        head, *tail = enum
+
         if block_given?
-          enum.map(&block).inject{|sum, e| sum + e } || identity
+          tail.inject(yield(head)){|sum,e| sum + yield(e) }
         else
-          enum.inject{|sum, e| sum + e } || identity
+          tail.inject(head){|sum,e| sum + e }
         end
       end
 

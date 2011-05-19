@@ -1,29 +1,31 @@
 module Piggly
   module Reporter
 
-    autoload :Html, 'piggly/reporter/html'
+    autoload :Html, "piggly/reporter/html"
 
-    def self.included(subclass)
-      subclass.extend(ClassMethods)
+    def self.included(base)
+      base.extend(ClassMethods)
     end
 
     module ClassMethods
       # Copy each file to Config.report_root
-      def install(*files)
-        files.each do |file|
-          src = File.join(File.dirname(__FILE__), 'reporter', file)
-          dst = report_path(file)
+      def install(config, *files)
+        files.each do |name|
+          src = File.join(File.dirname(__FILE__), "reporter", name)
+          dst = report_path(config, name)
 
-          File.open(dst, 'w') {|f| f.write File.read(src) }
+          File.open(dst, "w"){|io| io.write(File.read(src)) }
         end
       end
 
-      def report_path(file=nil, ext=nil)
-        if file
-          # remove the original extension from +file+ and add given extension
-          Piggly::Config.mkpath(Piggly::Config.report_root, ext ? File.basename(file, '.*') + ext : File.basename(file))
+      def report_path(config, file=nil, ext=nil)
+        unless file.nil?
+          # Remove the original extension from +file+ and add given extension
+          config.mkpath(config.report_root, ext ?
+                          File.basename(file, ".*") + ext :
+                          File.basename(file))
         else
-          Piggly::Config.mkpath(Piggly::Config.report_root)
+          config.mkpath(config.report_root)
         end
       end
     end
@@ -31,7 +33,7 @@ module Piggly
     extend ClassMethods
 
     class AbstractReporter
-      include Piggly::Reporter
+      include Reporter
     end
   end
 end

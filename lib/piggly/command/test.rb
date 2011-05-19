@@ -13,12 +13,13 @@ module Piggly
         def main(argv)
           benchmark do
             tests, filters = parse_options(argv)
+            profile = Profile.new
 
             # don't let rspec get these when loading spec files
             ARGV.clear
 
             load_tests(tests)
-            Piggly::Command.connect_to_database
+            Command.connect_to_database
 
             procedures = dump_procedures(filters)
 
@@ -106,18 +107,18 @@ module Piggly
         # Writes all stored procedures in the database to disk
         #
         def dump_procedures(filters)
-          Piggly::Command::Trace.dump_procedures(filters)
+          Command::Trace.dump_procedures(filters)
         end
 
         #
         # Compiles all the stored procedures on disk and installs them
         #
         def trace(procedures)
-          benchmark { Piggly::Command::Trace.trace(procedures) }
+          benchmark { Command::Trace.trace(procedures) }
         end
 
         def clear_coverage
-          Piggly::Command::Report.clear_coverage
+          Command::Report.clear_coverage
         end
 
         def execute_tests
@@ -134,20 +135,20 @@ module Piggly
           end
         end
 
-        def store_coverage
-          benchmark { Piggly::Command::Report.store_coverage }
+        def store_coverage(profile)
+          benchmark { Command::Report.store_coverage(profile) }
         end
 
         def untrace(procedures)
-          benchmark { Piggly::Command::Untrace.untrace(procedures) }
+          benchmark { Command::Untrace.untrace(procedures) }
         end
 
-        def create_index(procedures)
-          benchmark { Piggly::Command::Report.create_index(procedures) }
+        def create_index(procedures, profile)
+          benchmark { Command::Report.create_index(procedures, profile) }
         end
 
-        def create_reports(procedures)
-          benchmark { Piggly::Command::Report.create_reports(procedures) }
+        def create_reports(procedures, profile)
+          benchmark { Command::Report.create_reports(procedures, profile) }
         end
 
       end

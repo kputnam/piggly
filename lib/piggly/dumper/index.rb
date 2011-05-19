@@ -1,4 +1,4 @@
-require 'yaml'
+require "yaml"
 
 module Piggly
   module Dumper
@@ -10,21 +10,18 @@ module Piggly
     class Index
 
       def self.path
-        @path ||= Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), 'index.yml')
+        @path ||= Config.mkpath("#{Config.cache_root}/Dumper", "index.yml")
       end
 
-      def self.instance
-        @instance ||= new(path)
-      end
-
-      def initialize(path)
+      def initialize(path = Index.path)
         @path  = path
         @index = load_index
       end
 
       # Updates the index with the given list of Procedure values
+      # @return [void]
       def update(procedures)
-        newest = Piggly::Util::Enumerable.index_by(procedures){|x| x.identifier }
+        newest = Util::Enumerable.index_by(procedures){|x| x.identifier }
 
         removed = @index.values.reject{|p| newest.include?(p.identifier) }
         removed.each{|p| p.purge_source }
@@ -80,7 +77,7 @@ module Piggly
               else
                 # ignore OUT arguments
                 args = procedure.arg_types.zip(procedure.arg_modes).
-                  select{|_, m| m != 'out' }.map{|x| x.first }.join(', ')
+                  select{|_, m| m != "out" }.map{|x| x.first }.join(", ")
 
                 if samenames.none?{|p| p.arg_types == procedure.arg_types }
                   "#{procedure.name} (#{args})"
@@ -108,12 +105,12 @@ module Piggly
             YAML.load(File.read(@path))
           end
 
-        Piggly::Util::Enumerable.index_by(contents){|x| x.identifier }
+        Util::Enumerable.index_by(contents){|x| x.identifier }
       end
 
       # Write the index to disk
       def store_index
-        File.open(@path, 'wb'){|io| YAML.dump(procedures.map{|p| p.skeleton }, io) }
+        File.open(@path, "wb"){|io| YAML.dump(procedures.map{|p| p.skeleton }, io) }
       end
 
     end

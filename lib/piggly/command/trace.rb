@@ -10,9 +10,10 @@ module Piggly
 
         def main(argv)
           filters = parse_options(argv)
+          index   = Dumper::Index.new
 
-          Piggly::Command::connect_to_database
-          procedures = dump_procedures(filters)
+          Command::connect_to_database
+          procedures = dump_procedures(filters, index)
 
           if procedures.empty?
             abort "No stored procedures in the cache#{' matched your criteria' if filters.any?}"
@@ -25,9 +26,8 @@ module Piggly
         # Writes all stored procedures in the database to disk, then returns a list of Procedure
         # values that satisfy at least one of the given filters
         #
-        def dump_procedures(filters)
-          index = Piggly::Dumper::Index.instance
-          index.update(Piggly::Dumper::ReifiedProcedure.all)
+        def dump_procedures(filters, index)
+          index.update(Dumper::ReifiedProcedure.all)
 
           if filters.empty?
             index.procedures
@@ -39,22 +39,22 @@ module Piggly
         #
         # Compiles all the stored procedures on disk and installs them
         #
-        def trace(procedures)
+        def trace(procedures, profile)
           puts "Installing #{procedures.size} procedures"
 
           # force parser to load before we start forking
-          Piggly::Parser.parser
+          Parser.parser
 
-          queue = Piggly::Util::ProcessQueue.new
-          procedures.each{|p| queue.add { Piggly::Compiler::Trace.cache(p, p.oid) }}
+          queue = Util::ProcessQueue.new
+          procedures.each{|p| queue.add { Compiler::Trace.cache(p, p.oid) }}
           queue.execute
 
-          Piggly::Installer.install_trace_support
+          Installer.install_trace_support(profile, Config)
 
           procedures.each do |p|
             begin
-              Piggly::Installer.trace(p)
-            rescue Piggly::Parser::Failure
+              Installer.trace(p, profile)
+            rescue Parser::Failure
               puts $!
             end
           end

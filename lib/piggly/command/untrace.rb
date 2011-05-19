@@ -8,7 +8,9 @@ module Piggly
         def main(argv)
           filters = parse_options(argv)
 
-          Piggly::Command.connect_to_database
+          Command.connect_to_database
+
+          index = Dumper::Index.new
           procedures = find_procedures(filters)
 
           if procedures.empty?
@@ -23,16 +25,14 @@ module Piggly
         #
         def untrace(procedures)
           puts "Restoring #{procedures.size} procedures"
-          procedures.each{|p| Piggly::Installer.untrace(p) }
-          Piggly::Installer.uninstall_trace_support
+          procedures.each{|p| Installer.untrace(p) }
+          Installer.uninstall_trace_support
         end
 
         #
         # Returns a list of Procedure values that satisfy at least one of the given filters
         #
-        def find_procedures(filters)
-          index = Piggly::Dumper::Index.instance
-
+        def find_procedures(filters, index)
           if filters.empty?
             index.procedures
           else

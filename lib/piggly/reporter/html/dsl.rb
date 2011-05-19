@@ -7,11 +7,11 @@ module Piggly
       #
       module DSL
         unless defined? HTML_REPLACE
-          HTML_REPLACE = { '&' => '&amp;', '"' => '&quot;', '>' => '&gt;', '<' => '&lt;' }
+          HTML_REPLACE = { "&" => "&amp;", '"' => "&quot;", ">" => "&gt;", "<" => "&lt;" }
           HTML_PATTERN = /[&"<>]/
         end
 
-        def html(output = '')
+        def html(output = "")
           begin
             @htmltag_output, htmltag_output = output, @htmltag_output
             # TODO: doctype
@@ -27,7 +27,7 @@ module Piggly
             content, attributes = nil, content
           end
 
-          attributes = attributes.inject('') do |string, pair|
+          attributes = attributes.inject("") do |string, pair|
             k, v = pair
             string << %[ #{k}="#{v}"]
           end
@@ -45,11 +45,11 @@ module Piggly
           end
         end
 
-        if ''.respond_to?(:fast_xs)
+        if "".respond_to?(:fast_xs)
           def e(string)
             string.fast_xs
           end
-        elsif ''.respond_to?(:to_xs)
+        elsif "".respond_to?(:to_xs)
           def e(string)
             string.to_xs
           end

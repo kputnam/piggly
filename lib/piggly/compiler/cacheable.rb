@@ -4,7 +4,7 @@ module Piggly
 
       def self.included(subclass)
         subclass.extend(ClassMethods)
-        subclass.send(:include, Piggly::Util::Cacheable)
+        subclass.send(:include, Util::Cacheable)
       end
 
       #
@@ -121,26 +121,26 @@ module Piggly
 
         # Each of these files' mtimes are used to determine when another file is stale
         def cache_sources
-          [ Piggly::Parser.grammar_path,
-            Piggly::Parser.parser_path,
-            Piggly::Parser.nodes_path ]
+          [ Parser.grammar_path,
+            Parser.parser_path,
+            Parser.nodes_path ]
         end
 
         def stale?(path)
           # is the cache_path is older than its source path or the other files?
-          Piggly::Util::File.stale?(cache_path(path), path, *cache_sources)
+          Util::File.stale?(cache_path(path), path, *cache_sources)
         end
 
         def cache(procedure, *args, &block)
           # load parser runtime
-          Piggly::Parser.parser
+          Parser.parser
 
           cachedir = cache_path(procedure.source_path)
 
           if stale?(procedure.source_path)
             puts "Compiling #{procedure.name}"
 
-            tree = Piggly::Parser.parse(File.read(procedure.source_path))
+            tree = Parser.parse(File.read(procedure.source_path))
             data = compile(tree, *args, &block)
             
             cache = CacheDirectory.lookup(cachedir)

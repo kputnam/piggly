@@ -1,43 +1,15 @@
 module Piggly
   class Config
+  end
 
-    def self.instance
-      @instance ||= new
-    end
-
-    def self.method_missing(name, *args, &block)
-      if instance.respond_to?(name)
-        instance.send(name, *args, &block)
-      else
-        super
-      end
-    end
-
-    def self.respond_to?(name)
-      super or instance.respond_to?(name)
-    end
-
-    def self.config_accessor(hash)
-      hash = hash.clone
-
-      hash.keys.each do |name|
-        define_method(name) do
-          instance_variable_get("@#{name}") || hash[name]
-        end
-
-        define_method("#{name}=") do |value|
-          instance_variable_set("@#{name}", value)
-        end
-      end
-    end
-
+  class << Config
     def path(root, file=nil)
-      if file
+      if file.nil?
+        root
+      else
         file[%r{^\.\.|^\/|^(?:[A-Z]:)?/}i] ?
           file : # ../path, /path, or D:\path that isn't relative to root
           File.join(root, file)
-      else
-        root
       end
     end
 
@@ -52,10 +24,29 @@ module Piggly
       end
     end
 
-    config_accessor :cache_root   => File.expand_path(File.join(Dir.pwd, 'piggly', 'cache')),
-                    :report_root  => File.expand_path(File.join(Dir.pwd, 'piggly', 'reports')),
-                    :trace_prefix => 'PIGGLY',
-                    :aggregate    => false,
-                    :identify_procedures_using => 'signature'
+    def config_accessor(hash)
+      hash = hash.clone
+
+      hash.keys.each do |name|
+        define_method(name) do
+          instance_variable_get("@#{name}") || hash[name]
+        end
+
+        define_method("#{name}=") do |value|
+          instance_variable_set("@#{name}", value)
+        end
+      end
+    end
+
+  end
+
+  class Config
+    config_accessor \
+      :cache_root   => File.expand_path("#{Dir.pwd}/piggly/cache"),
+      :report_root  => File.expand_path("#{Dir.pwd}/piggly/reports"),
+      :trace_prefix => "PIGGLY",
+      :aggregate    => false
+
+    alias aggregate? aggregate
   end
 end

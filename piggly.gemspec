@@ -11,6 +11,8 @@ module Piggly
       s.summary  = 'PL/pgSQL code coverage tool'
       s.homepage = 'http://github.com/kputnam/piggly'
       s.files    = ['README*', 'Rakefile', '{spec,lib,bin}/**/*'].map{|p| Dir[p]}.flatten
+      s.files   -= ['lib/piggly/parser/parser.rb']
+
       s.bindir   = 'bin'
       s.executables  = %w[piggly]
       s.require_path = 'lib'

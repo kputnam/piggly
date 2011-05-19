@@ -22,9 +22,9 @@ class NodeClass
   def tag(prefix = nil, id = nil)
     unless defined? @tag_id
       if named?(:body)
-        Piggly::Tags::BlockTag.new(prefix, id)
+        Tags::BlockTag.new(prefix, id)
       else
-        Piggly::Tags::EvaluationTag.new(prefix, id)
+        Tags::EvaluationTag.new(prefix, id)
       end.tap{|tag| @tag_id = tag.id }
     end
   end
@@ -55,28 +55,7 @@ class NodeClass
     end
   end
 
-  alias o_inspect inspect
-
-  def inspect(indent = '')
-    if terminal?
-        em = extension_modules
-        interesting_methods = methods-[em.last ? em.last.methods : nil]-self.class.instance_methods
-        im = interesting_methods.size > 0 ? " (#{interesting_methods.join(",")})" : ""
-        tv = text_value
-        tv = "...#{tv[-20..-1]}" if tv.size > 20
-
-        indent +
-        self.class.to_s.sub(/.*:/,'') +
-          em.map{|m| "+"+m.to_s.sub(/.*:/,'')}*"" +
-          " offset=#{interval.first}" +
-          ", #{tv.inspect}" +
-          im
-    else
-      o_inspect(indent)
-    end
-  end
-
-  # true if node is called 'label' in parent node
+  # True if node is called `label` by the parent node
   def named?(label)
     if p = parent
       p.respond_to?(label) and p.send(label).equal?(self)
@@ -104,18 +83,19 @@ module Piggly
           unless defined? @tag_id
             if named?(:cond)
               if parent.while?
-                # this object is the conditional statement in a WHILE loop
-                Piggly::Tags::ConditionalLoopTag.new(prefix, id)
+                # This node is the conditional in a WHILE loop
+                Tags::ConditionalLoopTag.new(prefix, id)
               elsif parent.loop?
-                # this object is the conditional statement in a loop
-                Piggly::Tags::UnconditionalLoopTag.new(prefix, id)
+                # This node is the conditional in a loop
+                Tags::UnconditionalLoopTag.new(prefix, id)
               elsif parent.branch?
-                Piggly::Tags::ConditionalBranchTag.new(prefix, id)
+                # This node is a conditional in a branch
+                Tags::ConditionalBranchTag.new(prefix, id)
               else
-                Piggly::Tags::EvaluationTag.new(prefix, id)
+                Tags::EvaluationTag.new(prefix, id)
               end
             else
-              Piggly::Tags::EvaluationTag.new(prefix, id)
+              Tags::EvaluationTag.new(prefix, id)
             end.tap{|tag| @tag_id = tag.id }
           end
         end
@@ -192,7 +172,8 @@ module Piggly
       class Throw < UnconditionalBranch
       end
 
-      # Loops with child 'cond' (Expression/Sql) will get a LoopCondTag
+      # Loops that have a child named :cond (which should be either an Expression
+      # or Sql node) will get a LoopCondTag from the #tag method
       class Loop < Statement
         def loop?
           true
@@ -234,16 +215,16 @@ module Piggly
       class Assignable < NodeClass
       end
 
-      class Sql < Statement
-        def style; 'tQ'; end
+      class Sql < Expression
+        def style; "tQ"; end
 
         def tag(prefix = nil, id = nil)
           unless defined? @tag_id
             if named?(:cond) and parent.for?
-              # this object is the conditional statement in a FOR loop
-              Piggly::Tags::UnconditionalLoopTag.new(prefix, id)
+              # This node is the conditional in a FOR loop
+              Tags::UnconditionalLoopTag.new(prefix, id)
             else
-              Piggly::Tags::EvaluationTag.new(prefix, id)
+              Tags::EvaluationTag.new(prefix, id)
             end.tap{|tag| @tag_id = tag.id }
           end
         end
@@ -252,16 +233,13 @@ module Piggly
       # Terminals have no children
       class Terminal < NodeClass
         def initialize(input, interval, elements = nil)
-          # prevent children from being assigned
+          # Third argument nil prevents children from being assigned
           super(input, interval, nil)
         end
 
         def terminal?
           true
         end
-      end
-
-      class Token < Terminal
       end
 
       # This seems like it should be a Token, but it may contain TComment children
@@ -272,42 +250,45 @@ module Piggly
         end
       end
 
+      class Token < Terminal
+      end
+
       class TKeyword < Token
-        def style; 'tK'; end
+        def style; "tK"; end
 
         def tag(prefix = nil, id = nil)
           unless defined? @tag_id
             if named?(:cond) and parent.loop?
-              Piggly::Tags::UnconditionalLoopTag.new(prefix, id)
+              Tags::UnconditionalLoopTag.new(prefix, id)
             else
-              Piggly::Tags::EvaluationTag.new(prefix, id)
+              Tags::EvaluationTag.new(prefix, id)
             end
           end.tap{|tag| @tag_id = tag.id }
         end
       end
 
       class TIdentifier < Token
-        def style; 'tI'; end
+        def style; "tI"; end
       end
 
       class TDatatype < Token
-        def style; 'tD'; end
+        def style; "tD"; end
       end
 
       class TString < Token
-        def style; 'tS'; end
+        def style; "tS"; end
       end
 
       class TDollarQuoteMarker < Token
-        def style; 'tM'; end
+        def style; "tM"; end
       end
 
       class TComment < Token
-        def style; 'tC'; end
+        def style; "tC"; end
       end
 
       class TLabel < Token
-        def style; 'tL'; end
+        def style; "tL"; end
       end
 
       class TextNode < Terminal
@@ -323,7 +304,7 @@ module Piggly
       class NotImplemented < NodeClass
         def parent=(object)
           # this would go in the constructor, but parent is set from outside
-          raise Piggly::Parser::Failure, "Grammar does not implement #{object.source_text} at line #{input.line_of(object.interval.first)}"
+          raise Failure, "Grammar does not implement #{object.source_text} at line #{input.line_of(object.interval.first)}"
         end
       end
 
