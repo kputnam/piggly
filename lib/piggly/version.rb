@@ -1,15 +1,15 @@
 module Piggly
   module VERSION
     MAJOR = 1
-    MINOR = 2
-    TINY  = 1
+    MINOR = 3
+    TINY  = 0
 
-    STRING = [MAJOR, MINOR, TINY].join('.')
+    RELEASE_DATE = "2011-05-18"
+  end
 
-    RELEASE_DATE = '2010-04-22'
-
-    def self.to_s
-      STRING
+  class << VERSION
+    def to_s
+      [VERSION::MAJOR, VERSION::MINOR, VERSION::TINY].join(".")
     end
   end
 end

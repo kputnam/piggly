@@ -1,20 +1,21 @@
 module Piggly
   module Util
 
+    # @todo: Ruby 1.9 BasicObject
     begin
       BlankSlate
     rescue NameError
-      require 'piggly/util/blankslate'
+      require "piggly/util/blankslate"
     end
 
     #
     # Wraps a computation and delays its evaluation until
     # a message is sent to it. Computation can be forced by
-    # calling force!
+    # calling `force!`
     #
     class Thunk < BlankSlate
       def initialize(&block)
-        @block  = block
+        @block = block
       end
 
       def force!

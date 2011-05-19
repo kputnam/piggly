@@ -3,8 +3,7 @@ module Piggly
 
     #
     # Encapsulates all the information about a stored procedure, except the
-    # procedure's source code is assumed to be on disk and is loaded as needed
-    # instead of stored as an instance variable
+    # procedure's source code, which is assumed to be on disk, loaded as needed.
     #
     class SkeletonProcedure
       attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :rettype,
@@ -18,63 +17,71 @@ module Piggly
       end
 
       # Returns source text for argument list
+      # @return [String]
       def arguments
-        @arg_types.zip(@arg_names, @arg_modes).map do |_type, _name, _mode|
-          "#{_mode + ' ' if _mode}#{_name + ' ' if _name}#{_type}"
-        end.join(', ')
+        @arg_types.zip(@arg_names, @arg_modes).map do |type, name, mode|
+          "#{mode + ' ' if mode}#{name + ' ' if name}#{type}"
+        end.join(", ")
       end
 
       # Returns source text for return type
+      # @return [String]
       def type
-        "#{@setof ? 'setof ' : ''}#{@rettype}"
+        "#{@setof ? "setof " : ""}#{@rettype}"
       end
 
       # Returns source text for strictness
+      # @return [String]
       def strictness
-        @strict ? 'strict' : ''
+        @strict ? "strict" : ""
       end
 
       # Returns source text for security
+      # @return [String]
       def security
-        @secdef ? 'security definer' : ''
+        @secdef ? "security definer" : ""
       end
 
       # Returns source SQL function definition statement
-      def definition(source)
+      # @return [String]
+      def definition(body)
         [%[create or replace function "#{@namespace}"."#{@name}" (#{arguments})],
-         %[ #{strictness} #{security} returns #{type} as $PIGGLY_BODY$],
-         source,
-         %[$PIGGLY_BODY$ language plpgsql #{@volatility}]].join("\n")
+         %[ #{strictness} #{security} returns #{type} as $PIGGLY$],
+         body,
+         %[$PIGGLY$ language plpgsql #{@volatility}]].join("\n")
       end
 
+      # @return [String]
       def signature
-        "#{@namespace}.#{@name}(#{@arg_types.join(', ')})"
+        "#{@namespace}.#{@name}(#{@arg_types.join(", ")})"
       end
 
-      def source
-        load_source
-      end
-
+      # @return [String]
       def source_path
-        Piggly::Config.mkpath(File.join(Piggly::Config.cache_root, 'Dumper'), "#{@identifier}.plpgsql")
+        Config.mkpath("#{Config.cache_root}/Dumper", "#{@identifier}.plpgsql")
       end
 
+      # @return [String]
       def load_source
         File.read(source_path)
       end
 
+      alias source load_source
+
+      # @return [void]
       def purge_source
         puts "Purging cached source for #{@name}"
 
         FileUtils.rm_r(source_path) if File.exists?(source_path)
 
-        file = Piggly::Compiler::Trace.cache_path(source_path)
+        file = Compiler::Trace.cache_path(source_path)
         FileUtils.rm_r(file) if File.exists?(file)
 
-        file = Piggly::Reporter.report_path(source_path, '.html')
+        file = Reporter.report_path(source_path, ".html")
         FileUtils.rm_r(file) if File.exists?(file)
       end
 
+      # @return [SkeletonProcedure]
       def skeleton
         self
       end
@@ -86,105 +93,11 @@ module Piggly
 
     #
     # Differs from SkeletonProcedure in that the procedure source code is stored
-    # as an instance variable. The store_source method is also added
+    # as an instance variable.
     #
     class ReifiedProcedure < SkeletonProcedure
-      MODES = Hash.new{|h,k| k }.update \
-        'i' => 'in',
-        'o' => 'out',
-        'b' => 'inout'
 
-      VOLATILITY = Hash.new{|h,k| k }.update \
-         'i' => 'immutable',
-         'v' => 'volatile',
-         's' => 'stable'
-
-      class << self
-        def fmt_type(type)
-          case type
-          when /^character varying(.*)/ then "varchar#{$1}"
-          when /^character(.*)/         then "char#{$1}"
-          when /"char"(.*)/   then "char#{$1}"
-          when /^integer(.*)/ then "int#{$1}"
-          when /^int4(.*)/    then "int#{$1}"
-          when /^int8(.*)/    then "bigint#{$1}"
-          when /^float4(.*)/  then "float#{$1}"
-          when /^boolean(.*)/ then "bool#{$1}"
-          else type
-          end
-        end
-
-        def fmt_mode(mode)
-          MODES[mode]
-        end
-
-        def fmt_volatility(mode)
-          VOLATILITY[mode]
-        end
-
-        # Returns a list of all PL/pgSQL stored procedures in the current database
-        def all
-          connection.select_all(<<-SQL).map{|x| from_hash(x) }
-            select
-              pro.oid,
-              ns.nspname      as namespace,
-              pro.proname     as name,
-              pro.proisstrict as strict,
-              pro.prosecdef   as secdef,
-              pro.provolatile as volatility,
-              pro.proretset   as setof,
-              ret.typname     as rettype,
-              pro.prosrc      as source,
-              array_to_string(pro.proargmodes, ',')  as arg_modes,
-              array_to_string(pro.proargnames, ',')  as arg_names,
-
-              case
-              when proallargtypes is not null then
-                -- use proalltypes array if its non-null
-                array_to_string(array(select format_type(proallargtypes[k], null)
-                                      from generate_series(array_lower(proallargtypes, 1),
-                                                           array_upper(proallargtypes, 1)) as k), ',')
-              else
-                -- fallback to oidvector proargtypes
-                oidvectortypes(pro.proargtypes)
-              end             as arg_types
-            from pg_proc as pro,
-                 pg_type as ret,
-                 pg_namespace as ns
-            where pro.pronamespace = ns.oid
-              and pro.proname not like 'piggly_%'
-              and pro.prorettype = ret.oid
-              and pro.prolang = (select oid from pg_language where lanname = 'plpgsql')
-              and pro.pronamespace not in (select oid
-                                           from pg_namespace
-                                           where nspname like 'pg_%'
-                                              or nspname like 'information_schema')
-          SQL
-        end
-
-        def from_hash(hash)
-          new(hash['oid'],
-              hash['namespace'],
-              hash['name'],
-              hash['strict'] == 't',
-              hash['secdef'] == 't',
-              hash['setof'] == 't',
-              fmt_type(hash['rettype']),
-              fmt_volatility(hash['volatility']),
-              hash['arg_modes'].to_s.split(',').map{|x| fmt_mode(x.strip) },
-              hash['arg_names'].to_s.split(',').map{|x| x.strip },
-              hash['arg_types'].to_s.split(',').map{|x| fmt_type(x.strip) },
-              hash['source'])
-        end
-
-      private
-
-        # Returns the current database connection
-        def connection # :nodoc:
-          ActiveRecord::Base.connection
-        end
-      end
-
+      # @return [String]
       attr_reader :source
 
       def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types, source)
@@ -192,6 +105,7 @@ module Piggly
         @source = source.strip
       end
 
+      # @return [void]
       def store_source
         if @source.include?('$PIGGLY$')
           raise "Procedure `#{@name}' is already instrumented. " +
@@ -204,6 +118,7 @@ module Piggly
         File.open(source_path, 'wb'){|io| io.write(@source) }
       end
 
+      # @return [SkeletonProcedure]
       def skeleton
         SkeletonProcedure.new(oid, namespace, name, strict, secdef, setof,
                               rettype, volatility, arg_modes, arg_names, arg_types)
@@ -211,6 +126,110 @@ module Piggly
 
       def skeleton?
         false
+      end
+    end
+
+    class << ReifiedProcedure
+      # Rewrite "i", "o", and "b", otherwise pass-through
+      MODES = Hash.new{|h,k| k }.update \
+        "i" => "in",
+        "o" => "out",
+        "b" => "inout"
+
+      # Rewrite "i", "v", and "s", otherwise pass-through
+      VOLATILITY = Hash.new{|h,k| k }.update \
+         "i" => "immutable",
+         "v" => "volatile",
+         "s" => "stable"
+
+      # Make the system calatog type name more human readable
+      def type(type)
+        case type
+        when /^character varying(.*)/ then "varchar#{$1}"
+        when /^character(.*)/         then "char#{$1}"
+        when /"char"(.*)/   then "char#{$1}"
+        when /^integer(.*)/ then "int#{$1}"
+        when /^int4(.*)/    then "int#{$1}"
+        when /^int8(.*)/    then "bigint#{$1}"
+        when /^float4(.*)/  then "float#{$1}"
+        when /^boolean(.*)/ then "bool#{$1}"
+        else type
+        end
+      end
+
+      def mode(mode)
+        MODES[mode]
+      end
+
+      def volatility(mode)
+        VOLATILITY[mode]
+      end
+
+      # Returns a list of all PL/pgSQL stored procedures in the current database
+      #
+      # @return [Array<ReifiedProcedure>]
+      def all
+        connection.select_all(<<-SQL).map{|x| from_hash(x) }
+          select
+            pro.oid,
+            ns.nspname      as namespace,
+            pro.proname     as name,
+            pro.proisstrict as strict,
+            pro.prosecdef   as secdef,
+            pro.provolatile as volatility,
+            pro.proretset   as setof,
+            ret.typname     as rettype,
+            pro.prosrc      as source,
+            array_to_string(pro.proargmodes, ',')  as arg_modes,
+            array_to_string(pro.proargnames, ',')  as arg_names,
+
+            case
+            when proallargtypes is not null then
+              -- use proalltypes array if its non-null
+              array_to_string(array(select format_type(proallargtypes[k], null)
+                                    from generate_series(array_lower(proallargtypes, 1),
+                                                         array_upper(proallargtypes, 1)) as k), ',')
+            else
+              -- fallback to oidvector proargtypes
+              oidvectortypes(pro.proargtypes)
+            end             as arg_types
+          from pg_proc as pro,
+               pg_type as ret,
+               pg_namespace as ns
+          where pro.pronamespace = ns.oid
+            and pro.proname not like 'piggly_%'
+            and pro.prorettype = ret.oid
+            and pro.prolang = (select oid from pg_language where lanname = 'plpgsql')
+            and pro.pronamespace not in (select oid
+                                         from pg_namespace
+                                         where nspname like 'pg_%'
+                                            or nspname like 'information_schema')
+        SQL
+      end
+
+      # Construct a ReifiedProcedure from a result row (Hash)
+      #
+      # @return [ReifiedProcedure]
+      def from_hash(hash)
+        new(hash['oid'],
+            hash['namespace'],
+            hash['name'],
+            hash['strict'] == 't',
+            hash['secdef'] == 't',
+            hash['setof'] == 't',
+            type(hash['rettype']),
+            volatility(hash['volatility']),
+            hash['arg_modes'].to_s.split(',').map{|x| mode(x.strip) },
+            hash['arg_names'].to_s.split(',').map{|x| x.strip },
+            hash['arg_types'].to_s.split(',').map{|x| type(x.strip) },
+            hash['source'])
+      end
+
+    private
+
+      # Returns the current database connection
+      def connection # :nodoc:
+        ActiveRecord::Base.connection
       end
     end
 

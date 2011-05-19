@@ -3,7 +3,7 @@ module Piggly
 
     #
     # This command reads a given file (or STDIN) which is expected to contain messages like the
-    # pattern Piggly::Profile::PATTERN, which is probbaly "WARNING:  PIGGLY 0011223344556677".
+    # pattern Profile::PATTERN, which is probbaly "WARNING:  PIGGLY 0011223344556677".
     #
     # Lines in the input that match this pattern are profiled and used to generate a report
     #
@@ -13,28 +13,29 @@ module Piggly
         def main(argv)
           io, filters = parse_options(argv)
 
-          procedures = find_procedures(filters)
+          profile = Profile.new
+          index   = Dumper::Index.new
+
+          procedures = find_procedures(filters, index)
 
           if procedures.empty?
             abort "No stored procedures in the cache#{' matched your criteria' if filters.any?}"
           end
 
-          profile_procedures(procedures)
-          clear_coverage
+          profile_procedures(procedures, profile)
+          clear_coverage(profile)
 
-          read_profile(io)
-          store_coverage
+          read_profile(io, profile)
+          store_coverage(profile)
 
-          create_index(procedures)
-          create_reports(procedures)
+          create_index(procedures, profile)
+          create_reports(procedures, profile)
         end
 
         #
         # Returns a list of Procedure values that satisfy at least one of the given filters
         #
-        def find_procedures(filters)
-          index = Piggly::Dumper::Index.instance
-
+        def find_procedures(filters, index)
           if filters.empty?
             index.procedures
           else
@@ -45,12 +46,10 @@ module Piggly
         # 
         # Adds the given procedures to Profile
         #
-        def profile_procedures(procedures)
-          profile = Piggly::Profile.instance
-
+        def profile_procedures(procedures, profile)
           # register each procedure in the Profile
           procedures.each do |procedure|
-            result = Piggly::Compiler::Trace.cache(procedure, procedure.oid)
+            result = Compiler::Trace.cache(procedure, procedure.oid)
             profile.add(procedure, result[:tags], result)
           end
         end
@@ -58,21 +57,19 @@ module Piggly
         #
         # Clear coverage after procedures have been loaded
         #
-        def clear_coverage
-          unless Piggly::Config.aggregate
+        def clear_coverage(profile)
+          unless Config.aggregate?
             puts "Clearing previous coverage"
-            Piggly::Profile.instance.clear
+            profile.clear
           end
         end
 
         #
-        # Reads +io+ for lines matching Piggly::Profile::PATTERN and records coverage
+        # Reads +io+ for lines matching Profile::PATTERN and records coverage
         #
-        def read_profile(io)
-          profile = Piggly::Profile.instance
-
+        def read_profile(io, profile)
           io.each do |line|
-            if m = Piggly::Profile::PATTERN.match(line)
+            if m = Profile::PATTERN.match(line)
               profile.ping(m.captures[0], m.captures[1])
             end
           end
@@ -81,37 +78,35 @@ module Piggly
         #
         # Store the coverage Profile on disk
         #
-        def store_coverage
+        def store_coverage(profile)
           puts "Storing coverage profile"
-          Piggly::Profile.instance.store
+          profile.store
         end
 
         #
         # Create the report's index.html
         #
-        def create_index(procedures)
+        def create_index(procedures, profile)
           puts "Creating index"
-          Piggly::Reporter.install('html/piggly.css', 'html/sortable.js')
-          Piggly::Reporter::Html::Index.output(procedures)
+          Reporter.install('html/piggly.css', 'html/sortable.js')
+          Reporter::Html::Index.output(procedures)
         end
 
         #
         # Create each procedures' HTML report page
         #
-        def create_reports(procedures)
+        def create_reports(procedures, profile)
           puts "Creating reports"
-
-          profile = Piggly::Profile.instance
-          queue   = Piggly::Util::ProcessQueue.new
+          queue = Util::ProcessQueue.new
 
           procedures.each do |p|
             queue.add do
-              path = Piggly::Reporter.report_path(p.source_path, '.html')
-              data = Piggly::Compiler::Trace.cache(p, p.oid)
-              live = Piggly::Profile.instance[p] rescue nil
+              path = Reporter.report_path(p.source_path, '.html')
+              data = Compiler::Trace.cache(p, p.oid)
+              live = profile[p] rescue nil
 
               if File.exists?(p.source_path)
-                needed   = Piggly::Util::File.stale?(path, p.source_path)
+                needed   = Util::File.stale?(path, p.source_path)
                 needed ||= data[:tags] != live
               else
                 needed = false
@@ -123,8 +118,8 @@ module Piggly
                 end
 
                 puts "Reporting coverage for #{p.name}#{changes}"
-                result = Piggly::Compiler::Report.compile(p, profile)
-                Piggly::Reporter::Html.output(p, result[:html], result[:lines])
+                result = Compiler::Report.compile(p, profile)
+                Reporter::Html.output(p, result[:html], result[:lines])
               end
             end
           end

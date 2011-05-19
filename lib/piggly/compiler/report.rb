@@ -5,7 +5,7 @@ module Piggly
     # Produces HTML output to report coverage of tagged nodes in the tree
     #
     class Report
-      include Piggly::Reporter::Html::DSL
+      include Reporter::Html::DSL
 
       def self.compile(procedure, profile)
         new(profile).send(:compile, procedure)
@@ -18,9 +18,9 @@ module Piggly
     protected
 
       def compile(procedure) # :nodoc:
-        unless Piggly::Compiler::Trace.stale?(procedure.source_path)
+        unless Compiler::Trace.stale?(procedure.source_path)
           # get (copies of) the tagged nodes from the compiled tree
-          data = Piggly::Compiler::Trace.cache(procedure, procedure.oid)
+          data = Compiler::Trace.cache(procedure, procedure.oid)
 
           return :html  => traverse(data[:tree]),
                  :lines => 1 .. procedure.source.count("\n") + 1

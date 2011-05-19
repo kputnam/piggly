@@ -45,7 +45,7 @@ module Piggly
       end
 
       def style
-        "c#{@ran ? '1' : '0'}"
+        "c#{@ran ? "1" : "0"}"
       end
       
       def to_f
@@ -57,7 +57,7 @@ module Piggly
       end
 
       def description
-        @ran ? 'full coverage' : 'never evaluated'
+        @ran ? "full coverage" : "never evaluated"
       end
 
       # Resets code coverage
@@ -80,7 +80,7 @@ module Piggly
     # Tracks procedure calls, raise exception, exits, returns
     #
     class UnconditionalBranchTag < EvaluationTag
-      # aggregate this coverage data with conditional branches
+      # Aggregate this coverage data with conditional branches
       def type
         :branch
       end
@@ -104,8 +104,8 @@ module Piggly
 
       def ping(value)
         case value
-        when 't'; @true  = true
-        when 'f'; @false = true
+        when "t"; @true  = true
+        when "f"; @false = true
         end
       end
 
@@ -123,13 +123,13 @@ module Piggly
 
       def description
         if @true and @false
-          'full coverage'
+          "full coverage"
         elsif @true
-          'never evaluates false'
+          "never evaluates false"
         elsif @false
-          'never evaluates true'
+          "never evaluates true"
         else
-          'never evaluated'
+          "never evaluated"
         end
       end
 
@@ -148,19 +148,19 @@ module Piggly
     #
     class AbstractLoopTag < AbstractTag
       def self.states
-        { # never terminates normally (so @pass must be false)
-          0b0000 => 'never evaluated',
-          0b0001 => 'iterations always terminate early. loop always iterates more than once',
-          0b0010 => 'iterations always terminate early. loop always iterates only once',
-          0b0011 => 'iterations always terminate early',
-          # terminates normally (one of @pass, @once, @twice must be true)
-          0b1001 => 'loop always iterates more than once',
-          0b1010 => 'loop always iterates only once',
-          0b1011 => 'loop never passes through',
-          0b1100 => 'loop always passes through',
-          0b1101 => 'loop never iterates only once',
-          0b1110 => 'loop never iterates more than once',
-          0b1111 => 'full coverage' }
+        { # Never terminates normally (so @pass must be false)
+          0b0000 => "never evaluated",
+          0b0001 => "iterations always terminate early. loop always iterates more than once",
+          0b0010 => "iterations always terminate early. loop always iterates only once",
+          0b0011 => "iterations always terminate early",
+          # Terminates normally (one of @pass, @once, @twice must be true)
+          0b1001 => "loop always iterates more than once",
+          0b1010 => "loop always iterates only once",
+          0b1011 => "loop never passes through",
+          0b1100 => "loop always passes through",
+          0b1101 => "loop never iterates only once",
+          0b1110 => "loop never iterates more than once",
+          0b1111 => "full coverage" }
       end
 
       attr_reader :pass, :once, :twice, :ends, :count
@@ -179,16 +179,16 @@ module Piggly
       end
 
       def to_f
-        # value space:
+        # Value space:
         #    (1,2,X)  - loop iterated at least twice and terminated normally
         #    (1,X)    - loop iterated only once and terminated normally
         #    (0,X)    - loop never iterated and terminated normally (pass-thru)
         #    ()       - loop condition was never executed
         #
-        # these combinations are ignored, because adding tests for them will probably not reveal bugs
+        # These combinations are ignored, because coverage will probably not reveal bugs
         #    (1,2)    - loop iterated at least twice but terminated early
         #    (1)      - loop iterated only once but terminated early
-        100 * (Piggly::Util::Enumerable.count([@pass, @once, @twice, @ends]){|x| x } / 4.0)
+        100 * (Util::Enumerable.count([@pass, @once, @twice, @ends]){|x| x } / 4.0)
       end
 
       def complete?
@@ -222,16 +222,16 @@ module Piggly
     end
 
     #
-    # Tracks loops that have a boolean condition in the loop statement (while loops)
+    # Tracks loops that have a boolean condition in the loop statement (WHILE loops)
     #
     class ConditionalLoopTag < AbstractLoopTag
       def ping(value)
         case value
-        when 't'
-          # loop iterated
+        when "t"
+          # Loop iterated
           @count += 1
         else
-          # loop terminated
+          # Loop terminated
           case @count
           when 0; @pass  = true
           when 1; @once  = true
@@ -239,32 +239,32 @@ module Piggly
           end
           @count = 0
 
-          # this isn't accurate. there needs to be a signal at the end
-          # of the loop body to indicate it was reached. otherwise its
-          # possible each iteration restarts early with 'continue'
+          # This isn't accurate. there needs to be a signal at the end
+          # of the loop body to indicate it was reached. Otherwise its
+          # possible each iteration restarts early with CONTINUE
           @ends  = true
         end
       end
     end
 
     #
-    # Tracks loops that don't have a boolean condition in the loop statement (loop and for loops)
+    # Tracks loops that don't have a boolean condition in the loop statement (LOOP and FOR loops)
     #
     class UnconditionalLoopTag < AbstractLoopTag
       def self.states
         super.merge \
-          0b0100 => 'loop always passes through'
+          0b0100 => "loop always passes through"
       end
 
       def ping(value)
         case value
-        when 't'
+        when "t"
           # start of iteration
           @count += 1
-        when '@'
+        when "@"
           # end of iteration
           @ends = true
-        when 'f'
+        when "f"
           # loop exit
           case @count
           when 0; @pass = true

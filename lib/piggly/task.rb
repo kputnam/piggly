@@ -1,8 +1,8 @@
-require 'rake'
-require 'rake/tasklib'
+require "rake"
+require "rake/tasklib"
 
 $:.unshift File.expand_path(File.join(File.dirname(__FILE__), ".."))
-require 'piggly'
+require "piggly"
 
 module Piggly
 
@@ -23,7 +23,7 @@ module Piggly
 
       @procedures  = []
       @cache_root  = nil
-      @piggly_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'bin', 'piggly'))
+      @piggly_path = File.expand_path("#{File.dirname(__FILE__)}/../../bin/piggly")
       @piggly_opts = []
 
       yield self if block_given?
@@ -72,7 +72,7 @@ module Piggly
 
           opts.concat(@piggly_opts)
         # ruby(opts.join(" "))
-          Piggly::Command.main(opts)
+          Command.main(opts)
         end
       end
     end
@@ -109,7 +109,7 @@ module Piggly
 
           opts.concat(@piggly_opts)
         # ruby(opts.join(" "))
-          Piggly::Command.main(opts)
+          Command.main(opts)
         end
       end
     end
@@ -156,7 +156,7 @@ module Piggly
 
           opts.concat(@piggly_opts)
         # ruby(opts.join(" "))
-          Piggly::Command.main(opts)
+          Command.main(opts)
         end
       end
     end
