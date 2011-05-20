@@ -24,6 +24,8 @@ module Piggly
       end
     end
 
+  private
+
     def config_accessor(hash)
       hash = hash.clone
 
@@ -37,16 +39,25 @@ module Piggly
         end
       end
     end
-
   end
 
   class Config
     config_accessor \
       :cache_root   => File.expand_path("#{Dir.pwd}/piggly/cache"),
       :report_root  => File.expand_path("#{Dir.pwd}/piggly/reports"),
+      :database_yml => nil,
       :trace_prefix => "PIGGLY",
-      :aggregate    => false
+      :aggregate    => false,
+      :filters      => []
 
     alias aggregate? aggregate
+
+    def path(*args)
+      self.class.path(*args)
+    end
+
+    def mkpath(*args)
+      self.class.mkpath(*args)
+    end
   end
 end

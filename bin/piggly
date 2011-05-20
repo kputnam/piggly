@@ -1,9 +1,8 @@
 #!/usr/bin/env ruby
-require 'optparse'
-
 $:.unshift File.expand_path(File.join(File.dirname(__FILE__), *%w(.. lib)))
-require 'piggly'
+require "piggly"
 
 # Number of children to fork for parallel tasks
 Piggly::Util::ProcessQueue.concurrent = 2
-Piggly::Command.main(ARGV)
+
+Piggly::Command::Base.main(ARGV)

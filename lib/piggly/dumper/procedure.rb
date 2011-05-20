@@ -6,8 +6,8 @@ module Piggly
     # procedure's source code, which is assumed to be on disk, loaded as needed.
     #
     class SkeletonProcedure
-      attr_accessor :oid, :namespace, :name, :strict, :secdef, :setof, :rettype,
-                    :volatility, :arg_modes, :arg_names, :arg_types, :identifier
+
+      attr_reader :oid, :name, :identifier
 
       def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types)
         @oid, @namespace, @name, @strict, @secdef, @rettype, @volatility, @setof, @arg_modes, @arg_names, @arg_types =
@@ -20,7 +20,7 @@ module Piggly
       # @return [String]
       def arguments
         @arg_types.zip(@arg_names, @arg_modes).map do |type, name, mode|
-          "#{mode + ' ' if mode}#{name + ' ' if name}#{type}"
+          "#{mode + " " if mode}#{name + " " if name}#{type}"
         end.join(", ")
       end
 
@@ -46,9 +46,9 @@ module Piggly
       # @return [String]
       def definition(body)
         [%[create or replace function "#{@namespace}"."#{@name}" (#{arguments})],
-         %[ #{strictness} #{security} returns #{type} as $PIGGLY$],
+         %[ #{strictness} #{security} returns #{type} as $__PIGGLY__$],
          body,
-         %[$PIGGLY$ language plpgsql #{@volatility}]].join("\n")
+         %[$__PIGGLY__$ language plpgsql #{@volatility}]].join("\n")
       end
 
       # @return [String]
@@ -57,27 +57,26 @@ module Piggly
       end
 
       # @return [String]
-      def source_path
-        Config.mkpath("#{Config.cache_root}/Dumper", "#{@identifier}.plpgsql")
+      def source_path(config)
+        config.mkpath("#{config.cache_root}/Dumper", "#{@identifier}.plpgsql")
       end
 
       # @return [String]
-      def load_source
-        File.read(source_path)
+      def load_source(config)
+        File.read(source_path(config))
       end
 
+      # @return [String]
       alias source load_source
 
       # @return [void]
-      def purge_source
-        puts "Purging cached source for #{@name}"
+      def purge_source(config)
+        FileUtils.rm_r(source_path(config)) if File.exists?(source_path(config))
 
-        FileUtils.rm_r(source_path) if File.exists?(source_path)
-
-        file = Compiler::Trace.cache_path(source_path)
+        file = Compiler::Trace.cache_path(source_path(config))
         FileUtils.rm_r(file) if File.exists?(file)
 
-        file = Reporter.report_path(source_path, ".html")
+        file = Reporter::Base.new(config).report_path(source_path(config), ".html")
         FileUtils.rm_r(file) if File.exists?(file)
       end
 
@@ -97,31 +96,31 @@ module Piggly
     #
     class ReifiedProcedure < SkeletonProcedure
 
-      # @return [String]
-      attr_reader :source
-
-      def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types, source)
-        super(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types)
+      def initialize(source, *args)
+        super(*args)
         @source = source.strip
       end
 
+      # @return [String]
+      def source(config)
+        @source
+      end
+
       # @return [void]
-      def store_source
-        if @source.include?('$PIGGLY$')
+      def store_source(config)
+        if @source.include?("$PIGGLY$")
           raise "Procedure `#{@name}' is already instrumented. " +
                 "This means the original source wasn't restored after the " +
                 "last coverage run. You must restore the source manually."
         end
 
-        puts "Caching source for #{@name}"
-
-        File.open(source_path, 'wb'){|io| io.write(@source) }
+        File.open(source_path(config), "wb"){|io| io.write(@source) }
       end
 
       # @return [SkeletonProcedure]
       def skeleton
-        SkeletonProcedure.new(oid, namespace, name, strict, secdef, setof,
-                              rettype, volatility, arg_modes, arg_names, arg_types)
+        SkeletonProcedure.new(@oid, @namespace, @name, @strict, @secdef, @setof,
+                              @rettype, @volatility, @arg_modes, @arg_names, @arg_types)
       end
 
       def skeleton?
@@ -168,8 +167,8 @@ module Piggly
       # Returns a list of all PL/pgSQL stored procedures in the current database
       #
       # @return [Array<ReifiedProcedure>]
-      def all
-        connection.select_all(<<-SQL).map{|x| from_hash(x) }
+      def all(connection)
+        connection.query(<<-SQL).map{|x| from_hash(x) }
           select
             pro.oid,
             ns.nspname      as namespace,
@@ -211,25 +210,18 @@ module Piggly
       #
       # @return [ReifiedProcedure]
       def from_hash(hash)
-        new(hash['oid'],
-            hash['namespace'],
-            hash['name'],
-            hash['strict'] == 't',
-            hash['secdef'] == 't',
-            hash['setof'] == 't',
-            type(hash['rettype']),
-            volatility(hash['volatility']),
-            hash['arg_modes'].to_s.split(',').map{|x| mode(x.strip) },
-            hash['arg_names'].to_s.split(',').map{|x| x.strip },
-            hash['arg_types'].to_s.split(',').map{|x| type(x.strip) },
-            hash['source'])
-      end
-
-    private
-
-      # Returns the current database connection
-      def connection # :nodoc:
-        ActiveRecord::Base.connection
+        new(hash["source"],
+            hash["oid"],
+            hash["namespace"],
+            hash["name"],
+            hash["strict"] == "t",
+            hash["secdef"] == "t",
+            hash["setof"]  == "t",
+            type(hash["rettype"]),
+            volatility(hash["volatility"]),
+            hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) },
+            hash["arg_names"].to_s.split(",").map{|x| x.strip },
+            hash["arg_types"].to_s.split(",").map{|x| type(x.strip) })
       end
     end
 

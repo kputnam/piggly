@@ -1,3 +1,6 @@
+require "erb"
+require "yaml"
+require "optparse"
 require "fileutils"
 require "digest/md5"
 
@@ -14,5 +17,3 @@ module Piggly
   autoload :Tags,       "piggly/tags"
   autoload :Util,       "piggly/util"
 end
-
-require "piggly/util"

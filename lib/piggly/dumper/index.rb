@@ -1,5 +1,3 @@
-require "yaml"
-
 module Piggly
   module Dumper
 
@@ -9,13 +7,14 @@ module Piggly
     #
     class Index
 
-      def self.path
-        @path ||= Config.mkpath("#{Config.cache_root}/Dumper", "index.yml")
+      def initialize(config)
+        @config = config
+        @index  = load_index
       end
 
-      def initialize(path = Index.path)
-        @path  = path
-        @index = load_index
+      # @return [String]
+      def path
+        @config.mkpath("#{@config.cache_root}/Dumper", "index.yml")
       end
 
       # Updates the index with the given list of Procedure values
@@ -24,19 +23,20 @@ module Piggly
         newest = Util::Enumerable.index_by(procedures){|x| x.identifier }
 
         removed = @index.values.reject{|p| newest.include?(p.identifier) }
-        removed.each{|p| p.purge_source }
+        removed.each{|p| p.purge_source(@config) }
 
         added = procedures.reject{|p| @index.include?(p.identifier) }
-        added.each{|p| p.store_source }
+        added.each{|p| p.store_source(@config) }
 
         changed = procedures.select do |p|
           if mine = @index[p.identifier]
             # If both are skeletons, they will have the same source because they
             # are read from the same file, so don't bother checking that case
-            not (mine.skeleton? and p.skeleton?) and mine.source != p.source
+            not (mine.skeleton? and p.skeleton?) and
+              mine.source(@config) != p.source(@config)
           end
         end
-        changed.each{|p| p.store_source }
+        changed.each{|p| p.store_source(@config) }
 
         @index = newest
         store_index
@@ -99,10 +99,10 @@ module Piggly
       # Load the index from disk
       def load_index
         contents =
-          unless File.exists?(@path)
+          unless File.exists?(path)
             []
           else
-            YAML.load(File.read(@path))
+            YAML.load(File.read(path))
           end
 
         Util::Enumerable.index_by(contents){|x| x.identifier }
@@ -110,7 +110,7 @@ module Piggly
 
       # Write the index to disk
       def store_index
-        File.open(@path, "wb"){|io| YAML.dump(procedures.map{|p| p.skeleton }, io) }
+        File.open(path, "wb"){|io| YAML.dump(procedures.map{|p| p.skeleton }, io) }
       end
 
     end

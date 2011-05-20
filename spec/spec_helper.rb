@@ -1,11 +1,11 @@
 begin
-  require 'spec'
+  require "spec"
 rescue LoadError
-  require 'rspec'
+  require "rspec"
 end
 
-require 'ostruct'
-require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'piggly'))
+require "ostruct"
+require File.expand_path("#{File.dirname(__FILE__)}/../lib/piggly")
 
 #Dir[File.join(File.dirname(__FILE__), 'mocks', '*')].each do |m|
 #  require File.expand_path(m)
@@ -62,16 +62,16 @@ module Piggly
     end
 
     def self.keyword(text)
-      terminal text
+      terminal(text)
     end
 
     # Create a tSpace node
     def self.space(text = ' ')
-      terminal text
+      terminal(text)
     end
 
     # Constructs an inline tComment
-    def self.in_comment(text)
+    def self.inline_comment(text)
       terminal("/* #{text} */",
                :content  => text,
                :elements => ['/*', " #{text} ", '*/'])
@@ -86,7 +86,7 @@ module Piggly
 
     # Constructs a stubNode
     def self.stub
-      terminal ''
+      terminal("")
     end
 
     # Constructs an expressionUntil-type node
@@ -196,7 +196,7 @@ module Piggly
                  :cond      => expr(condition),
                  :elements  => [:body, space, keyword('when'), :condSpace, :condStub, :cond, terminal(';')]
       else
-        node.new :bodyStub  => stub,
+        Node.new :bodyStub  => stub,
                  :body      => keyword('exit'),
                  :elements  => [:bodyStub, :body, ';']
       end
@@ -211,7 +211,7 @@ module Piggly
                  :cond      => expr(condition),
                  :elements  => [:body, space, keyword('when'), :condSpace, :condStub, :cond, terminal(';')]
       else
-        node.new :bodyStub  => stub,
+        Node.new :bodyStub  => stub,
                  :body      => keyword('exit'),
                  :elements  => [:bodyStub, :body, ';']
       end

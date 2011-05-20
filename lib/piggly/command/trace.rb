@@ -5,101 +5,78 @@ module Piggly
     # This command connects to the database, dumps all stored procedures, compiles them
     # with instrumentation code, and finally installs the instrumented code.
     #
-    module Trace
-      class << self
+    class Trace < Base
+    end
 
-        def main(argv)
-          filters = parse_options(argv)
-          index   = Dumper::Index.new
+    class << Trace
+      def main(argv)
+        config     = configure(argv)
+        connection = connect(config)
+        index      = Dumper::Index.new(config)
 
-          Command::connect_to_database
-          procedures = dump_procedures(filters, index)
+        dump(connection, index)
 
-          if procedures.empty?
-            abort "No stored procedures in the cache#{' matched your criteria' if filters.any?}"
-          end
+        procedures = filter(config, index)
 
-          trace(procedures)
-        end
-
-        #
-        # Writes all stored procedures in the database to disk, then returns a list of Procedure
-        # values that satisfy at least one of the given filters
-        #
-        def dump_procedures(filters, index)
-          index.update(Dumper::ReifiedProcedure.all)
-
+        if procedures.empty?
           if filters.empty?
-            index.procedures
+            abort "no stored procedures in the cache"
           else
-            filters.inject(Set.new){|set, filter| set | index.procedures.select(&filter) }
+            abort "no stored procedures in the cache matched your criteria"
           end
         end
 
-        #
-        # Compiles all the stored procedures on disk and installs them
-        #
-        def trace(procedures, profile)
-          puts "Installing #{procedures.size} procedures"
+        trace(config, procedures)
+        install(Installer.new(config, connection), procedures, Profile.new)
+      end
 
-          # force parser to load before we start forking
-          Parser.parser
+      # Writes all stored procedures in the database to disk
+      #   @return [void]
+      def dump(connection, index)
+        index.update(Dumper::ReifiedProcedure.all(connection))
+      end
 
-          queue = Util::ProcessQueue.new
-          procedures.each{|p| queue.add { Compiler::Trace.cache(p, p.oid) }}
-          queue.execute
+      # Compiles all the stored procedures on disk and installs them
+      #   @return [void]
+      def trace(config, procedures)
+        puts "compiling #{procedures.size} procedures"
 
-          Installer.install_trace_support(profile, Config)
+        compiler = Compiler::TraceCompiler.new(config)
+        queue    = Util::ProcessQueue.new
+        procedures.each{|p| queue.add { compiler.compile(p) }}
 
-          procedures.each do |p|
-            begin
-              Installer.trace(p, profile)
-            rescue Parser::Failure
-              puts $!
-            end
-          end
+        # Force parser to load before we start forking
+        Parser.parser
+        queue.execute
+      end
+
+      def install(installer, procedures, profile)
+        puts "tracing #{procedures.size} procedures"
+        installer.install(procedures, profile)
+      end
+
+      # Parses command-line options
+      #   @return [Config]
+      def configure(argv, config = Config.new)
+        p = OptionParser.new do |o|
+          o.on("-c", "--cache-root PATH", "local cache directory", &o_cache_root(config))
+          o.on("-d", "--database PATH",   "read 'piggly' database adapter settings from YAML file", &o_database_yml(config))
+          o.on("-n", "--name PATTERN",    "trace stored procedures matching PATTERN", &o_filter(config))
+          o.on("-V", "--version",         "show version", &o_version(config))
+          o.on("-h", "--help",            "show this message") { abort o.to_s }
         end
 
-        #
-        # Parses command-line options
-        #
-        def parse_options(argv)
-          filters = []
-
-          opts = OptionParser.new do |opts|
-            opts.on("-c", "--cache-root PATH", "Local cache directory", &Command.method(:opt_cache_root))
-            opts.on("-d", "--database PATH", "Read 'piggly' database adapter settings from YAML file at PATH", &Command.method(:opt_database))
-
-            opts.on("-n", "--name PATTERN", "Trace stored procedures matching PATTERN") do |opt|
-              if m = opt.match(%r{^/(.+)/$})
-                filters << lambda{|p| p.name.match(m.captures.first) }
-              else
-                filters << lambda{|p| p.name === opt }
-              end
-            end
-
-            opts.on("-V", "--version", "Show version", &Command.method(:opt_version))
-            opts.on("-h", "--help", "Show this message") do
-              puts opts
-              exit!
-            end
-          end
-
-          begin
-            opts.parse! argv
-          rescue OptionParser::InvalidOption,
-                 OptionParser::InvalidArgument,
-                 OptionParser::MissingArgument
-            puts opts
-            puts
-            puts $!
-
-            exit! 1
-          end
-
-          filters
+        begin
+          p.parse! argv
+          config
+        rescue OptionParser::InvalidOption,
+               OptionParser::InvalidArgument,
+               OptionParser::MissingArgument
+          puts p
+          puts
+          puts $!
+          exit! 1
         end
-
       end
     end
   end

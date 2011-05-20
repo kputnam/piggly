@@ -22,9 +22,9 @@ class NodeClass
   def tag(prefix = nil, id = nil)
     unless defined? @tag_id
       if named?(:body)
-        Tags::BlockTag.new(prefix, id)
+        Piggly::Tags::BlockTag.new(prefix, id)
       else
-        Tags::EvaluationTag.new(prefix, id)
+        Piggly::Tags::EvaluationTag.new(prefix, id)
       end.tap{|tag| @tag_id = tag.id }
     end
   end

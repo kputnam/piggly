@@ -5,7 +5,7 @@ grammar Piggly
     block ';'?
     tSpace?
   end
-  
+
   rule block
     label_open:tLabelDefinition tSpace
     blockDeclarations:stmtDeclare*
@@ -17,7 +17,7 @@ grammar Piggly
     kwEND
       ( tSpace label_close:tLabel )?
       tSpace? <Piggly::Parser::Nodes::Block>
-    / 
+    /
     blockDeclarations:stmtDeclare*
     kwBEGIN
       bodySpace:tSpace
@@ -46,6 +46,7 @@ grammar Piggly
           / stmtDynamicExecute
           / stmtGetDiag
           / stmtOpen
+          / stmtLock
           / stmtFetch
           / stmtMove
           / stmtClose )
@@ -58,7 +59,7 @@ grammar Piggly
   end
 
   rule stmtCase
-    kwCASE tSpace 
+    kwCASE tSpace
     cases:condWhen+
     else:stmtElse?
     kwEND tSpace kwCASE
@@ -71,7 +72,7 @@ grammar Piggly
     kwEND tSpace kwCASE
       tSpace? ';' <Piggly::Parser::Nodes::Case>
   end
-  
+
   rule stmtIf
     kwIF
       condSpace:tSpace?
@@ -84,7 +85,7 @@ grammar Piggly
       else:stmtElse?
     kwEND tSpace kwIF tSpace? ';' <Piggly::Parser::Nodes::If>
   end
-  
+
   rule stmtElse
     kwELSIF
       condSpace:tSpace?
@@ -101,7 +102,7 @@ grammar Piggly
       bodyStub:stubNode
       body:statement* <Piggly::Parser::Nodes::Else>
   end
-  
+
   rule stmtLoop
     label_open:tLabelDefinition tSpace
     cond:kwLOOP
@@ -121,7 +122,7 @@ grammar Piggly
     kwEND tSpace kwLOOP
       tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::Loop>
   end
-  
+
   rule stmtWhileLoop
     label_open:tLabelDefinition tSpace
     kwWHILE
@@ -147,7 +148,7 @@ grammar Piggly
     kwEND tSpace kwLOOP
       tSpace? ';' <Piggly::Parser::Nodes::WhileLoop>
   end
-  
+
   rule stmtForLoop
     label_open:tLabelDefinition tSpace
     kwFOR tSpace identifierList tSpace
@@ -175,11 +176,11 @@ grammar Piggly
     kwEND tSpace kwLOOP
       tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::ForLoop>
   end
-  
+
   rule stmtForSql
     sqlKeyword tSpace expressionUntilLoop <Piggly::Parser::Nodes::Sql>
   end
-  
+
   rule stmtExit
     bodyStub:stubNode
     body:( kwEXIT (tSpace label:tLabel <Piggly::Parser::Nodes::TLabel> )? )
@@ -205,7 +206,7 @@ grammar Piggly
       condStub:stubNode
       cond:expressionUntilSemiColon ';' <Piggly::Parser::Nodes::ContinueWhen>
   end
-  
+
   rule stmtReturn
     bodyStub:stubNode
     body:(kwRETURN ( tSpace? &';'
@@ -213,7 +214,7 @@ grammar Piggly
                    / tSpace kwQUERY tSpace expressionUntilSemiColon
                    / expressionUntilSemiColon )) ';'
   end
-  
+
   rule stmtRaise
     bodyStub:stubNode
     body:(kwRAISE tSpace level:kwEXCEPTION tSpace expr:expressionUntilSemiColon) ';' <Piggly::Parser::Nodes::Throw>
@@ -227,47 +228,51 @@ grammar Piggly
     tSpace
     expr:expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Raise>
   end
-  
+
   rule stmtExecSql
     sqlKeyword tSpace expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Sql>
   end
-  
+
   rule stmtDynamicExecute
     kwEXECUTE tSpace expressionUntilSemiColon ';'
   end
-  
+
   rule stmtPerform
     kwPERFORM tSpace expressionUntilSemiColon ';'
   end
-  
+
   rule stmtOpen
     kwOPEN notImplemented
   end
-  
+
+  rule stmtLock
+    kwLOCK tSpace expressionUntilSemiColon ';'
+  end
+
   rule stmtFetch
     kwFETCH notImplemented
   end
-  
+
   rule stmtMove
     kwMOVE notImplemented
   end
-  
+
   rule stmtClose
     kwCLOSE notImplemented
   end
-  
+
   rule stmtGetDiag
     kwGET tSpace
     kwPERFORM tSpace
     notImplemented
   end
-  
+
   rule stmtNull
     kwNULL tSpace? ';'
   end
-  
+
   #############################################################################
-  
+
   rule stmtDeclare
     kwDECLARE tSpace varDeclaration*
   end
@@ -287,7 +292,7 @@ grammar Piggly
   rule blockExceptions
     kwEXCEPTION tSpace cases:exceptionCase*
   end
-  
+
   rule exceptionCase
     # cannot provide branch-coverage on cond
     kwWHEN
@@ -320,30 +325,30 @@ grammar Piggly
       bodyStub:stubNode
       body:statement* <Piggly::Parser::Nodes::CondWhen>
   end
-  
+
   ## EXPRESSIONS
   #############################################################################
-  
+
   rule expressionUntilSemiColon
     head:tSpace? expr:( tString / skipWords / tSpace !';' / !tSpace [^;] )*
     tail:tSpace? &';' <Piggly::Parser::Nodes::Expression>
   end
-  
+
   rule expressionUntilClosingBracket
     head:tSpace? expr:( tString / skipWords / tSpace !']' / !tSpace [^\]] )+
     tail:tSpace? &']' <Piggly::Parser::Nodes::Expression>
   end
-  
+
   rule expressionUntilThen
     head:tSpace? expr:( tString / skipWords / tSpace !kwTHEN / !tSpace !kwTHEN . )+
     tail:tSpace &kwTHEN <Piggly::Parser::Nodes::Expression>
   end
-  
+
   rule expressionUntilWhen
     head:tSpace? expr:( tString / skipWords / tSpace !kwWHEN / !tSpace !kwWHEN . )+
     tail:tSpace &kwWHEN <Piggly::Parser::Nodes::Expression>
   end
-  
+
   rule expressionUntilLoop
     head:tSpace? expr:( tString / skipWords / tSpace !kwLOOP / !tSpace !kwLOOP . )+
     tail:tSpace &kwLOOP <Piggly::Parser::Nodes::Expression>
@@ -358,11 +363,11 @@ grammar Piggly
   rule ws
     [ \t\n\v\f\r]+ <Piggly::Parser::Nodes::TextNode>
   end
-  
+
   rule dollarQuoteMarker
     '$' tag:( [a-z\200-\377_] [a-z\200-\377_0-9]* )? '$' <Piggly::Parser::Nodes::TDollarQuoteMarker>
   end
-  
+
   rule stubNode
     '' <Piggly::Parser::Nodes::StubNode>
   end
@@ -370,21 +375,21 @@ grammar Piggly
   rule notImplemented
     '' <Piggly::Parser::Nodes::NotImplemented>
   end
-  
+
   rule lValue
       tIdentifier sub:('[' expressionUntilClosingBracket ']')+ next:('.' lValue)+ <Piggly::Parser::Nodes::Assignable>
     / tIdentifier sub:('[' expressionUntilClosingBracket ']')+ <Piggly::Parser::Nodes::Assignable>
     / tIdentifier next:('.' lValue)+ <Piggly::Parser::Nodes::Assignable>
     / tIdentifier x:'' <Piggly::Parser::Nodes::Assignable>
   end
-  
+
   ## BASIC TOKENS
   #############################################################################
 
   rule tEOF
     !.
   end
-  
+
   rule tLabelDefinition
     '<<' tSpace? tLabel tSpace? '>>' <Piggly::Parser::Nodes::TLabel>
   end
@@ -392,7 +397,7 @@ grammar Piggly
   rule tLabel
     tIdentifier
   end
-  
+
   rule tIdentifier
     ( '"' [^"]+ '"' )+ <Piggly::Parser::Nodes::TIdentifier>
     / !keyword ( [a-z\200-\377_] [a-z\200-\377_0-9$]* ) <Piggly::Parser::Nodes::TIdentifier>
@@ -404,7 +409,7 @@ grammar Piggly
     "E'" content:("''" / [^'])* "'" <Piggly::Parser::Nodes::TString> /
     "'"  content:("''" / [^'])* "'" <Piggly::Parser::Nodes::TString>
   end
-  
+
   # beware this is quite broad and might match things it shouldn't
   rule tType
     [a-z\200-\377_]
@@ -413,7 +418,7 @@ grammar Piggly
       [a-z\200-\377_0-9$%]+ '.'? /
       ws !( kwAS / kwNOT / kwASSIGN / kwDEFAULT ) )* <Piggly::Parser::Nodes::TDatatype>
   end
-  
+
   rule rType
     ( '(' rType ')' /
       '[' rType ']' /
@@ -425,7 +430,7 @@ grammar Piggly
     /
     ( ws / tComment )+
   end
-  
+
   rule tComment
     '/*' content:(!'*/' .)* '*/' <Piggly::Parser::Nodes::TComment> /
     '--' content:[^\n]* ("\n" / tEOF) <Piggly::Parser::Nodes::TComment>
@@ -457,10 +462,10 @@ grammar Piggly
     'cast' tSpace? '(' tSpace? tString tSpace kwAS tSpace tType tSpace? ')' /
     'cast' tSpace? '(' tSpace? tNumber tSpace kwAS tSpace tType tSpace? ')'
   end
-  
+
   ## KEYWORDS
   #############################################################################
-  
+
   rule sqlKeyword
     ( 'insert'
     / 'select'
@@ -477,7 +482,7 @@ grammar Piggly
     / 'start'
     / 'vacuum' ) ![a-z0-9] <Piggly::Parser::Nodes::TextNode>
   end
-  
+
   rule keyword
     # WHEN is checked first as a minor optimization to distinguish
     #   CONTINUE tIdentifier WHEN cond;
@@ -490,33 +495,33 @@ grammar Piggly
     / kwCONSTANT / kwCONTINUE / kwCURSOR / kwDEBUG / kwDECLARE / kwDEFAULT
     / kwDIAGNOSTICS / kwELSE / kwELSIF / kwEND / kwEXCEPTION / kwEXECUTE / kwEXIT
     / kwFETCH / kwFOR / kwFROM / kwGET / kwIF / kwIN / kwINFO / kwINSERT / kwINTO
-    / kwIS / kwLOG / kwLOOP / kwMOVE / kwNOT / kwNOTICE / kwNULL / kwOPEN
+    / kwIS / kwLOG / kwLOOP / kwMOVE / kwNOT / kwNOTICE / kwNULL / kwOPEN / kwLOCK
     / kwOR / kwPERFORM / kwRAISE / kwRENAME / kwRESULTOID / kwRETURN
     / kwREVERSE / kwROWCOUNT / kwSCROLL / kwSTRICT / kwTHEN / kwTO / kwTYPE
     / kwWARNING / kwWHILE
   end
-  
+
   # this terminates keywords
   rule x
     [^a-z0-9_]
   end
-  
+
   rule kwAS
     'as' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwASSIGN
     ':=' <Piggly::Parser::Nodes::TKeyword> / '=' <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwALIAS
     'alias' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwBEGIN
     'begin' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwBY
     'by' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
@@ -524,139 +529,143 @@ grammar Piggly
   rule kwCASE
     'case' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwCLOSE
     'close' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwCONSTANT
     'constant' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwCONTINUE
     'continue' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwCURSOR
     'cursor' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwDEBUG
     'debug' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwDECLARE
     'declare' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwDEFAULT
     'default' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwDIAGNOSTICS
     'diagnostics' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwELSE
     'else' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwELSIF
     ('elsif'/'elseif') ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwEND
     'end' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwEXCEPTION
     'exception' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwEXECUTE
     'execute' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwEXIT
     'exit' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwFETCH
     'fetch' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwFOR
     'for' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwFROM
     'from' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwGET
     'get' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwIF
     'if' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwIN
     'in' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwINFO
     'info' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwINSERT
     'insert' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwINTO
     'into' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwIS
     'is' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
+  rule kwLOCK
+    'lock' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
   rule kwLOG
     'log' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwLOOP
     'loop' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwMOVE
     'move' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwNEXT
     'next' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwNOT
     'not' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwNOTICE
     'notice' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwNULL
     'null' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwOPEN
     'open' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwOR
     'or' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwPERFORM
     'perform' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
@@ -664,55 +673,55 @@ grammar Piggly
   rule kwQUERY
     'query' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwRAISE
     'raise' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwRENAME
     'rename' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwRESULTOID
     'result_oid' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwRETURN
     'return' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwREVERSE
     'reverse' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwROWCOUNT
     'row_count' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwSCROLL
     'scroll' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwSTRICT
     'strict' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwTHEN
     'then' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwTO
     'to' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwTYPE
     'type' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwWARNING
     'warning' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
   rule kwWHEN
     'when' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
@@ -720,5 +729,5 @@ grammar Piggly
   rule kwWHILE
     'while' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
-  
+
 end
