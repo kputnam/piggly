@@ -5,7 +5,7 @@ module Piggly
       #
       # Markup DSL
       #
-      module DSL
+      module HtmlDsl
         unless defined? HTML_REPLACE
           HTML_REPLACE = { "&" => "&amp;", '"' => "&quot;", ">" => "&gt;", "<" => "&lt;" }
           HTML_PATTERN = /[&"<>]/
@@ -14,7 +14,7 @@ module Piggly
         def html(output = "")
           begin
             @htmltag_output, htmltag_output = output, @htmltag_output
-            # TODO: doctype
+            # @todo: doctype
             yield
           ensure
             # restore

@@ -3,7 +3,7 @@ module Piggly
 
     #
     # This command reads a given file (or STDIN) which is expected to contain messages like the
-    # pattern Profile::PATTERN, which is probbaly "WARNING:  PIGGLY 0011223344556677".
+    # pattern Profile::PATTERN, which is probbaly "WARNING:  PIGGLY 0123456789abcdef".
     #
     # Lines in the input that match this pattern are profiled and used to generate a report
     #
