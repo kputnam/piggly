@@ -7,7 +7,8 @@ module Piggly
     #
     class SkeletonProcedure
 
-      attr_reader :oid, :name, :identifier
+      attr_reader :oid, :name, :namespace, :type, :arg_types, :arg_modes, :arg_names,
+        :strict, :rettype, :setof, :volatility, :secdef, :identifier
 
       def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types)
         @oid, @namespace, @name, @strict, @secdef, @rettype, @volatility, @setof, @arg_modes, @arg_names, @arg_types =
@@ -71,12 +72,14 @@ module Piggly
 
       # @return [void]
       def purge_source(config)
-        FileUtils.rm_r(source_path(config)) if File.exists?(source_path(config))
+        path = source_path(config)
 
-        file = Compiler::Trace.cache_path(source_path(config))
+        FileUtils.rm_r(path) if File.exists?(path)
+
+        file = Compiler::TraceCompiler.new(config).cache_path(path)
         FileUtils.rm_r(file) if File.exists?(file)
 
-        file = Reporter::Base.new(config).report_path(source_path(config), ".html")
+        file = Reporter::Base.new(config).report_path(path, ".html")
         FileUtils.rm_r(file) if File.exists?(file)
       end
 

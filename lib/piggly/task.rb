@@ -117,11 +117,11 @@ module Piggly
 
   class ReportTask < AbstractTask
     attr_accessor :report_root,   # Where to store reports (default piggly/report)
-                  :aggregate,     # Accumulate coverage from the previous run (default false)
+                  :accumulate,    # Accumulate coverage from the previous run (default false)
                   :trace_file
 
     def initialize(name = :report)
-      @aggregate   = false
+      @accumulate  = false
       @trace_file  = nil
       @report_root = nil
       super(name)
@@ -137,7 +137,7 @@ module Piggly
         # opts << (@piggly_path ? quote(@piggly_path) : "-S piggly")
           opts  = []
           opts << "report"
-          opts << "--aggregate" if @aggregate
+          opts << "--accumulate" if @accumulate
           opts.concat(["--trace-file",  @trace_file])
           opts.concat(["--cache-root",  @cache_root]) if @cache_root
           opts.concat(["--report-root", @report_root]) if @report_root
@@ -165,12 +165,12 @@ module Piggly
   class TestTask < AbstractTask
     attr_accessor :test_files,    # List of ruby test files to load
                   :report_root,   # Where to store reports (default piggly/report)
-                  :aggregate      # Accumulate coverage from the previous run (default false)
+                  :accumulate     # Accumulate coverage from the previous run (default false)
 
     def initialize(name = :piggly)
       @report_root = nil
       @test_files  = []
-      @aggregate   = false
+      @accumulate  = false
       super(name)
     end
 
@@ -183,7 +183,7 @@ module Piggly
           opts  = @ruby_opts.clone
           opts << (@piggly_path ? quote(@piggly_path) : "-S piggly")
           opts << "test"
-          opts << "--aggregate" if @aggregate
+          opts << "--accumulate" if @accumulate
           opts << "--cache-root #{quote @cache_root}" if @cache_root
           opts << "--report-root #{quote @report_root}" if @report_root
 

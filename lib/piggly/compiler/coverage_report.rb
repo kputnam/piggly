@@ -5,7 +5,7 @@ module Piggly
     # Produces HTML output to report coverage of tagged nodes in the tree
     #
     class CoverageReport
-      include Reporter::Html::DSL
+      include Reporter::HtmlDsl
 
       def initialize(config)
         @config = config
@@ -14,7 +14,7 @@ module Piggly
       def compile(procedure, profile)
         trace = Compiler::TraceCompiler.new(@config)
 
-        if trace.stale?(procedure.source_path)
+        if trace.stale?(procedure)
           raise StaleCacheError,
             "stale cached syntax tree for #{procedure.name}"
         end
@@ -23,7 +23,7 @@ module Piggly
         data = trace.compile(procedure)
 
         return :html  => traverse(data[:tree], profile),
-               :lines => 1 .. procedure.source.count("\n") + 1
+               :lines => 1 .. procedure.source(@config).count("\n") + 1
       end
 
     protected

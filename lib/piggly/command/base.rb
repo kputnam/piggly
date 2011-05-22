@@ -61,6 +61,10 @@ module Piggly
         end
       end
 
+      def o_accumulate(config)
+        lambda{|x| config.accumulate = x }
+      end
+
       def o_cache_root(config)
         lambda{|x| config.cache_root = x }
       end
