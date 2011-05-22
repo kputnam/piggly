@@ -47,10 +47,10 @@ module Piggly
       :report_root  => File.expand_path("#{Dir.pwd}/piggly/reports"),
       :database_yml => nil,
       :trace_prefix => "PIGGLY",
-      :aggregate    => false,
+      :accumulate   => false,
       :filters      => []
 
-    alias aggregate? aggregate
+    alias accumulate? accumulate
 
     def path(*args)
       self.class.path(*args)

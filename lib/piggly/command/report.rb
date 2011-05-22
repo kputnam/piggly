@@ -7,180 +7,149 @@ module Piggly
     #
     # Lines in the input that match this pattern are profiled and used to generate a report
     #
-    module Report
-      class << self
+    class Report < Base
+    end
 
-        def main(argv)
-          io, filters = parse_options(argv)
+    class << Report
+      def main(argv)
+        require "pp"
+        io, config = configure(argv)
 
-          profile = Profile.new
-          index   = Dumper::Index.new
+        profile = Profile.new
+        index   = Dumper::Index.new(config)
 
-          procedures = find_procedures(filters, index)
+        procedures = filter(config, index)
 
-          if procedures.empty?
-            abort "No stored procedures in the cache#{' matched your criteria' if filters.any?}"
-          end
-
-          profile_procedures(procedures, profile)
-          clear_coverage(profile)
-
-          read_profile(io, profile)
-          store_coverage(profile)
-
-          create_index(procedures, profile)
-          create_reports(procedures, profile)
-        end
-
-        #
-        # Returns a list of Procedure values that satisfy at least one of the given filters
-        #
-        def find_procedures(filters, index)
+        if procedures.empty?
           if filters.empty?
-            index.procedures
+            abort "no stored procedures in the cache"
           else
-            filters.inject(Set.new){|set, filter| set | index.procedures.select(&filter) }
+            abort "no stored procedures in the cache matched your criteria"
           end
         end
 
-        # 
-        # Adds the given procedures to Profile
-        #
-        def profile_procedures(procedures, profile)
-          # register each procedure in the Profile
-          procedures.each do |procedure|
-            result = Compiler::Trace.cache(procedure, procedure.oid)
-            profile.add(procedure, result[:tags], result)
-          end
+        profile_procedures(config, procedures, profile)
+        clear_coverage(config, profile)
+
+        read_profile(config, io, profile)
+        store_coverage(profile)
+
+        create_index(config, index, procedures, profile)
+        create_reports(config, procedures, profile)
+      end
+
+      # Adds the given procedures to Profile
+      #
+      def profile_procedures(config, procedures, profile)
+        # register each procedure in the Profile
+        compiler = Compiler::TraceCompiler.new(config)
+        procedures.each do |p|
+          result = compiler.compile(p)
+          profile.add(p, result[:tags], result)
         end
+      end
 
-        #
-        # Clear coverage after procedures have been loaded
-        #
-        def clear_coverage(profile)
-          unless Config.aggregate?
-            puts "Clearing previous coverage"
-            profile.clear
-          end
+      # Clear coverage after procedures have been loaded
+      #
+      def clear_coverage(config, profile)
+        unless config.accumulate?
+          puts "clearing previous coverage"
+          profile.clear
         end
+      end
 
-        #
-        # Reads +io+ for lines matching Profile::PATTERN and records coverage
-        #
-        def read_profile(io, profile)
-          io.each do |line|
-            if m = Profile::PATTERN.match(line)
-              profile.ping(m.captures[0], m.captures[1])
-            end
-          end
-        end
+      # Reads +io+ for lines matching Profile::PATTERN and records coverage
+      #
+      def read_profile(config, io, profile)
+        np = profile.notice_processor(config)
+        io.each{|line| np.call(line) }
+      end
 
-        #
-        # Store the coverage Profile on disk
-        #
-        def store_coverage(profile)
-          puts "Storing coverage profile"
-          profile.store
-        end
+      # Store the coverage Profile on disk
+      #
+      def store_coverage(profile)
+        puts "storing coverage profile"
+        profile.store
+      end
 
-        #
-        # Create the report's index.html
-        #
-        def create_index(procedures, profile)
-          puts "Creating index"
-          Reporter.install('html/piggly.css', 'html/sortable.js')
-          Reporter::Html::Index.output(procedures)
-        end
+      # Create the report's index.html
+      #
+      def create_index(config, index, procedures, profile)
+        puts "creating index"
+        reporter = Reporter::Index.new(config, profile)
+        reporter.install("resources/piggly.css", "resources/sortable.js")
+        reporter.report(procedures, index)
+      end
 
-        #
-        # Create each procedures' HTML report page
-        #
-        def create_reports(procedures, profile)
-          puts "Creating reports"
-          queue = Util::ProcessQueue.new
+      # Create each procedures' HTML report page
+      #
+      def create_reports(config, procedures, profile)
+        puts "creating reports"
+        queue = Util::ProcessQueue.new
 
-          procedures.each do |p|
-            queue.add do
-              path = Reporter.report_path(p.source_path, '.html')
-              data = Compiler::Trace.cache(p, p.oid)
-              live = profile[p] rescue nil
+        compiler = Compiler::TraceCompiler.new(config)
+        reporter = Reporter::Procedure.new(config, profile)
 
-              if File.exists?(p.source_path)
-                needed   = Util::File.stale?(path, p.source_path)
-                needed ||= data[:tags] != live
-              else
-                needed = false
+        Parser.parser
+
+        procedures.each do |p|
+          queue.add do
+            unless compiler.stale?(p)
+              data = compiler.compile(p)
+              path = reporter.report_path(p.source_path(config), ".html")
+
+              unless profile.empty?(data[:tags])
+                changes = ": #{profile.difference(p, data[:tags])}"
               end
 
-              if needed
-                unless profile.empty?(data[:tags])
-                  changes = ": #{profile.difference(p, data[:tags])}"
-                end
+              puts "reporting coverage for #{p.name}#{changes}"
+            # pp data[:tags]
+            # pp profile[p]
+            # puts
 
-                puts "Reporting coverage for #{p.name}#{changes}"
-                result = Compiler::Report.compile(p, profile)
-                Reporter::Html.output(p, result[:html], result[:lines])
-              end
+              reporter.report(p)
             end
           end
-
-          queue.execute
         end
 
-        def parse_options(argv)
-          filters = []
-          io      = nil
+        queue.execute
+      end
 
-          opts = OptionParser.new do |opts|
-            opts.on("-f", "--trace-file PATH", "Read trace messages from PATH") do |path|
-              io = if path == '-'
-                     $stdin
-                   else
-                     File.open(path, "rb")
-                   end
-            end
-
-            opts.on("-c", "--cache-root PATH", "Local cache directory", &Command.method(:opt_cache_root))
-            opts.on("-o", "--report-root PATH", "Report output directory", &Command.method(:opt_report_root))
-            opts.on("-a", "--aggregate", "Aggregate data from the previous run", &Command.method(:opt_aggregate))
-
-            opts.on("-n", "--name PATTERN", "Trace stored procedures matching PATTERN") do |opt|
-              if m = opt.match(%r{^/(.+)/$})
-                filters << lambda{|p| p.name.match(m.captures.first) }
-              else
-                filters << lambda{|p| p.name === opt }
-              end
-            end
-
-            opts.on("-V", "--version", "Show version", &Command.method(:opt_version))
-            opts.on("-h", "--help", "Show this message") do
-              puts opts
-              exit!
-            end
+      def configure(argv, config = Config.new)
+        io = $stdin
+        p  = OptionParser.new do |o|
+          o.on("-c", "--cache-root PATH",   "local cache directory", &o_cache_root(config))
+          o.on("-n", "--name PATTERN",      "trace stored procedures matching PATTERN", &o_filter(config))
+          o.on("-o", "--report-root PATH",  "report output directory", &o_report_root(config))
+          o.on("-a", "--accumulate",        "accumulate data from the previous run", &o_accumulate(config))
+          o.on("-V", "--version",           "show version", &o_version(config))
+          o.on("-h", "--help",              "show this message") { abort o.to_s }
+          o.on("-f", "--input PATH",        "read trace messages from PATH") do |path|
+            io = if path == "-"
+                   $stdin
+                 else
+                   File.open(path, "rb")
+                 end
           end
-
-          begin
-            opts.parse! argv
-            if io.nil? and $stdin.tty?
-              raise OptionParser::MissingArgument, "must pipe STDIN or use --trace-file"
-            end
-          rescue OptionParser::InvalidOption,
-                 OptionParser::InvalidArgument,
-                 OptionParser::MissingArgument
-            puts opts
-            puts
-            puts $!
-
-            exit! 1
-          end
-
-          if io.nil?
-            io = $stdin
-          end
-
-          return io, filters
         end
 
+        begin
+          p.parse! argv
+          
+          if io.eql?($stdin) and $stdin.tty?
+            raise OptionParser::MissingArgument,
+              "stdin must be a pipe, or use --input PATH"
+          end
+
+          return io, config
+        rescue OptionParser::InvalidOption,
+               OptionParser::InvalidArgument,
+               OptionParser::MissingArgument
+          puts p
+          puts
+          puts $!
+          exit! 1
+        end
       end
     end
 

@@ -12,14 +12,16 @@ module Piggly
       end
 
       # Is the cache_path is older than its source path or the other files?
-      def stale?(path)
-        Util::File.stale?(cache_path(path), path, *self.class.cache_sources)
+      def stale?(procedure)
+        Util::File.stale?(cache_path(procedure.source_path(@config)),
+                          procedure.source_path(@config),
+                          *self.class.cache_sources)
       end
 
       def compile(procedure)
         cache = CacheDir.new(cache_path(procedure.source_path(@config)))
 
-        if stale?(procedure.source_path(@config))
+        if stale?(procedure)
           $stdout.puts "Compiling #{procedure.name}"
           tree = Parser.parse(IO.read(procedure.source_path(@config)))
           tree = tree.force! if tree.respond_to?(:thunk?)
