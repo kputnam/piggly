@@ -93,7 +93,7 @@ module Piggly
     # Build a notice processor function that records each tag execution
     #   @return [Proc]
     def notice_processor(config, stderr = $stderr)
-      pattern = /WARNING:  #{config.trace_prefix} (#{Tags::AbstractTag::PATTERN})(?: (.))?/
+      pattern = /#{config.trace_prefix} (#{Tags::AbstractTag::PATTERN})(?: (.))?/
 
       lambda do |message|
         if m = pattern.match(message)
