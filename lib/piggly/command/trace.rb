@@ -60,7 +60,8 @@ module Piggly
       def configure(argv, config = Config.new)
         p = OptionParser.new do |o|
           o.on("-c", "--cache-root PATH", "local cache directory", &o_cache_root(config))
-          o.on("-d", "--database PATH",   "read 'piggly' database adapter settings from YAML file", &o_database_yml(config))
+          o.on("-d", "--database PATH",   "read database adapter settings from YAML/JSON file", &o_database_yml(config))
+          o.on("-k", "--connection NAME", "use connection adapter NAME", &o_connection_name(config))
           o.on("-n", "--name PATTERN",    "trace stored procedures matching PATTERN", &o_filter(config))
           o.on("-V", "--version",         "show version", &o_version(config))
           o.on("-h", "--help",            "show this message") { abort o.to_s }

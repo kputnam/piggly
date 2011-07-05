@@ -43,12 +43,13 @@ module Piggly
 
   class Config
     config_accessor \
-      :cache_root   => File.expand_path("#{Dir.pwd}/piggly/cache"),
-      :report_root  => File.expand_path("#{Dir.pwd}/piggly/reports"),
-      :database_yml => nil,
-      :trace_prefix => "PIGGLY",
-      :accumulate   => false,
-      :filters      => []
+      :cache_root       => File.expand_path("#{Dir.pwd}/piggly/cache"),
+      :report_root      => File.expand_path("#{Dir.pwd}/piggly/reports"),
+      :database_yml     => nil,
+      :connection_name  => "piggly",
+      :trace_prefix     => "PIGGLY",
+      :accumulate       => false,
+      :filters          => []
 
     alias accumulate? accumulate
 
