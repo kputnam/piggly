@@ -35,18 +35,27 @@ module Piggly
       def connect(config)
         require "pg"
         require "erb"
-        require "yaml"
 
         files = Array(config.database_yml ||
           %w(piggly/database.yml
-             config/database.yml))
+             config/database.yml
+             piggly/database.json
+             config/database.json))
 
         path = files.find{|x| File.exists?(x) } or
           raise "No database config files found: #{files.join(", ")}"
 
-        specs = YAML.load(ERB.new(IO.read(path)).result)
-        spec  = (specs.is_a?(Hash) and specs["piggly"]) or
-          raise "Database 'piggly' is not configured in #{path}"
+        specs =
+          if File.extname(path) == ".json"
+            require "json"
+            JSON.load(ERB.new(IO.read(path)).result)
+          else
+            require "yaml"
+            YAML.load(ERB.new(IO.read(path)).result)
+          end
+
+        spec = (specs.is_a?(Hash) and specs[config.connection_name]) or
+          raise "Database '#{config.connection_name}' is not configured in #{path}"
 
         PGconn.connect(spec["host"], spec["port"], nil, nil,
           spec["database"], spec["username"], spec["password"])
@@ -79,6 +88,10 @@ module Piggly
 
       def o_database_yml(config)
         lambda{|x| config.database_yml = x }
+      end
+
+      def o_connection_name(config)
+        lambda{|x| config.connection_name = x }
       end
 
       def o_version(config)
