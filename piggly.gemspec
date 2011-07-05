@@ -5,7 +5,7 @@ module Piggly
     Gem::Specification.new do |s|
       s.name     = 'piggly'
       s.description = 'PostgreSQL PL/pgSQL stored procedure code coverage'
-      s.version  = Piggly::VERSION::STRING
+      s.version  = Piggly::VERSION.to_s
       s.author   = 'Kyle Putnam'
       s.email    = 'putnam.kyle@gmail.com'
       s.summary  = 'PL/pgSQL code coverage tool'
