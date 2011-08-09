@@ -13,11 +13,12 @@ module Piggly
       s.files    = ['README*', 'Rakefile', '{spec,lib,bin}/**/*'].map{|p| Dir[p]}.flatten
       s.files   -= ['lib/piggly/parser/parser.rb']
 
+      s.has_rdoc = false
       s.bindir   = 'bin'
       s.executables  = %w[piggly]
       s.require_path = 'lib'
-      s.has_rdoc = false
       s.add_dependency 'treetop'
+      s.add_dependency 'pg'
     end
   end
 end
