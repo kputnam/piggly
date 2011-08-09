@@ -1,0 +1,24 @@
+$ sudo -s
+# su - postgres
+
+$ psql
+postgres=# CREATE ROLE piggly PASSWORD 'md5d99b55537ceac6dbdf5da613b5754d42' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;
+postgres=# CREATE DATABASE piggly OWNER piggly ENCODING 'utf8';
+postgres=# \c piggly
+postgres=# CREATE LANGUAGE "plpgsql";
+
+$ exit
+# exit
+$ cat example/proc/*.sql | psql -U piggly -h localhost -W piggly
+Password for user piggly: ****
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+
+$ example/run-specs
+$ ls -l example/piggly/reports/index.html
+
+$ example/run-tests
+$ ls -l example/piggly/reports/index.html

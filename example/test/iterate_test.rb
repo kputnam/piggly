@@ -18,14 +18,6 @@ ActiveRecord::Base.establish_connection \
   'password'  => 'secret',
   'host'      => 'localhost'
 
-def connection
-  ActiveRecord::Base.connection
-end
-
-connection.execute(File.read(File.dirname(__FILE__) + '/../proc/iterate.sql'))
-connection.execute(File.read(File.dirname(__FILE__) + '/../proc/scramble.sql'))
-connection.execute(File.read(File.dirname(__FILE__) + '/../proc/snippets.sql'))
-
 class IterateTest < Test::Unit::TestCase
 
   def test_returns_no_rows_from_empty_array
