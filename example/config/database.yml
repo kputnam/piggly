@@ -1,0 +1,6 @@
+piggly:
+  adapter: postgresql
+  database: piggly
+  username: piggly
+  password: secret
+  host: localhost

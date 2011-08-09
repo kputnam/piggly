@@ -1,3 +1,8 @@
 #!/bin/sh
-ROOT=$(dirname $(dirname $0))
-ruby -I"$ROOT/lib" "$ROOT/bin/piggly" test "$ROOT/example/test/**/*_test.rb"
+ROOT=$(readlink -f $(dirname $0)/..)
+
+$ROOT/bin/piggly trace && \
+  (ruby -I"$ROOT/lib" `find $ROOT/example/test/ -name '*_test.rb'` 2>trace.txt) && \
+  $ROOT/bin/piggly report -f trace.txt
+
+$ROOT/bin/piggly untrace

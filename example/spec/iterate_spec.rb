@@ -29,10 +29,6 @@ def connection
   ActiveRecord::Base.connection
 end
 
-connection.execute(File.read(File.dirname(__FILE__) + '/../proc/iterate.sql'))
-connection.execute(File.read(File.dirname(__FILE__) + '/../proc/scramble.sql'))
-connection.execute(File.read(File.dirname(__FILE__) + '/../proc/snippets.sql'))
-
 def call_iterate(argument)
   connection.select_values <<-SQL
     SELECT * FROM iterate('{#{argument.map{|x| (x.nil?) ? 'null' : x }.join(',')}}'::varchar[])
