@@ -12,8 +12,7 @@ module Piggly::Util
 
     describe "count" do
       it "should default to `size' when no block is given" do
-        @hash.should_receive(:size).and_return(100)
-        Enumerable.count(@hash).should == 100
+        Enumerable.count(@hash).should == 2
       end
 
       it "should count items that satisfied block" do

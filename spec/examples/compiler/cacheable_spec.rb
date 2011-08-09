@@ -2,9 +2,10 @@ require 'spec_helper'
 
 module Piggly
 
-  describe Compiler::Cacheable do
+=begin
+  describe Util::Cacheable do
     before do
-      @compiler = Class.new { include Piggly::Compiler::Cacheable }
+      @compiler = Class.new { include Piggly::Util::Cacheable }
       @compiler.stub(:name).and_return('TestCompiler')
     end
 
@@ -184,5 +185,6 @@ module Piggly
     end
 
   end
+=end
 
 end

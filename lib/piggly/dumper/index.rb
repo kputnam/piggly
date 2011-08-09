@@ -9,7 +9,6 @@ module Piggly
 
       def initialize(config)
         @config = config
-        @index  = load_index
       end
 
       # @return [String]
@@ -22,14 +21,14 @@ module Piggly
       def update(procedures)
         newest = Util::Enumerable.index_by(procedures){|x| x.identifier }
 
-        removed = @index.values.reject{|p| newest.include?(p.identifier) }
+        removed = index.values.reject{|p| newest.include?(p.identifier) }
         removed.each{|p| p.purge_source(@config) }
 
-        added = procedures.reject{|p| @index.include?(p.identifier) }
+        added = procedures.reject{|p| index.include?(p.identifier) }
         added.each{|p| p.store_source(@config) }
 
         changed = procedures.select do |p|
-          if mine = @index[p.identifier]
+          if mine = index[p.identifier]
             # If both are skeletons, they will have the same source because they
             # are read from the same file, so don't bother checking that case
             not (mine.skeleton? and p.skeleton?) and
@@ -44,12 +43,12 @@ module Piggly
 
       # Returns a list of Procedure values from the index
       def procedures
-        @index.values
+        index.values
       end
 
       # Returns the Procedure with the given identifier
       def [](identifier)
-        p = @index[identifier]
+        p = index[identifier]
         p.dup if p
       end
 
@@ -95,6 +94,10 @@ module Piggly
       end
 
     private
+
+      def index
+        @index ||= load_index
+      end
 
       # Load the index from disk
       def load_index

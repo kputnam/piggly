@@ -12,8 +12,10 @@ module Piggly
       end
 
       # Compute sum of elements, optionally transformed by a block
-      def self.sum(enum, default = 0)
+      def self.sum(enum, default = 0, &block)
+        enum = enum.to_a
         return default if enum.empty?
+
         head, *tail = enum
 
         if block_given?
