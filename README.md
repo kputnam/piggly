@@ -38,7 +38,7 @@ these events and generates prettified source code that is annotated with coverag
 ## Requirements
 
 * [Treetop] [2]
-* The [ruby-pg driver] [3], and for the time being, ActiveRecord (some workaround should be possible)
+* The [ruby-pg driver] [3], and to run the examples, ActiveRecord
 
 ## How to Install
 
@@ -58,30 +58,37 @@ Your stored procedures must already be loaded in the database. Your tests should
 to the database when they are loaded, or `ActiveRecord::Base.establish_connection`, will be called with
 no parameters to connect the default database. Assume your tests are in spec/.  
 
-    $ cd piggly/example/
-    $ ../bin/piggly 'spec/**/*_spec.rb'
-    Loading 1 test files
-     > Completed in 0.30 seconds
-    Storing source for iterate
-    Installing 1 procedures
+    $ cd piggly
+    $ cat example/README
+    ...
+
+    $ ./example/run-tests
+    compiling 5 procedures
+    Compiling scramble
+    Compiling scramble
+    Compiling numberedargs
+    Compiling snippets
     Compiling iterate
-     > Completed in 0.50 seconds
-    Clearing previous run's profile
-     > Completed in 0.00 seconds
-    ...........
+    tracing 5 procedures
+    Loaded suite /home/kputnam/wd/piggly/example/test/iterate_test
+    Started
+    ......
+    Finished in 0.199236 seconds.
 
-    Finished in 0.025061 seconds
+    6 tests, 6 assertions, 0 failures, 0 errors, 0 skips
 
-    11 examples, 0 failures
-    Restoring 1 procedures
-     > Completed in 0.00 seconds
-    Creating index
-     > Completed in 0.00 seconds
-    Creating reports
-    Reporting coverage for iterate
-     > Completed in 0.02 seconds
-    Storing coverage profile
-     > Completed in 0.00 seconds
+    Test run options: --seed 25290
+    clearing previous coverage
+    storing coverage profile
+    creating index
+    creating reports
+    reporting coverage for scramble
+    reporting coverage for scramble
+    reporting coverage for numberedargs
+    reporting coverage for snippets
+    reporting coverage for iterate: +0.0% block, +0.0% branch, +0.0% loop
+    restoring 5 procedures
+    OK, view /home/kputnam/wd/piggly/example/piggly/reports/index.html
 
     $ ls -alh piggly/reports/index.html
     -rw-r--r-- 1 kputnam kputnam 1.4K 2010-04-28 11:21 piggly/reports/index.html
@@ -90,23 +97,6 @@ Note the compilation can be slow on the first run, but on subsequent runs it sho
 to compile everything again. If a procedure is added or changed, it will be recompiled. The
 report index is rebuilt on each run, but the individual reports are only rebuilt if the
 coverage for that procedure was updated or if the source code changed.
-
-Piggly can also be run from Rake, with a task like:
-    require 'piggly/task'
-
-    namespace :spec do
-      Piggly::Task.new(:piggly => 'db:test:prepare') do |t|
-        t.libs.push 'spec'
-        t.test_files = FileList['spec/**/*_spec.rb']
-        t.aggregate  = false # clear previous runs
-
-        # this can be used if piggly is frozen in a Rails application
-        t.libs.concat Dir['vendor/gems/*/lib/'].sort.reverse
-        t.piggly_path = Dir['vendor/gems/piggly-*/bin/piggly'].sort.last
-      end
-    end
-
-    $ rake spec:piggly
 
 ## Bugs & Issues
 
