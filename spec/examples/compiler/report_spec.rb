@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Piggly
 
-  describe Compiler::Report do
+  describe Compiler::CoverageReport do
     describe "compile" do
       context "when trace cache is stale" do
         it "does not request the trace compiler output"

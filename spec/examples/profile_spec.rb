@@ -5,32 +5,38 @@ module Piggly
 describe Profile do
 
   before do
-    @profile = Profile.instance
+    @profile = Profile.new
   end
 
   describe "notice_processor" do
+    before do
+      @config = mock('config', :trace_prefix => 'PIGGLY')
+      @stderr = mock('stderr').as_null_object
+      @callback = @profile.notice_processor(@config, @stderr)
+    end
+
     it "returns a function" do
-      Profile.notice_processor.should be_a(Proc)
+      @callback.should be_a(Proc)
     end
 
     context "when message matches PATTERN" do
       context "with no optional value" do
         it "pings the corresponding tag" do
-          message = "WARNING:  #{Config.trace_prefix} 0123456789abcdef"
+          message = "WARNING:  #{@config.trace_prefix} 0123456789abcdef"
           @profile.should_receive(:ping).
             with('0123456789abcdef', nil)
 
-          Profile.notice_processor.call(message)
+          @callback.call(message)
         end
       end
 
       context "with an optional value" do
         it "pings the corresponding tag" do
-          message = "WARNING:  #{Config.trace_prefix} 0123456789abcdef X"
+          message = "WARNING:  #{@config.trace_prefix} 0123456789abcdef X"
           @profile.should_receive(:ping).
             with('0123456789abcdef', 'X')
 
-          Profile.notice_processor.call(message)
+          @callback.call(message)
         end
       end
     end
@@ -38,9 +44,8 @@ describe Profile do
     context "when message doesn't match PATTERN" do
       it "prints the message to stderr" do
         message = "WARNING:  Parameter was NULL and I don't like it!"
-        $stderr.should_receive(:puts).with(message)
-
-        Profile.notice_processor.call(message)
+        @stderr.should_receive(:puts).with(message)
+        @callback.call(message)
       end
     end
   end
@@ -51,20 +56,22 @@ describe Profile do
       @second = mock('second tag', :id => 'second')
       @third  = mock('third tag',  :id => 'third')
       @cache  = mock('Compiler::Cacheable::CacheDirectory')
-      @procedure = mock('procedure', :oid => 'oid')
+
+      @procedure = Dumper::SkeletonProcedure.allocate
+      @procedure.stub(:oid).and_return('oid')
     end
 
     context "without cache parameter" do
       it "indexes each tag by id" do
         @profile.add(@procedure, [@first, @second, @third])
-        @profile.by_id[@first.id].should == @first
-        @profile.by_id[@second.id].should == @second
-        @profile.by_id[@third.id].should == @third
+        @profile[@first.id].should == @first
+        @profile[@second.id].should == @second
+        @profile[@third.id].should == @third
       end
 
       it "indexes each tag by procedure" do
         @profile.add(@procedure, [@first, @second, @third])
-        @profile.by_procedure[@procedure.oid].should == [@first, @second, @third]
+        @profile[@procedure].should == [@first, @second, @third]
       end
     end
 
@@ -78,12 +85,7 @@ describe Profile do
 
       it "indexes each tag by procedure" do
         @profile.add(@procedure, [@first, @second, @third])
-        @profile.by_procedure[@procedure.oid].should == [@first, @second, @third]
-      end
-
-      it "indexes each tag by cache" do
-        @profile.add(@procedure, [@first, @second, @third], @cache)
-        @profile.by_cache[@cache].should == [@first, @second, @third]
+        @profile[@procedure].should == [@first, @second, @third]
       end
     end
   end
@@ -91,7 +93,6 @@ describe Profile do
   describe "ping" do
     context "when tag isn't in the profile" do
       it "raises an exception" do
-        @profile.stub(:by_id).and_return(Hash.new)
         lambda do
           @profile.ping('0123456789abcdef')
         end.should raise_error('No tag with id 0123456789abcdef')
@@ -100,9 +101,9 @@ describe Profile do
 
     context "when tag is in the profile" do
       before do
-        @tag  = mock('tag', :id => '0123456789abcdef')
-        index = Hash[@tag.id => @tag]
-        @profile.stub(:by_id).and_return(index)
+        @tag = mock('tag', :id => '0123456789abcdef')
+        procedure = mock('procedure', :oid => nil)
+        @profile.add(procedure, [@tag])
       end
 
       it "calls ping on the corresponding tag" do
@@ -125,11 +126,9 @@ describe Profile do
       @first  = mock('first tag',  :id => 'first')
       @second = mock('second tag', :id => 'second')
       @third  = mock('third tag',  :id => 'third')
-      index   = { @first.id  => @first,
-                  @second.id => @second,
-                  @third.id  => @third }
-      @profile.stub(:by_id).
-        and_return(index)
+      procedure = mock('procedure', :oid => nil)
+
+      @profile.add(procedure, [@first, @second, @third])
     end
 
     it "calls clear on each tag" do

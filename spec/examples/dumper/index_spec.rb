@@ -6,31 +6,26 @@ module Piggly
     before do
       # make sure not to create directories all over the file system during the test
       Config.stub(:mkpath).and_return{|root, file| File.join(root, file) }
+
+      @config = Config.new
+      @index  = Dumper::Index.new(@config)
     end
 
     context "when cache file doesn't exist" do
-      before do
-        File.stub(:exists?).with(Dumper::Index.path).and_return(false)
-        @index = Dumper::Index.new(Dumper::Index.path)
-      end
-
       it "is empty" do
+        File.should_receive(:exists?).with(@index.path).and_return(false)
         @index.procedures.should be_empty
       end
     end
 
     context "when cache file exists" do
       before do
-        File.stub(:exists?).with(Dumper::Index.path).and_return(true)
+        File.stub(:exists?).with(@index.path).and_return(true)
       end
 
       context "when the cache index file is empty" do
-        before do
-          File.stub(:read).with(Dumper::Index.path).and_return([].to_yaml)
-          @index = Dumper::Index.new(Dumper::Index.path)
-        end
-
         it "is empty" do
+          File.should_receive(:read).with(@index.path).and_return([].to_yaml)
           @index.procedures.should be_empty
         end
       end
@@ -49,11 +44,9 @@ module Piggly
             'name'   => 'login',
             'source' => 'SECOND PROCEDURE SOURCE CODE'
 
-          File.stub(:read).with(@first.source_path).and_return(@first.source)
-          File.stub(:read).with(@second.source_path).and_return(@second.source)
-          File.stub(:read).with(Dumper::Index.path).and_return([@first, @second].to_yaml)
-
-          @index = Dumper::Index.new(Dumper::Index.path)
+          File.stub(:read).with(@first.source_path(@config)).and_return(@first.source(@config))
+          File.stub(:read).with(@second.source_path(@config)).and_return(@second.source(@config))
+          File.stub(:read).with(@index.path).and_return([@first, @second].to_yaml)
         end
 
         it "has two procedures" do
@@ -66,8 +59,8 @@ module Piggly
         end
 
         it "reads each procedure's source_path" do
-          @index[@first.identifier].source.should == @first.source
-          @index[@second.identifier].source.should == @second.source
+          @index[@first.identifier].source(@config).should == @first.source(@config)
+          @index[@second.identifier].source(@config).should == @second.source(@config)
         end
 
         context "when the procedures used to be identified using another method" do

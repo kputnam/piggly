@@ -5,30 +5,34 @@ module Piggly
 describe Installer do
 
   before do
+    @config     = Config.new
     @connection = mock('connection')
-    Installer.stub(:connection).and_return(@connection)
+    @installer  = Installer.new(@config, @connection)
   end
 
   describe "trace" do
     it "compiles, executes, and profiles the procedure" do
       untraced  = 'create or replace function x(char)'
       traced    = 'create or replace function f(int)'
-      procedure = stub(:oid => 'oid', :source => untraced)
-      result    = {:tags => stub, :code => traced}
 
-      Compiler::Trace.should_receive(:cache).
-        with(procedure, procedure.oid).and_return(result)
+      result   = {:tags => stub, :code => traced}
+      profile  = mock('profile')
 
+      compiler = mock('compiler', :compile => result)
+      Compiler::TraceCompiler.should_receive(:new).
+        and_return(compiler)
+
+      procedure = mock('procedure', :oid => 'oid', :source => untraced)
       procedure.should_receive(:definition).
-        with(result[:code]).and_return(traced)
+        with(traced).and_return(traced)
 
       @connection.should_receive(:exec).
         with(traced)
 
-      Profile.instance.should_receive(:add).
+      profile.should_receive(:add).
         with(procedure, result[:tags], result)
 
-      Installer.trace(procedure)
+      @installer.trace(procedure, profile)
     end
   end
 
@@ -43,7 +47,7 @@ describe Installer do
       @connection.should_receive(:exec).
         with(untraced)
 
-      Installer.untrace(procedure)
+      @installer.untrace(procedure)
     end
   end
 

@@ -28,7 +28,6 @@ module Piggly
 
     def config_accessor(hash)
       hash = hash.clone
-
       hash.keys.each do |name|
         define_method(name) do
           instance_variable_get("@#{name}") || hash[name]
