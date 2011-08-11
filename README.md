@@ -50,6 +50,7 @@ To install the latest from github:
     $ gem install pkg/*.gem --no-rdoc --no-ri
 
 To install the latest release:
+
     $ gem install piggly
 
 ## Usage
