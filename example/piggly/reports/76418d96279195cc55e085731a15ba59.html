@@ -1,0 +1,363 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Code Coverage: public.snippets</title><link type="text/css" href="piggly.css" rel="stylesheet"/><script type="text/javascript" src="highlight.js"><!-- --></script></head><body><p class="summary">public.snippets</p><table class="summary sortable"><tr><th>Blocks</th><th>Loops</th><th>Branches</th><th>Block Coverage</th><th>Loop Coverage</th><th>Branch Coverage</th></tr><tr class="even"><td class="count">40</td><td class="count">12</td><td class="count">17</td><td class="pct"><table align="center"><tr><td class="num">67.50%&nbsp;</td><td class="graph"><table class="graph mid" align="right"><tr><td class="covered" width="33"/><td class="uncovered" width="16"/></tr></table></td></tr></table></td><td class="pct"><table align="center"><tr><td class="num">43.75%&nbsp;</td><td class="graph"><table class="graph low" align="right"><tr><td class="covered" width="21"/><td class="uncovered" width="28"/></tr></table></td></tr></table></td><td class="pct"><table align="center"><tr><td class="num">47.06%&nbsp;</td><td class="graph"><table class="graph low" align="right"><tr><td class="covered" width="23"/><td class="uncovered" width="26"/></tr></table></td></tr></table></td></tr></table><div class="listing"><table><tr><td class="signature">&nbsp;</td><td class="signature"><span class='tK'>CREATE FUNCTION</span> <b><span class='tI'>public.snippets</span></b>
+	( <span class='tI'>a</span>	<span class='tD'>int</span>,
+	  <span class='tI'>b</span>	<span class='tD'>bool</span> )
+<span class='tK'>RETURNS SETOF</span> <span class='tD'>pg_namespace</span>
+  <span class='tK'>IMMUTABLE</span></td></tr><tr><td class="lines"><a href="#L1" id="L1">1</a>
+<a href="#L2" id="L2">2</a>
+<a href="#L3" id="L3">3</a>
+<a href="#L4" id="L4">4</a>
+<a href="#L5" id="L5">5</a>
+<a href="#L6" id="L6">6</a>
+<a href="#L7" id="L7">7</a>
+<a href="#L8" id="L8">8</a>
+<a href="#L9" id="L9">9</a>
+<a href="#L10" id="L10">10</a>
+<a href="#L11" id="L11">11</a>
+<a href="#L12" id="L12">12</a>
+<a href="#L13" id="L13">13</a>
+<a href="#L14" id="L14">14</a>
+<a href="#L15" id="L15">15</a>
+<a href="#L16" id="L16">16</a>
+<a href="#L17" id="L17">17</a>
+<a href="#L18" id="L18">18</a>
+<a href="#L19" id="L19">19</a>
+<a href="#L20" id="L20">20</a>
+<a href="#L21" id="L21">21</a>
+<a href="#L22" id="L22">22</a>
+<a href="#L23" id="L23">23</a>
+<a href="#L24" id="L24">24</a>
+<a href="#L25" id="L25">25</a>
+<a href="#L26" id="L26">26</a>
+<a href="#L27" id="L27">27</a>
+<a href="#L28" id="L28">28</a>
+<a href="#L29" id="L29">29</a>
+<a href="#L30" id="L30">30</a>
+<a href="#L31" id="L31">31</a>
+<a href="#L32" id="L32">32</a>
+<a href="#L33" id="L33">33</a>
+<a href="#L34" id="L34">34</a>
+<a href="#L35" id="L35">35</a>
+<a href="#L36" id="L36">36</a>
+<a href="#L37" id="L37">37</a>
+<a href="#L38" id="L38">38</a>
+<a href="#L39" id="L39">39</a>
+<a href="#L40" id="L40">40</a>
+<a href="#L41" id="L41">41</a>
+<a href="#L42" id="L42">42</a>
+<a href="#L43" id="L43">43</a>
+<a href="#L44" id="L44">44</a>
+<a href="#L45" id="L45">45</a>
+<a href="#L46" id="L46">46</a>
+<a href="#L47" id="L47">47</a>
+<a href="#L48" id="L48">48</a>
+<a href="#L49" id="L49">49</a>
+<a href="#L50" id="L50">50</a>
+<a href="#L51" id="L51">51</a>
+<a href="#L52" id="L52">52</a>
+<a href="#L53" id="L53">53</a>
+<a href="#L54" id="L54">54</a>
+<a href="#L55" id="L55">55</a>
+<a href="#L56" id="L56">56</a>
+<a href="#L57" id="L57">57</a>
+<a href="#L58" id="L58">58</a>
+<a href="#L59" id="L59">59</a>
+<a href="#L60" id="L60">60</a>
+<a href="#L61" id="L61">61</a>
+<a href="#L62" id="L62">62</a>
+<a href="#L63" id="L63">63</a>
+<a href="#L64" id="L64">64</a>
+<a href="#L65" id="L65">65</a>
+<a href="#L66" id="L66">66</a>
+<a href="#L67" id="L67">67</a>
+<a href="#L68" id="L68">68</a>
+<a href="#L69" id="L69">69</a>
+<a href="#L70" id="L70">70</a>
+<a href="#L71" id="L71">71</a>
+<a href="#L72" id="L72">72</a>
+<a href="#L73" id="L73">73</a>
+<a href="#L74" id="L74">74</a>
+<a href="#L75" id="L75">75</a>
+<a href="#L76" id="L76">76</a>
+<a href="#L77" id="L77">77</a>
+<a href="#L78" id="L78">78</a>
+<a href="#L79" id="L79">79</a>
+<a href="#L80" id="L80">80</a>
+<a href="#L81" id="L81">81</a>
+<a href="#L82" id="L82">82</a>
+<a href="#L83" id="L83">83</a>
+<a href="#L84" id="L84">84</a>
+<a href="#L85" id="L85">85</a>
+<a href="#L86" id="L86">86</a>
+<a href="#L87" id="L87">87</a>
+<a href="#L88" id="L88">88</a>
+<a href="#L89" id="L89">89</a>
+<a href="#L90" id="L90">90</a>
+<a href="#L91" id="L91">91</a>
+<a href="#L92" id="L92">92</a>
+<a href="#L93" id="L93">93</a>
+<a href="#L94" id="L94">94</a>
+<a href="#L95" id="L95">95</a>
+<a href="#L96" id="L96">96</a>
+<a href="#L97" id="L97">97</a>
+<a href="#L98" id="L98">98</a>
+<a href="#L99" id="L99">99</a>
+<a href="#L100" id="L100">100</a>
+<a href="#L101" id="L101">101</a>
+<a href="#L102" id="L102">102</a>
+<a href="#L103" id="L103">103</a>
+<a href="#L104" id="L104">104</a>
+<a href="#L105" id="L105">105</a>
+<a href="#L106" id="L106">106</a>
+<a href="#L107" id="L107">107</a>
+<a href="#L108" id="L108">108</a>
+<a href="#L109" id="L109">109</a>
+<a href="#L110" id="L110">110</a>
+<a href="#L111" id="L111">111</a>
+<a href="#L112" id="L112">112</a>
+<a href="#L113" id="L113">113</a>
+<a href="#L114" id="L114">114</a>
+<a href="#L115" id="L115">115</a>
+<a href="#L116" id="L116">116</a>
+<a href="#L117" id="L117">117</a>
+<a href="#L118" id="L118">118</a>
+<a href="#L119" id="L119">119</a>
+<a href="#L120" id="L120">120</a>
+<a href="#L121" id="L121">121</a>
+<a href="#L122" id="L122">122</a>
+<a href="#L123" id="L123">123</a>
+<a href="#L124" id="L124">124</a>
+<a href="#L125" id="L125">125</a>
+<a href="#L126" id="L126">126</a>
+<a href="#L127" id="L127">127</a>
+<a href="#L128" id="L128">128</a>
+<a href="#L129" id="L129">129</a>
+<a href="#L130" id="L130">130</a>
+<a href="#L131" id="L131">131</a>
+<a href="#L132" id="L132">132</a>
+<a href="#L133" id="L133">133</a>
+<a href="#L134" id="L134">134</a>
+<a href="#L135" id="L135">135</a>
+<a href="#L136" id="L136">136</a>
+<a href="#L137" id="L137">137</a>
+<a href="#L138" id="L138">138</a>
+<a href="#L139" id="L139">139</a>
+<a href="#L140" id="L140">140</a>
+<a href="#L141" id="L141">141</a>
+<a href="#L142" id="L142">142</a>
+<a href="#L143" id="L143">143</a>
+<a href="#L144" id="L144">144</a>
+<a href="#L145" id="L145">145</a>
+<a href="#L146" id="L146">146</a>
+<a href="#L147" id="L147">147</a>
+<a href="#L148" id="L148">148</a>
+<a href="#L149" id="L149">149</a>
+<a href="#L150" id="L150">150</a>
+<a href="#L151" id="L151">151</a>
+<a href="#L152" id="L152">152</a>
+<a href="#L153" id="L153">153</a>
+<a href="#L154" id="L154">154</a>
+<a href="#L155" id="L155">155</a>
+<a href="#L156" id="L156">156</a>
+<a href="#L157" id="L157">157</a>
+<a href="#L158" id="L158">158</a>
+<a href="#L159" id="L159">159</a>
+<a href="#L160" id="L160">160</a>
+<a href="#L161" id="L161">161</a>
+<a href="#L162" id="L162">162</a>
+<a href="#L163" id="L163">163</a>
+<a href="#L164" id="L164">164</a>
+<a href="#L165" id="L165">165</a>
+<a href="#L166" id="L166">166</a>
+<a href="#L167" id="L167">167</a>
+<a href="#L168" id="L168">168</a>
+<a href="#L169" id="L169">169</a>
+<a href="#L170" id="L170">170</a>
+<a href="#L171" id="L171">171</a>
+<a href="#L172" id="L172">172</a>
+<a href="#L173" id="L173">173</a>
+<a href="#L174" id="L174">174</a>
+<a href="#L175" id="L175">175</a>
+<a href="#L176" id="L176">176</a>
+<a href="#L177" id="L177">177</a>
+<a href="#L178" id="L178">178</a>
+<a href="#L179" id="L179">179</a>
+<a href="#L180" id="L180">180</a></td><td class="code"><span class="tK">DECLARE</span>
+  <span class="tI">x</span>               <span class="tD">varchar(20)</span>;
+  <span class="tI">n</span>               <span class="tD">integer</span> <span class="tK">:=</span> 403;
+  <span class="tI">i</span>               <span class="tD">integer</span>;
+  <span class="tI">ys</span>              <span class="tD">integer[]</span> <span class="tK">:=</span> <span class="tS">'{}'</span>;
+  <span class="tI">result</span>          <span class="tD">text</span>;
+  <span class="tI">fooValue</span>        <span class="tD">record</span>;
+  <span class="tI">loopElement</span>     <span class="tD">record</span>;
+  <span class="tI">formattedName</span>   <span class="tD">character varying</span>;
+  <span class="tI">myself</span>          <span class="tD">pg_proc%ROWTYPE</span>;
+  <span class="tI">shareCount</span>      <span class="tD">integer</span> <span class="tK">:=</span> 99999999;
+  <span class="tI">count</span>           <span class="tD">integer</span>;
+<span class="tK">BEGIN</span>
+
+  <span class="tC">-- IF-THEN
+</span>  <span class="c1" id="T3c82d735658360f8"><span class="tK">IF</span> <span class="b01" id="Ta23d97bca9690239" title="never evaluates true">a &lt;&gt; 0
+  </span><span class="tK">THEN</span>
+    <span class="c0" id="Taf46aba3ca958cda" title="never evaluated"><span class="tK">SELECT</span> INTO n sum(&quot;id&quot;) FROM pg_users;
+  </span><span class="tK">END</span> <span class="tK">IF</span>;
+  
+  <span class="tC">-- IF-THEN-ELSE
+</span>  <span class="tK">IF</span> <span class="b10" id="Td6a4c32464b2bfb7" title="never evaluates false">a IS NULL OR b::varchar = <span class="tS">''</span>
+  </span><span class="tK">THEN</span>
+    <span class="c1" id="T3ef73efb78f77dec"><span class="tI">x</span> <span class="tK">:=</span> <span class="tS">'bahut badmash!'</span>;
+  </span><span class="tK">ELSE</span>
+    <span class="c0" id="T2c1211bf9a84eb00" title="never evaluated"><span class="tK">SELECT</span> INTO ys ARRAY(SELECT * FROM generate_series(1, a));
+  </span><span class="tK">END</span> <span class="tK">IF</span>;
+  
+  <span class="tC">-- IF-THEN-ELSIF
+</span>  <span class="tK">IF</span> <span class="b01" id="Tf32fd12e4662062d" title="never evaluates true">array_upper(ys, 1) = 0 </span><span class="tK">THEN</span>
+      <span class="c0" id="T3a9ddfa89459c46f" title="never evaluated"><span class="tI">result</span> <span class="tK">:=</span> <span class="tS">'zero'</span>;
+  </span><span class="tK">ELSIF</span> <span class="b01" id="T9be9337c06a2fcb8" title="never evaluates true">array_upper(ys, 1) &gt; 0 </span><span class="tK">THEN</span>
+      <span class="c0" id="T557827f6c603d53a" title="never evaluated"><span class="tI">result</span> <span class="tK">:=</span> <span class="tS">'positive'</span>;
+  </span><span class="tK">ELSIF</span> <span class="b01" id="Tc5aafcd29a551cfb" title="never evaluates true">array_upper(ys, 1) &lt; 0 </span><span class="tK">THEN</span>
+      <span class="c0" id="T3d3a3c1d27a8dc6a" title="never evaluated"><span class="tI">result</span> <span class="tK">:=</span> <span class="tS">'negative'</span>;
+  </span><span class="tK">ELSE</span>
+      <span class="tC">/* commentary and buffoonary *
+       * that spans multiple lines *
+       * but does not explain much *
+       * about tom foolery jewelry */</span>
+      <span class="c1" id="Tb26fc30cc4699e79"><span class="tI">result</span> <span class="tK">:=</span> <span class="tS">'NULL'</span>;
+  </span><span class="tK">END</span> <span class="tK">IF</span>;
+  
+  <span class="tK">FOR</span> <span class="tI">fooValue</span> <span class="tK">IN</span>
+    <span class="l0011" id="Tf41dbaf3cc4c6649" title="loop always iterates more than once"><span class="tK">SELECT</span> *,
+      prolang IN ( SELECT oid
+                   FROM pg_language
+                   WHERE lanname &lt;&gt; <span class="tS">'plpgsql'</span> ) AS frump
+    FROM pg_proc
+    WHERE pronamespace IN
+      ( SELECT oid
+        FROM pg_namespace
+        WHERE nspname ILIKE <span class="tS">'pg_%'</span> )
+  </span><span class="tK">LOOP</span>
+    <span class="tC">-- nest IF-THEN-ELSE statements
+</span>    <span class="c1" id="Tad7f3e80d44d3706"><span class="tK">IF</span> <span class="b10" id="T3cc11092b65e9ee4" title="never evaluates false">fooValue.frump </span><span class="tK">THEN</span>
+        <span class="c1" id="T3fd252e086652fb7"><span class="tI">formattedName</span> <span class="tK">:=</span> <span class="tS">'man'</span>;
+    </span><span class="tK">ELSE</span>
+        <span class="c0" id="T09e8f37cd3a18f11" title="never evaluated"><span class="tK">IF</span> <span class="b00" id="T8fac68761234d3d2" title="never evaluated">fooValue.proretset IS FALSE </span><span class="tK">THEN</span>
+            <span class="c0" id="T88651360f12c8cf2" title="never evaluated"><span class="tI">formattedName</span> <span class="tK">:=</span> <span class="tS">'ULYSSES S GRUMP'</span>;
+        </span><span class="tK">END</span> <span class="tK">IF</span>;
+    </span><span class="tK">END</span> <span class="tK">IF</span>;
+  
+    <span class="tC">-- simple CASE with search-expression
+</span>    <span class="tK">CASE</span> a
+      <span class="tK">WHEN</span> 1, 2 <span class="tK">THEN</span>
+        <span class="c0" id="Tc945ba62c3563855" title="never evaluated"><span class="tI">result</span> <span class="tK">:=</span> <span class="tS">'one or two'</span>;
+      </span><span class="tK">WHEN</span> 3, 4 <span class="tK">THEN</span>
+        <span class="c0" id="Tc6e2079006f5a5c7" title="never evaluated"><span class="tK">RAISE</span> <span class="tK">NOTICE</span> <span class="tS">'I see you baybee'</span>;
+      </span><span class="tK">ELSE</span>
+        <span class="c1" id="T770372f646c90aa2"><span class="tI">result</span> <span class="tK">:=</span> <span class="tS">'other value than one or two'</span>;
+    </span><span class="tK">END</span> <span class="tK">CASE</span>;
+  
+    <span class="tC">-- searched CASE with boolean-expression
+</span>    <span class="tK">CASE</span>
+      <span class="tK">WHEN</span> <span class="b10" id="Tcb0d440e1d0b1a33" title="never evaluates false">b IS NULL </span><span class="tK">THEN</span>
+        <span class="c1" id="Tb35de3a2029edd3f"><span class="tI">myself</span> <span class="tK">:=</span> NULL;
+      </span><span class="tK">WHEN</span> <span class="b00" id="T907499afe9228491" title="never evaluated">b BETWEEN 0 and 10 </span><span class="tK">THEN</span>
+        <span class="c0" id="T287252a7e5719afd" title="never evaluated"><span class="tI">myself</span> <span class="tK">:=</span> fooValue;
+      </span><span class="tK">WHEN</span> <span class="b00" id="Tac20dc6c64820ba2" title="never evaluated">b BETWEEN 11 and 20 </span><span class="tK">THEN</span>
+        <span class="c0" id="Tfabcef80f0a9dda6" title="never evaluated"><span class="tI">myself</span> <span class="tK">:=</span> fooValue;
+    </span><span class="tK">END</span> <span class="tK">CASE</span>;
+  </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+  <span class="tK">DECLARE</span>
+    <span class="tI">a</span> <span class="tD">integer</span> <span class="tK">:=</span> 10;
+    <span class="tI">b</span> <span class="tD">integer</span> <span class="tK">:=</span> 5;
+    <span class="tI">c</span> <span class="tD">integer</span> <span class="tK">:=</span> 20;
+  <span class="tK">BEGIN</span>
+    <span class="c1" id="Te893ab345b00e3f1"><span class="tL">&lt;&lt; labelA &gt;&gt;</span>
+    <span class="l0100" id="T37793586e9e95cda" title="iterations always terminate early. loop always iterates only once"><span class="tK">LOOP</span></span>
+      <span class="c1" id="Tbb4171d65f91df14"><span class="tI">a</span> <span class="tK">:=</span> a + 1;
+      <span class="tK">EXIT</span><span class="tL"> labelA</span> <span class="tK">WHEN</span> <span class="b10" id="Ta5a2361726379d89" title="never evaluates false">a &gt; 10</span>;
+    </span><span class="tK">END</span> <span class="tK">LOOP</span><span class="tL"> labelA</span>;
+
+    <span class="l0011" id="Tb6d30e85b0b658d4" title="loop always iterates more than once"><span class="tK">LOOP</span></span>
+      <span class="c1" id="T12e39fb9baa431c8"><span class="tI">b</span> <span class="tK">:=</span> b + 1;
+      <span class="tK">EXIT</span> <span class="tK">WHEN</span> <span class="b11" id="T52d804ff6d084567">b &gt; 10</span>;
+      <span class="tK">CONTINUE</span> <span class="tK">WHEN</span> <span class="b01" id="Tfbc040eb10e19d67" title="never evaluates true">b &gt; 10</span>;
+    </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+    <span class="l0100" id="T66ca5a0dab709681" title="iterations always terminate early. loop always iterates only once"><span class="tK">LOOP</span></span>
+        <span class="c1" id="T303ecb2e5bf69bb6"><span class="tI">c</span> <span class="tK">:=</span> c + 1;
+        <span class="tK">IF</span> <span class="b10" id="T63045c3bcf228265" title="never evaluates false">c &gt; 10 </span><span class="tK">THEN</span>
+            <span class="c1" id="Tc1a5f7e94364eb2d"><span class="c1" id="T014b64606210a64c"><span class="tK">EXIT</span></span>;
+        </span><span class="tK">END</span> <span class="tK">IF</span>;
+    </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+  </span><span class="tK">END</span>;
+
+  <span class="tL">&lt;&lt; labelB &gt;&gt;</span>
+  <span class="tK">BEGIN</span>
+    <span class="tC">-- some computations
+</span>    <span class="c1" id="T49672d936ac64c91"><span class="tK">IF</span> <span class="b10" id="T7706fe5d09be092a" title="never evaluates false">shareCount &gt; 100000 </span><span class="tK">THEN</span>
+      <span class="c1" id="T911af0baebe6463c"><span class="c1" id="T0bcf58cecedea3d2"><span class="tK">EXIT</span><span class="tL"> labelB</span></span>; <span class="tC">-- causes exit from BEGIN block
+</span>    </span><span class="tK">END</span> <span class="tK">IF</span>;
+    <span class="tC">-- computations here will be skipped when stocks &gt; 100000
+</span>    <span class="tK">RAISE</span> <span class="tK">NOTICE</span> <span class="tS">'get outta hyah kid! ya bahthrin me'</span>;
+  </span><span class="tK">END</span>;
+
+  <span class="tI">count</span> <span class="tK">:=</span> 0;
+
+  <span class="tK">WHILE</span> <span class="l1001" id="Tc47b755be7623c19" title="loop always passes through">count &gt; 10 AND true
+  </span><span class="tK">LOOP</span>
+    <span class="c0" id="Td4763606bbf09f36" title="never evaluated"><span class="tI">count</span> <span class="tK">:=</span> floor(count / 4.0);
+  </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+  <span class="tL">&lt;&lt; labelC &gt;&gt;</span>
+  <span class="tK">WHILE</span> <span class="l0101" id="T335ce376e1792da4" title="loop always iterates only once">NOT n = 10 </span><span class="tK">LOOP</span>
+    <span class="tC">-- some computations here
+</span>    <span class="c1" id="Td6f6038f7552c267"><span class="tI">n</span> <span class="tK">:=</span> 10;
+  </span><span class="tK">END</span> <span class="tK">LOOP</span><span class="tL"> labelC</span>;
+
+  <span class="tL">&lt;&lt; labelD &gt;&gt;</span>
+  <span class="tK">WHILE</span> <span class="l0101" id="Td1cd6688ddbca139" title="loop always iterates only once">n NOT IN (1,2,3) </span><span class="tK">LOOP</span>
+    <span class="c1" id="Tca3a0bc2da46f446"><span class="tI">n</span> <span class="tK">:=</span> 3;
+    <span class="tK">CONTINUE</span><span class="tL"> labelD</span> <span class="tK">WHEN</span> <span class="b10" id="T52ff0bb159770389" title="never evaluates false">n &lt; 10</span>;
+  </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+  <span class="tK">FOR</span> <span class="tI">i</span> <span class="tK">IN</span> <span class="l0011" id="Tc422e46363bb4a37" title="loop always iterates more than once">1 .. 10 </span><span class="tK">LOOP</span>
+    <span class="c1" id="T7cc200cf1bc7dd91"><span class="tK">SELECT</span> INTO n sum(fuzit) FROM generate_series(1, i) AS fuzit;
+    <span class="tI">ys</span>[i] <span class="tK">=</span> n;
+  </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+  <span class="tL">&lt;&lt; labelD &gt;&gt;</span>
+  <span class="tK">FOR</span> <span class="tI">i</span> <span class="tK">IN</span> <span class="l0011" id="Taba2b6e44aab272a" title="loop always iterates more than once">REVERSE 10..1 </span><span class="tK">LOOP</span>
+    <span class="tC">--
+</span>    <span class="c1" id="Te13cfd19f7a1ee5f"><span class="tK">EXIT</span><span class="tL"> labelD</span> <span class="tK">WHEN</span> <span class="b11" id="Tfc75c3d2c8fbd6ce">i = 5</span>;
+  </span><span class="tK">END</span> <span class="tK">LOOP</span><span class="tL"> labelD</span>;
+
+  <span class="tL">&lt;&lt; labelE &gt;&gt;</span>
+  <span class="tK">FOR</span> <span class="tI">i</span> <span class="tK">IN</span> <span class="l0011" id="T98272801a9cd11ad" title="loop always iterates more than once">REVERSE 10..1 BY 2 </span><span class="tK">LOOP</span>
+    <span class="c1" id="T1266ffa25fa8d715"><span class="tK">SELECT</span> INTO n avg(whozit)::integer FROM generate_series(1, i) AS whozit;
+    <span class="tI">ys</span>[20 - i] <span class="tK">:=</span> n;
+  <span class="tC">--CONTINUE labelE;
+</span>  </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+  <span class="tK">FOR</span> <span class="tI">loopElement</span> <span class="tK">IN</span>
+    <span class="l0011" id="T0c7935bb7d011daa" title="loop always iterates more than once"><span class="tK">SELECT</span> *
+    FROM pg_namespace
+    LIMIT 2
+  </span><span class="tK">LOOP</span>
+    <span class="tC">-- can do some processing home
+</span>    <span class="c1" id="T46c5599adce4488a"><span class="c1" id="T636044e3b75070f3"><span class="tK">RETURN</span> <span class="tK">NEXT</span> loopElement</span>; <span class="tC">-- return current row of SELECT
+</span>  </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+  <span class="tK">FOR</span> <span class="tI">loopElement</span> <span class="tK">IN</span> <span class="l0010" id="Te09cce06042ee1d4" title="iterations always terminate early. loop always iterates more than once"><span class="tK">EXECUTE</span> <span class="tS">'SELECT * FROM pg_namespace'</span> </span><span class="tK">LOOP</span>
+    <span class="c1" id="Tc1c60cec963f71d8"><span class="c1" id="T83e55aece8b308b2"><span class="tK">CONTINUE</span></span>;
+  </span><span class="tK">END</span> <span class="tK">LOOP</span>;
+
+  <span class="tK">BEGIN</span>
+    <span class="c1" id="T86dd4975a828de68"><span class="tI">n</span> <span class="tK">:=</span> n + 1;
+    <span class="tI">n</span> <span class="tK">:=</span> n / 0;
+  </span><span class="tK">EXCEPTION</span>
+    <span class="tK">WHEN</span> SQLSTATE <span class="tS">'22012'</span> <span class="tK">THEN</span>
+      <span class="tC">-- relax, don't do it
+</span>    <span class="c1" id="T211296e188e07e3d"></span><span class="tK">WHEN</span> division_by_zero OR unique_violation <span class="tK">THEN</span>
+      <span class="c0" id="T3dccdbfec1860313" title="never evaluated"><span class="tK">RAISE</span> <span class="tK">NOTICE</span> <span class="tS">'caught a fool'</span>;
+  </span><span class="tK">END</span>;
+
+</span><span class="tK">END</span></td></tr></table></div><div class="toc"><a href="index.html">Index</a><ol><li class="branch"><a onMouseOver="highlight('Ta23d97bca9690239')" href="#Ta23d97bca9690239">never evaluates true</a></li><li class="block"><a onMouseOver="highlight('Taf46aba3ca958cda')" href="#Taf46aba3ca958cda">never evaluated</a></li><li class="branch"><a onMouseOver="highlight('Td6a4c32464b2bfb7')" href="#Td6a4c32464b2bfb7">never evaluates false</a></li><li class="block"><a onMouseOver="highlight('T2c1211bf9a84eb00')" href="#T2c1211bf9a84eb00">never evaluated</a></li><li class="branch"><a onMouseOver="highlight('Tf32fd12e4662062d')" href="#Tf32fd12e4662062d">never evaluates true</a></li><li class="block"><a onMouseOver="highlight('T3a9ddfa89459c46f')" href="#T3a9ddfa89459c46f">never evaluated</a></li><li class="branch"><a onMouseOver="highlight('T9be9337c06a2fcb8')" href="#T9be9337c06a2fcb8">never evaluates true</a></li><li class="block"><a onMouseOver="highlight('T557827f6c603d53a')" href="#T557827f6c603d53a">never evaluated</a></li><li class="branch"><a onMouseOver="highlight('Tc5aafcd29a551cfb')" href="#Tc5aafcd29a551cfb">never evaluates true</a></li><li class="block"><a onMouseOver="highlight('T3d3a3c1d27a8dc6a')" href="#T3d3a3c1d27a8dc6a">never evaluated</a></li><li class="loop"><a onMouseOver="highlight('Tf41dbaf3cc4c6649')" href="#Tf41dbaf3cc4c6649">loop always iterates more than once</a></li><li class="branch"><a onMouseOver="highlight('T3cc11092b65e9ee4')" href="#T3cc11092b65e9ee4">never evaluates false</a></li><li class="block"><a onMouseOver="highlight('T09e8f37cd3a18f11')" href="#T09e8f37cd3a18f11">never evaluated</a></li><li class="branch"><a onMouseOver="highlight('T8fac68761234d3d2')" href="#T8fac68761234d3d2">never evaluated</a></li><li class="block"><a onMouseOver="highlight('T88651360f12c8cf2')" href="#T88651360f12c8cf2">never evaluated</a></li><li class="block"><a onMouseOver="highlight('Tc945ba62c3563855')" href="#Tc945ba62c3563855">never evaluated</a></li><li class="block"><a onMouseOver="highlight('Tc6e2079006f5a5c7')" href="#Tc6e2079006f5a5c7">never evaluated</a></li><li class="branch"><a onMouseOver="highlight('Tcb0d440e1d0b1a33')" href="#Tcb0d440e1d0b1a33">never evaluates false</a></li><li class="branch"><a onMouseOver="highlight('T907499afe9228491')" href="#T907499afe9228491">never evaluated</a></li><li class="block"><a onMouseOver="highlight('T287252a7e5719afd')" href="#T287252a7e5719afd">never evaluated</a></li><li class="branch"><a onMouseOver="highlight('Tac20dc6c64820ba2')" href="#Tac20dc6c64820ba2">never evaluated</a></li><li class="block"><a onMouseOver="highlight('Tfabcef80f0a9dda6')" href="#Tfabcef80f0a9dda6">never evaluated</a></li><li class="loop"><a onMouseOver="highlight('T37793586e9e95cda')" href="#T37793586e9e95cda">iterations always terminate early. loop always iterates only once</a></li><li class="branch"><a onMouseOver="highlight('Ta5a2361726379d89')" href="#Ta5a2361726379d89">never evaluates false</a></li><li class="loop"><a onMouseOver="highlight('Tb6d30e85b0b658d4')" href="#Tb6d30e85b0b658d4">loop always iterates more than once</a></li><li class="branch"><a onMouseOver="highlight('Tfbc040eb10e19d67')" href="#Tfbc040eb10e19d67">never evaluates true</a></li><li class="loop"><a onMouseOver="highlight('T66ca5a0dab709681')" href="#T66ca5a0dab709681">iterations always terminate early. loop always iterates only once</a></li><li class="branch"><a onMouseOver="highlight('T63045c3bcf228265')" href="#T63045c3bcf228265">never evaluates false</a></li><li class="branch"><a onMouseOver="highlight('T7706fe5d09be092a')" href="#T7706fe5d09be092a">never evaluates false</a></li><li class="loop"><a onMouseOver="highlight('Tc47b755be7623c19')" href="#Tc47b755be7623c19">loop always passes through</a></li><li class="block"><a onMouseOver="highlight('Td4763606bbf09f36')" href="#Td4763606bbf09f36">never evaluated</a></li><li class="loop"><a onMouseOver="highlight('T335ce376e1792da4')" href="#T335ce376e1792da4">loop always iterates only once</a></li><li class="loop"><a onMouseOver="highlight('Td1cd6688ddbca139')" href="#Td1cd6688ddbca139">loop always iterates only once</a></li><li class="branch"><a onMouseOver="highlight('T52ff0bb159770389')" href="#T52ff0bb159770389">never evaluates false</a></li><li class="loop"><a onMouseOver="highlight('Tc422e46363bb4a37')" href="#Tc422e46363bb4a37">loop always iterates more than once</a></li><li class="loop"><a onMouseOver="highlight('Taba2b6e44aab272a')" href="#Taba2b6e44aab272a">loop always iterates more than once</a></li><li class="loop"><a onMouseOver="highlight('T98272801a9cd11ad')" href="#T98272801a9cd11ad">loop always iterates more than once</a></li><li class="loop"><a onMouseOver="highlight('T0c7935bb7d011daa')" href="#T0c7935bb7d011daa">loop always iterates more than once</a></li><li class="loop"><a onMouseOver="highlight('Te09cce06042ee1d4')" href="#Te09cce06042ee1d4">iterations always terminate early. loop always iterates more than once</a></li><li class="block"><a onMouseOver="highlight('T3dccdbfec1860313')" href="#T3dccdbfec1860313">never evaluated</a></li></ol></div><div class="timestamp">Generated by piggly 1.3.0 at August 11, 2011 01:34 CDT</div></body></html>
