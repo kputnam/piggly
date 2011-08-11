@@ -6,9 +6,9 @@ PL/pgSQL doesn't have much in the way of developer tools, and writing automated 
 stored procedures can be much easier when you know what you haven't tested. Code coverage
 allows you to see which parts of your code haven't been executed.
 
-Piggly is a tool (written in Ruby) to track code coverage of PostgreSQL PL/pgSQL stored
-procedures. It reports on code coverage to help you identify untested parts of your code.
-You write tests in Ruby against your stored procedures and run them with piggly.
+Piggly is a tool (written in Ruby, but you can write your tests in any language) to track
+code coverage of PostgreSQL PL/pgSQL stored procedures. It reports on code coverage to help
+you identify untested parts of your code.
 
 ## How Does It Work?
 
