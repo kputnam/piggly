@@ -23,6 +23,24 @@ module Piggly
           cond.source_text.should == 'SELECT * FROM table '
           cond.should be_a(Parser::Nodes::Sql)
         end
+
+        it "can loop over dynamic query results (GH #7)" do
+          node = parse(:stmtForLoop, "FOR r IN EXECUTE 'SELECT * FROM pg_user;' LOOP END LOOP;")
+          node.should be_a(Parser::Nodes::Statement)
+
+          cond = node.find{|e| e.named?(:cond) }
+          cond.source_text.should == "EXECUTE 'SELECT * FROM pg_user;' "
+          cond.should be_a(Parser::Nodes::Sql)
+        end
+
+        it "can loop over dynamic query results when query contains the word 'LOOP' (GH #7)" do
+          node = parse(:stmtForLoop, "FOR r IN EXECUTE 'SELECT * FROM pg_user.LOOP;' LOOP END LOOP;")
+          node.should be_a(Parser::Nodes::Statement)
+
+          cond = node.find{|e| e.named?(:cond) }
+          cond.source_text.should == "EXECUTE 'SELECT * FROM pg_user.LOOP;' "
+          cond.should be_a(Parser::Nodes::Sql)
+        end
       end
 
       describe "while loops" do
