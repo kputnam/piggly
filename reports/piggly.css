@@ -14,7 +14,7 @@ a img { border: 0; }
 div.timestamp
 {
   clear: both;
-  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-family: "Consolas", "DejaVu Sans Mono", "Monaco", "Nimbus Mono L", "Courier New";
   font-style: italic;
   font-size: 9pt;
 }
@@ -61,7 +61,7 @@ div.listing td.signature
   border-bottom: 1px solid silver; 
   background-color: #ffffe0;
   color: #000;
-  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-family: "Consolas", "DejaVu Sans Mono", "Monaco", "Nimbus Mono L", "Courier New";
   font-size: 9pt;
 }
 div.listing td.code
@@ -77,7 +77,7 @@ div.listing td.code
   overflow: visible;
   
   color: #000;
-  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-family: "Consolas", "DejaVu Sans Mono", "Monaco", "Nimbus Mono L", "Courier New";
   font-size: 9pt;
 }
 
@@ -93,7 +93,7 @@ div.listing td.lines
 
   background-color: #def;
   font-size: 9pt;
-  font-family: "DejaVu Sans Mono", "Monaco", "Consolas", "Nimbus Mono L", "Courier New";
+  font-family: "Consolas", "DejaVu Sans Mono", "Monaco", "Nimbus Mono L", "Courier New";
 }
 div.listing td.lines a { color: grey; text-decoration: none; }
 
