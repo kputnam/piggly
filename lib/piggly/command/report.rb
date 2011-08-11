@@ -77,7 +77,7 @@ module Piggly
       def create_index(config, index, procedures, profile)
         puts "creating index"
         reporter = Reporter::Index.new(config, profile)
-        reporter.install("resources/piggly.css", "resources/sortable.js")
+        reporter.install("resources/piggly.css", "resources/sortable.js", "resources/highlight.js")
         reporter.report(procedures, index)
       end
 
