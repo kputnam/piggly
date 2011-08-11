@@ -3,6 +3,7 @@ require "yaml"
 require "optparse"
 require "fileutils"
 require "digest/md5"
+require "set"
 
 module Piggly
   autoload :VERSION,    "piggly/version"
