@@ -41,6 +41,7 @@ these events and generates prettified source code that is annotated with coverag
 ## How to Install
 
 To install the latest from github:
+
     $ git clone git://github.com/kputnam/piggly.git
     $ cd piggly
     $ rake spec
