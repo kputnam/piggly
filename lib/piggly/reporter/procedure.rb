@@ -72,7 +72,7 @@ module Piggly
 
         string << arguments << " )"
         string << "\n<span class='tK'>RETURNS#{procedure.setof ? ' SETOF' : ''}</span>"
-        string << " <span class='tD'>#{procedure.rettype}</span>"
+        string << " <span class='tD'>#{procedure.type.shorten}</span>"
         string << "\n  <span class='tK'>SECURITY DEFINER</span>" if procedure.secdef
         string << "\n  <span class='tK'>STRICT</span>" if procedure.strict
         string << "\n  <span class='tK'>#{procedure.volatility.upcase}</span>"

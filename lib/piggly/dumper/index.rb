@@ -55,37 +55,42 @@ module Piggly
       # Returns the shortest human-readable label that distinctly identifies
       # the given procedure from the other procedures in the index
       def label(procedure)
+        name = procedure.name
+        type = procedure.type
+
         others    = procedures.reject{|p| p.oid == procedure.oid }
-        samenames = others.select{|p| p.name == procedure.name }
+        samenames = others.select{|p| p.name == name }
+
         if samenames.none?
-          procedure.name
+          name.shorten.to_s
         else
           # same name and namespace
-          samespaces = samenames.select{|p| p.namespace == procedure.namespace }
+          samespaces = samenames.select{|p| p.name.namespace == name.namespace }
           if samespaces.none?
-            "#{procedure.namespace}.#{procedure.name}"
+            name.to_s
           else
             # same name and return type
-            sametypes = samenames.select{|p| p.type == procedure.type }
+            sametypes = samenames.select{|p| p.type == type }
+
             if sametypes.none?
-              "#{procedure.type} #{procedure.name}"
+              "#{type} #{name.shorten}"
             else
               # same name, namespace, and return type
-              if samespaces.none?{|p| p.type == procedure.type }
-                "#{procedure.type} #{procedure.namespace}.#{procedure.name}"
+              if samespaces.none?{|p| p.type == type }
+                "#{type} #{name}"
               else
                 # ignore OUT arguments
                 args = procedure.arg_types.zip(procedure.arg_modes).
                   select{|_, m| m != "out" }.map{|x| x.first }.join(", ")
 
                 if samenames.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{procedure.name} (#{args})"
+                  "#{name.shorten} (#{args})"
                 elsif samespaces.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{procedure.namespace}.#{procedure.name} (#{args})"
+                  "#{name} (#{args})"
                 elsif sametypes.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{procedure.type} #{procedure.name} (#{args})"
+                  "#{type} #{name.shorten} (#{args})"
                 else
-                  "#{procedure.type} #{procedure.namespace}.#{procedure.name} (#{args})"
+                  "#{type} #{name} (#{args})"
                 end
               end
             end

@@ -125,7 +125,7 @@ module Piggly
 
     # Uninstalls instrumentation support
     def uninstall_support
-      @connection.set_notice_processor
+      @connection.set_notice_processor{|x| $stderr.puts x }
       @connection.exec "DROP FUNCTION IF EXISTS piggly_cond(varchar, boolean)"
       @connection.exec "DROP FUNCTION IF EXISTS piggly_expr(varchar, varchar)"
       @connection.exec "DROP FUNCTION IF EXISTS piggly_expr(varchar, anyelement)"

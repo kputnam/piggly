@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Piggly
 
@@ -32,21 +32,24 @@ module Piggly
 
       context "when the cache index file has two entries" do
         before do
-          Piggly::Config.stub(:identify_procedures_using).and_return('oid')
-
           @first  = Dumper::ReifiedProcedure.from_hash \
-            'oid'    => '1000',
-            'name'   => 'iterate',
-            'source' => 'FIRST PROCEDURE SOURCE CODE'
+            "oid"    => "1000",
+            "name"   => "iterate",
+            "source" => "FIRST PROCEDURE SOURCE CODE"
 
           @second = Dumper::ReifiedProcedure.from_hash \
-            'oid'    => '2000',
-            'name'   => 'login',
-            'source' => 'SECOND PROCEDURE SOURCE CODE'
+            "oid"    => "2000",
+            "name"   => "login",
+            "source" => "SECOND PROCEDURE SOURCE CODE"
 
-          File.stub(:read).with(@first.source_path(@config)).and_return(@first.source(@config))
-          File.stub(:read).with(@second.source_path(@config)).and_return(@second.source(@config))
-          File.stub(:read).with(@index.path).and_return([@first, @second].to_yaml)
+          File.stub(:read).with(@first.source_path(@config)).
+            and_return(@first.source(@config))
+
+          File.stub(:read).with(@second.source_path(@config)).
+            and_return(@second.source(@config))
+
+          File.stub(:read).with(@index.path).
+            and_return(YAML.dump([@first, @second]))
         end
 
         it "has two procedures" do
