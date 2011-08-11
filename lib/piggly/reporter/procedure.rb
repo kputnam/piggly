@@ -19,6 +19,7 @@ module Piggly
               tag :head do
                 tag :title, "Code Coverage: #{procedure.name}"
                 tag :link, :rel => "stylesheet", :type => "text/css", :href => "piggly.css"
+                tag :script, "<!-- -->", :type => "text/javascript", :src => "highlight.js"
               end
 
               tag :body do
@@ -86,15 +87,17 @@ module Piggly
         tag :div, :class => 'toc' do
           tag :a, 'Index', :href => 'index.html'
 
-          unless todo.empty?
-            tag :ol do
-              todo.each do |t|
-                tag(:li, :class => t.type) { tag :a, t.description, :href => "#T#{t.id}" }
+          tag :ol do
+            todo.each do |t|
+              tag(:li, :class => t.type) do
+                tag :a, t.description, :href => "#T#{t.id}",
+                  :onMouseOver => "highlight('T#{t.id}')"
               end
             end
-          end
+          end unless todo.empty?
         end
       end
+
     end
 
   end
