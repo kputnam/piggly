@@ -2,10 +2,20 @@
 ROOT=$(readlink -f $(dirname $0)/..)
 EXAMPLE="$ROOT/example"
 
-"$ROOT/bin/piggly" trace -d "$EXAMPLE/config/database.yml" -c "$EXAMPLE/piggly/cache" && \
-  (ruby -I"$ROOT/lib" `find "$EXAMPLE/test/" -name '*_test.rb'` 2>"$EXAMPLE/trace.txt") && \
-  "$ROOT/bin/piggly" report -o "$EXAMPLE/piggly/report" -c "$EXAMPLE/piggly/cache" -f "$EXAMPLE/trace.txt"
+"$ROOT/bin/piggly" trace \
+  -d "$EXAMPLE/config/database.yml" \
+  -o "$EXAMPLE/piggly/reports" \
+  -c "$EXAMPLE/piggly/cache" && \
 
-"$ROOT/bin/piggly" untrace -d "$EXAMPLE/config/database.yml" -c "$EXAMPLE/piggly/cache"
+  (ruby -I"$ROOT/lib" `find "$EXAMPLE/test/" -name '*_test.rb'` 2>"$EXAMPLE/trace.txt") && \
+
+  "$ROOT/bin/piggly" report \
+    -o "$EXAMPLE/piggly/reports" \
+    -c "$EXAMPLE/piggly/cache" \
+    -f "$EXAMPLE/trace.txt"
+
+"$ROOT/bin/piggly" untrace \
+  -d "$EXAMPLE/config/database.yml" \
+  -c "$EXAMPLE/piggly/cache"
 
 echo "OK, view $EXAMPLE/piggly/reports/index.html"

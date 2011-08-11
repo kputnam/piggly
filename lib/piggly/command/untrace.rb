@@ -12,7 +12,7 @@ module Piggly
         procedures  = filter(config, index)
 
         if procedures.empty?
-          if filters.empty?
+          if config.filters.empty?
             abort "no stored procedures in the cache"
           else
             abort "no stored procedures in the cache matched your criteria"
