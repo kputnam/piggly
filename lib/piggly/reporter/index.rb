@@ -20,7 +20,7 @@ module Piggly
 
             tag :body do
               aggregate("PL/pgSQL Coverage Summary", @profile.summary)
-              table(procedures.sort_by{|p| p.name }, index)
+              table(procedures.sort_by{|p| index.label(p) }, index)
               timestamp
             end
           end

@@ -7,12 +7,12 @@ module Piggly
     #
     class SkeletonProcedure
 
-      attr_reader :oid, :name, :namespace, :type, :arg_types, :arg_modes, :arg_names,
-        :strict, :rettype, :setof, :volatility, :secdef, :identifier
+      attr_reader :oid, :name, :type, :arg_types, :arg_modes, :arg_names,
+        :strict, :type, :setof, :volatility, :secdef, :identifier
 
-      def initialize(oid, namespace, name, strict, secdef, setof, rettype, volatility, arg_modes, arg_names, arg_types)
-        @oid, @namespace, @name, @strict, @secdef, @rettype, @volatility, @setof, @arg_modes, @arg_names, @arg_types =
-          oid, namespace, name, strict, secdef, rettype, volatility, setof, arg_modes, arg_names, arg_types
+      def initialize(oid, name, strict, secdef, setof, type, volatility, arg_modes, arg_names, arg_types)
+        @oid, @name, @strict, @secdef, @type, @volatility, @setof, @arg_modes, @arg_names, @arg_types =
+          oid, name, strict, secdef, type, volatility, setof, arg_modes, arg_names, arg_types
 
         @identifier = Digest::MD5.hexdigest(signature)
       end
@@ -21,14 +21,14 @@ module Piggly
       # @return [String]
       def arguments
         @arg_types.zip(@arg_names, @arg_modes).map do |type, name, mode|
-          "#{mode + " " if mode}#{name + " " if name}#{type}"
+          "#{mode + " " if mode}#{name.quote + " " if name}#{type.shorten}"
         end.join(", ")
       end
 
       # Returns source text for return type
       # @return [String]
-      def type
-        "#{@setof ? "setof " : ""}#{@rettype}"
+      def setof
+        @setof ? "setof " : ""
       end
 
       # Returns source text for strictness
@@ -46,15 +46,15 @@ module Piggly
       # Returns source SQL function definition statement
       # @return [String]
       def definition(body)
-        [%[create or replace function "#{@namespace}"."#{@name}" (#{arguments})],
-         %[ #{strictness} #{security} returns #{type} as $__PIGGLY__$],
+        [%[create or replace function #{name.quote} (#{arguments})],
+         %[ #{strictness} #{security} returns #{setof}#{type.quote} as $__PIGGLY__$],
          body,
          %[$__PIGGLY__$ language plpgsql #{@volatility}]].join("\n")
       end
 
       # @return [String]
       def signature
-        "#{@namespace}.#{@name}(#{@arg_types.join(", ")})"
+        "#{@name.shorten}(#{@arg_types.map{|t| t.shorten }.join(", ")})"
       end
 
       # @return [String]
@@ -122,8 +122,8 @@ module Piggly
 
       # @return [SkeletonProcedure]
       def skeleton
-        SkeletonProcedure.new(@oid, @namespace, @name, @strict, @secdef, @setof,
-                              @rettype, @volatility, @arg_modes, @arg_names, @arg_types)
+        SkeletonProcedure.new(@oid, @name, @strict, @secdef, @setof, @type,
+                              @volatility, @arg_modes, @arg_names, @arg_types)
       end
 
       def skeleton?
@@ -145,8 +145,11 @@ module Piggly
          "s" => "stable"
 
       # Make the system calatog type name more human readable
-      def type(type)
-        case type
+      # @return [QualifiedName]
+      def shorten(name)
+        # This drops the schema (not good), but right now the
+        # caller doesn't ever provide the schema anyway.
+        case name
         when /^character varying(.*)/ then "varchar#{$1}"
         when /^character(.*)/         then "char#{$1}"
         when /"char"(.*)/   then "char#{$1}"
@@ -155,8 +158,12 @@ module Piggly
         when /^int8(.*)/    then "bigint#{$1}"
         when /^float4(.*)/  then "float#{$1}"
         when /^boolean(.*)/ then "bool#{$1}"
-        else type
+        else name
         end
+      end
+
+      def q(name, *names)
+        QualifiedName.new(name, *names)
       end
 
       def mode(mode)
@@ -174,14 +181,15 @@ module Piggly
         connection.query(<<-SQL).map{|x| from_hash(x) }
           select
             pro.oid,
-            ns.nspname      as namespace,
-            pro.proname     as name,
-            pro.proisstrict as strict,
-            pro.prosecdef   as secdef,
-            pro.provolatile as volatility,
-            pro.proretset   as setof,
-            ret.typname     as rettype,
-            pro.prosrc      as source,
+            nsname.nspname    as namens,
+            pro.proname       as name,
+            pro.proisstrict   as strict,
+            pro.prosecdef     as secdef,
+            pro.provolatile   as volatility,
+            pro.proretset     as setof,
+            nstype.nspname    as typens,
+            ret.typname       as type,
+            pro.prosrc        as source,
             array_to_string(pro.proargmodes, ',')  as arg_modes,
             array_to_string(pro.proargnames, ',')  as arg_names,
 
@@ -197,8 +205,10 @@ module Piggly
             end             as arg_types
           from pg_proc as pro,
                pg_type as ret,
-               pg_namespace as ns
-          where pro.pronamespace = ns.oid
+               pg_namespace as nsname,
+               pg_namespace as nstype
+          where pro.pronamespace = nsname.oid
+            and ret.typnamespace = nstype.oid
             and pro.proname not like 'piggly_%'
             and pro.prorettype = ret.oid
             and pro.prolang = (select oid from pg_language where lanname = 'plpgsql')
@@ -215,16 +225,45 @@ module Piggly
       def from_hash(hash)
         new(hash["source"],
             hash["oid"],
-            hash["namespace"],
-            hash["name"],
+            q(hash["namens"], hash["name"]),
             hash["strict"] == "t",
             hash["secdef"] == "t",
             hash["setof"]  == "t",
-            type(hash["rettype"]),
+            q(hash["typens"], shorten(hash["type"])),
             volatility(hash["volatility"]),
             hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) },
-            hash["arg_names"].to_s.split(",").map{|x| x.strip },
-            hash["arg_types"].to_s.split(",").map{|x| type(x.strip) })
+            hash["arg_names"].to_s.split(",").map{|x| q(x.strip) },
+            hash["arg_types"].to_s.split(",").map{|x| q(shorten(x.strip)) })
+      end
+    end
+
+    class QualifiedName
+      attr_reader :names
+
+      def initialize(name, *names)
+        @names = [name, *names].select{|x| x }
+      end
+
+      def shorten
+        self.class.new(@names.last)
+      end
+
+      # @return [String]
+      def quote
+        @names.map{|name| '"' + name + '"' }.join(".")
+      end
+
+      def namespace
+        @names.first if @names.length > 1
+      end
+
+      # @return [String]
+      def to_s
+        @names.join(".")
+      end
+
+      def ==(qn)
+        names == qn.names
       end
     end
 
