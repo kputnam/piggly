@@ -24,6 +24,7 @@
 		pre      { padding: 15px;}
 		pre.cmd  { border: 1px solid #000; background: #555; color: #fff; }
 		pre.code { border: 1px solid #000; background: #555; color: #fff; }
+		tt       { border: 1px solid #000; background: #555; color: #fff; }
 
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 
@@ -69,7 +70,10 @@
 
     <h2>Usage</h2>
 
-    <p>Your stored procedures must already be loaded in the database. Configure your database connection in a file named config/database.yml relative to where you want to run piggly. You can also specify the -d PATH to an existing configuration file. The contents of the file follow ActiveRecord conventions:
+    <p>Your stored procedures must already be loaded in the database. Configure your database
+    connection in a file named config/database.yml relative to where you want to run piggly. You
+    can also specify the -d PATH to an existing configuration file. The contents of the file
+    follow ActiveRecord conventions:
 
 <pre class="code">
 piggly:
@@ -80,7 +84,9 @@ piggly:
   host: localhost
 </pre>
 
-    <p>Note the connection is expected to be named piggly but you may specify the -k DATABASE option to use a different connection name (eg -k development in Rails). See also example/config/database.yml.
+    <p>Note the connection is expected to be named piggly but you may specify the <tt>-k DATABASE</tt>
+    option to use a different connection name (eg -k development in Rails). See also
+    <tt>example/config/database.yml</tt>.
 
     <p>Now you are ready to recompile and install your stored procedures.</p>
 
@@ -95,11 +101,18 @@ Compiling iterate
 tracing 5 procedures
 </pre>
 
-    <p>This caches the original version (without instrumentation) in piggly/cache so you can restore them later. Piggly will only recompile procedures that it thinks has changed in the database since it last made a copy in piggly/cache.</p>
+    <p>This caches the original version (without instrumentation) in <tt>piggly/cache</tt> so you can
+    restore them later. Piggly will only recompile procedures that it thinks has changed in the database
+    since it last made a copy in <tt>piggly/cache</tt>.</p>
 
-    <p><strong>Important</strong>: piggly fetches your code from the database and replaces it (in the database) with the instrumented code. If you run piggly trace twice consecutively, the second time will cause an error because you are trying to instrument the same code twice. You need to run piggly untrace or restore your original stored procedures manually before you can trace them again.</p>
+    <p><strong>Important</strong>: piggly fetches your code from the database and replaces it (in the
+    database) with the instrumented code. If you run piggly trace twice consecutively, the second time
+    will cause an error because you are trying to instrument the same code twice. You need to run piggly
+    untrace or restore your original stored procedures manually before you can trace them again.</p>
 
-    <p>Now you're ready to execute your tests. Make sure your connection is configured to log RAISE WARNING messages to a file -- or you can log them to STDERR and redirect that to a file. For instance you might run:</p>
+    <p>Now you're ready to execute your tests. Make sure your connection is configured to log
+    <tt>RAISE WARNING</tt> messages to a file -- or you can log them to STDERR and redirect that to a
+    file. For instance you might run:</p>
 
 <pre class="code">
 $ ant test 2> messages.txt
@@ -114,6 +127,11 @@ etc.
     <h2>Install</h2>
     <p>You can install piggly from RubyGems by running:
       <pre class="cmd">$ gem install piggly</pre>
+    </p>
+
+    <h2>Download</h2>
+    <p>You can clone the project with <a href="http://git-scm.com">Git</a> by running:
+      <pre class="cmd">$ git clone git://github.com/kputnam/piggly</pre>
     </p>
 
     <h2>License</h2>
@@ -141,12 +159,6 @@ etc.
 
     <h2>Authors</h2>
     <p>Kyle Putnam (putnam.kyle at gmail)</p>
-
-
-    <h2>Download</h2>
-    <p>You can clone the project with <a href="http://git-scm.com">Git</a> by running:
-      <pre class="cmd">$ git clone git://github.com/kputnam/piggly</pre>
-    </p>
 
     <div class="footer">
       get the source code on GitHub : <a href="http://github.com/kputnam/piggly">kputnam/piggly</a>
