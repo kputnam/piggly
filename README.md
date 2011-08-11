@@ -62,6 +62,7 @@ a file named `config/database.yml` relative to where you want to run piggly. You
 
     piggly:
       adapter: postgresql
+      database: cookbook
       username: kputnam
       password: secret
       host: localhost
