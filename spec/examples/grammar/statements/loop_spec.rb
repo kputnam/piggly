@@ -8,20 +8,20 @@ module Piggly
       describe "for loops" do
         it "can loop over integers" do
           node = parse(:stmtForLoop, 'FOR x IN 0 .. 100 LOOP a := x; END LOOP;')
-          node.should be_a(Parser::Nodes::Statement)
+          node.should be_statement
 
           cond = node.find{|e| e.named?(:cond) }
           cond.source_text.should == '0 .. 100 '
-          cond.should be_a(Parser::Nodes::Expression)
+          cond.should be_expression
         end
 
         it "can loop over query results" do
           node = parse(:stmtForLoop, 'FOR x IN SELECT * FROM table LOOP a := x; END LOOP;')
-          node.should be_a(Parser::Nodes::Statement)
+          node.should be_statement
 
           cond = node.find{|e| e.named?(:cond) }
           cond.source_text.should == 'SELECT * FROM table '
-          cond.should be_a(Parser::Nodes::Sql)
+          cond.should be_sql
         end
       end
 

@@ -54,10 +54,11 @@ class NodeClass
   def identifier?; false end
   def assignment?; false end
   def sql?; false end
-
   def statement?; false; end
   def if?; false; end
   def else?; false; end
+  def label?; false; end
+  def keyword?; false; end
 
   def indent(method = nil)
     if method and respond_to?(method)
@@ -294,6 +295,10 @@ module Piggly
       class TKeyword < Token
         def style; "tK"; end
 
+        def keyword?
+          true
+        end
+
         def tag(prefix = nil, id = nil)
           unless defined? @tag_id
             if named?(:cond) and parent.loop?
@@ -339,6 +344,9 @@ module Piggly
 
       class TLabel < Token
         def style; "tL"; end
+        def label?
+          true
+        end
       end
 
       class TextNode < Terminal

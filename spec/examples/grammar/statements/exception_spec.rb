@@ -8,7 +8,7 @@ module Piggly
       describe "raise" do
         it "parses successfully" do
           node, rest = parse_some(:statement, "RAISE EXCEPTION 'message';")
-          node.should be_a(Parser::Nodes::Statement)
+          node.should be_statement
           rest.should == ''
         end
 
@@ -34,7 +34,7 @@ module Piggly
 
         it "parses successfully" do
           node, rest = parse_some(:statement, @text)
-          node.should be_a(Parser::Nodes::Statement)
+          node.should be_statement
           rest.should == ''
         end
 
@@ -43,8 +43,8 @@ module Piggly
           catches = node.select{|e| e.is_a?(Parser::Nodes::Catch) }
           catches.size.should == 2
 
-          catches[0].count{|e| e.named?(:cond) and e.is_a?(Parser::Nodes::Expression) }.should == 1
-          catches[1].count{|e| e.named?(:cond) and e.is_a?(Parser::Nodes::Expression) }.should == 1
+          catches[0].count{|e| e.named?(:cond) and e.expression? }.should == 1
+          catches[1].count{|e| e.named?(:cond) and e.expression? }.should == 1
         end
       end
     end

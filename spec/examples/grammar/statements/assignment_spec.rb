@@ -8,11 +8,11 @@ module Piggly
     describe "assignment statements" do
       it "parse successfully" do
         node = parse(:statement, "a := 10;")
-        node.should be_a(Parser::Nodes::Statement)
-        node.count{|e| e.is_a? Parser::Nodes::Assignment }.should == 1
-        node.count{|e| e.is_a? Parser::Nodes::Assignable }.should == 1
+        node.should be_statement
+        node.count{|e| e.assignment? }.should == 1
+
         node.find{|e| e.named? :lval }.should be_a(Parser::Nodes::Assignable)
-        node.find{|e| e.named? :rval }.should be_a(Parser::Nodes::Expression)
+        node.find{|e| e.named? :rval }.should be_expression
       end
 
       it "must end with a semicolon" do
@@ -22,18 +22,18 @@ module Piggly
 
       it "can use := or =" do
         a = parse(:statement, "a := 10;")
-        a.should be_a(Parser::Nodes::Statement)
-        a.count{|e| e.is_a? Parser::Nodes::Assignment }.should == 1
+        a.should be_statement
+        a.count{|e| e.assignment? }.should == 1
 
         b = parse(:statement, "a = 10;")
-        b.should be_a(Parser::Nodes::Statement)
-        b.count{|e| e.is_a? Parser::Nodes::Assignment }.should == 1
+        b.should be_statement
+        b.count{|e| e.assignment? }.should == 1
       end
 
       it "can assign strings" do
         node = parse(:statement, "a := 'string';")
         rval = node.find{|e| e.named? :rval }
-        rval.count{|e| e.is_a? Parser::Nodes::TString }.should == 1
+        rval.count{|e| e.string? }.should == 1
       end
 
       it "can assign value expressions containing comments" do
@@ -42,14 +42,14 @@ module Piggly
          'a := 10 /* comment */ + 10;'].test_each do |s|
           node = parse(:statement, s)
           rval = node.find{|e| e.named? :rval }
-          rval.count{|e| e.is_a? Parser::Nodes::TComment }.should == 1
+          rval.count{|e| e.comment? }.should == 1
         end
       end
 
       it "can assign value expressions containing strings" do
         node = parse(:statement, "a := 'Hello,' || space || 'world';")
         rval = node.find{|e| e.named? :rval }
-        rval.count{|e| e.is_a? Parser::Nodes::TString }.should == 2
+        rval.count{|e| e.string? }.should == 2
       end
 
       it "can assign value expressions containing comments and strings" do
@@ -62,7 +62,7 @@ module Piggly
                 GROUP BY /* pk ; 'abc' */ fk);
         SQL
         rval = node.find{|e| e.named? :rval }
-        rval.count{|e| e.is_a? Parser::Nodes::TString }.should == 2
+        rval.count{|e| e.string? }.should == 2
       end
     end
 

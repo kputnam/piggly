@@ -15,39 +15,39 @@ module Piggly
 
       it "can be a blank expression" do
         node, rest = parse_some(:expressionUntilSemiColon, ';')
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.source_text.should == ''
         rest.should == ';'
       end
 
       it "can be a comment" do
         node, rest = parse_some(:expressionUntilSemiColon, "/* comment */;")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 1
 
         node, rest = parse_some(:expressionUntilSemiColon, "-- comment\n;")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 1
       end
 
       it "can be a string" do
         node, rest = parse_some(:expressionUntilSemiColon, "'string';")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 1
 
         node, rest = parse_some(:expressionUntilSemiColon, "$$ string $$;")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 1
       end
 
       it "can be an arithmetic expression" do
         node, rest = parse_some(:expressionUntilSemiColon, "10 * (3 + x);")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
       end
 
       it "can be an SQL statement" do
         node, rest = parse_some(:expressionUntilSemiColon, "SELECT id FROM dataset;")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
       end
 
       it "can be an expression with comments embedded" do
@@ -56,7 +56,7 @@ module Piggly
           FROM "dataset" /* ; */       -- previous comments shouldn't terminate expression
           WHERE value IS /*NOT*/ NULL;
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 4
       end
 
@@ -68,7 +68,7 @@ module Piggly
             AND length(value) > 10 -- 3. this comment in tail doesn't contain any 'string's
             /* 4. farewell comment in tail */;
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 4
         node.count{|e| e.string? }.should == 1
       end
@@ -81,19 +81,19 @@ module Piggly
             AND value <> '; this should not terminate expression'
             AND created_at = '2001-01-01';
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 2
       end
 
       it "combines trailing whitespace into 'tail' node" do
         node, rest = parse_some(:expressionUntilSemiColon, "a := x + y  \t;")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.tail.source_text.should == "  \t"
       end
 
       it "combines trailing comments into 'tail' node" do
         node, rest = parse_some(:expressionUntilSemiColon, "a := x + y /* note -- comment */;")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.tail.source_text.should == ' /* note -- comment */'
 
         node, rest = parse_some(:expressionUntilSemiColon, <<-SQL)
@@ -127,22 +127,22 @@ module Piggly
 
       it "can be a string" do
         node, rest = parse_some(:expressionUntilThen, "'string' THEN")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 1
 
         node, rest = parse_some(:expressionUntilThen, "$$ string $$ THEN")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 1
       end
 
       it "can be an arithmetic expression" do
         node, rest = parse_some(:expressionUntilThen, "10 * (3 + x) THEN")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
       end
 
       it "can be an SQL statement" do
         node, rest = parse_some(:expressionUntilThen, "SELECT id FROM dataset THEN")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
       end
 
       it "can be an expression with comments embedded" do
@@ -151,7 +151,7 @@ module Piggly
           FROM "dataset" /*  THEN */       -- previous comments shouldn't terminate expression
           WHERE value IS /*NOT*/ NULL THEN
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 4
       end
 
@@ -163,7 +163,7 @@ module Piggly
             AND length(value) > 10 -- 3. this comment in tail doesn't contain any 'string's
             /* 4. farewell comment in tail */ THEN
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 4
         node.count{|e| e.string? }.should == 1
       end
@@ -176,19 +176,19 @@ module Piggly
             AND value <> ' THEN this should not terminate expression'
             AND created_at = '2001-01-01' THEN
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 2
       end
 
       it "combines trailing whitespace into 'tail' node" do
         node, rest = parse_some(:expressionUntilThen, "a := x + y  \tTHEN")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.tail.source_text.should == "  \t"
       end
 
       it "combines trailing comments into 'tail' node" do
         node, rest = parse_some(:expressionUntilThen, "a := x + y /* note -- comment */THEN")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.tail.source_text.should == ' /* note -- comment */'
 
         node, rest = parse_some(:expressionUntilThen, <<-SQL)
@@ -222,22 +222,22 @@ module Piggly
 
       it "can be a string" do
         node, rest = parse_some(:expressionUntilLoop, "'string' LOOP")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 1
 
         node, rest = parse_some(:expressionUntilLoop, "$$ string $$ LOOP")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 1
       end
 
       it "can be an arithmetic expression" do
         node, rest = parse_some(:expressionUntilLoop, "10 * (3 + x) LOOP")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
       end
 
       it "can be an SQL statement" do
         node, rest = parse_some(:expressionUntilLoop, "SELECT id FROM dataset LOOP")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
       end
 
       it "can be an expression with comments embedded" do
@@ -246,7 +246,7 @@ module Piggly
           FROM "dataset" /*  LOOP */       -- previous comments shouldn't terminate expression
           WHERE value IS /*NOT*/ NULL LOOP
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 4
       end
 
@@ -258,7 +258,7 @@ module Piggly
             AND length(value) > 10 -- 3. this comment in tail doesn't contain any 'string's
             /* 4. farewell comment in tail */ LOOP
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.comment? }.should == 4
         node.count{|e| e.string? }.should == 1
       end
@@ -271,19 +271,19 @@ module Piggly
             AND value <> ' LOOP this should not terminate expression'
             AND created_at = '2001-01-01' LOOP
         SQL
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.count{|e| e.string? }.should == 2
       end
 
       it "combines trailing whitespace into 'tail' node" do
         node, rest = parse_some(:expressionUntilLoop, "a := x + y  \tLOOP")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.tail.source_text.should == "  \t"
       end
 
       it "combines trailing comments into 'tail' node" do
         node, rest = parse_some(:expressionUntilLoop, "a := x + y /* note -- comment */LOOP")
-        node.should be_a(Parser::Nodes::Expression)
+        node.should be_expression
         node.tail.source_text.should == ' /* note -- comment */'
 
         node, rest = parse_some(:expressionUntilLoop, <<-SQL)

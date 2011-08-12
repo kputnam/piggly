@@ -13,13 +13,13 @@ module Piggly
 
       it "can have space padding" do
         %w[a abc _].map{|s| "<< #{s} >>" }.test_each do |s|
-          parse(:tLabelDefinition, s).should be_a(Parser::Nodes::TLabel)
+          parse(:tLabelDefinition, s).should be_label
         end
       end
 
       it "can have no space padding" do
         %w[a abc _].map{|s| "<<#{s}>>" }.test_each do |s|
-          parse(:tLabelDefinition, s).should be_a(Parser::Nodes::TLabel)
+          parse(:tLabelDefinition, s).should be_label
         end
       end
 
@@ -31,7 +31,7 @@ module Piggly
 
       it "can be enclosed in double quotes" do
         ['<< "a" >>', '<< "a b" >>', '<< "ab cd" >>'].test_each do |s|
-          parse(:tLabelDefinition, s).should be_a(Parser::Nodes::TLabel)
+          parse(:tLabelDefinition, s).should be_label
         end
       end
     end

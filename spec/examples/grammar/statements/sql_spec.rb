@@ -7,9 +7,9 @@ module Piggly
     describe "SQL statements" do
       it "parse successfully" do
         node, rest = parse_some(:statement, 'SELECT id FROM users;')
-        node.should be_a(Parser::Nodes::Statement)
-        node.count{|e| e.is_a?(Parser::Nodes::Sql) }.should == 1
-        node.find{|e| e.is_a?(Parser::Nodes::Sql) }.source_text.should == 'SELECT id FROM users;'
+        node.should be_statement
+        node.count{|e| e.sql? }.should == 1
+        node.find{|e| e.sql? }.source_text.should == 'SELECT id FROM users;'
         rest.should == ''
       end
 
@@ -26,20 +26,20 @@ module Piggly
           WHERE u.disabled -- can't login
             AND u.id = 100;
         SQL
-        sql = node.find{|e| e.is_a?(Parser::Nodes::Sql) }
-        sql.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 2
+        sql = node.find{|e| e.sql? }
+        sql.count{|e| e.comment? }.should == 2
       end
 
       it "can be followed by comments" do
         node, rest = parse_some(:statement, 'SELECT id FROM users; -- comment')
-        node.find{|e| e.is_a?(Parser::Nodes::Sql) }.source_text == 'SELECT id FROM users;'
+        node.find{|e| e.sql? }.source_text == 'SELECT id FROM users;'
         node.tail.source_text.should == ' -- comment'
         rest.should == ''
       end
       
       it "can be followed by whitespace" do
         node, rest = parse_some(:statement, "SELECT id FROM users;    \n")
-        node.find{|e| e.is_a?(Parser::Nodes::Sql) }.source_text == 'SELECT id FROM users;'
+        node.find{|e| e.sql? }.source_text == 'SELECT id FROM users;'
         node.tail.source_text.should == "    \n"
         rest.should == ''
       end
@@ -51,8 +51,8 @@ module Piggly
           WHERE first_name ILIKE '%a%'
              OR last_name ILIKE '%b%';
         SQL
-        sql = node.find{|e| e.is_a?(Parser::Nodes::Sql) }
-        sql.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 2
+        sql = node.find{|e| e.sql? }
+        sql.count{|e| e.string? }.should == 2
       end
 
       it "can contain strings and comments" do
