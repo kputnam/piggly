@@ -27,11 +27,11 @@ module Piggly
       it "can contain comments in array accessors" do
         node = parse(:lValue, 'names[3 /* comment */]')
         node.should be_a(Parser::Nodes::Assignable)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }
+        node.count{|e| e.comment? }.should == 1
         
         node = parse(:lValue, "names[9 -- comment \n]")
         node.should be_a(Parser::Nodes::Assignable)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }
+        node.count{|e| e.comment? }.should == 1
       end
 
       it "can be an array accessed by another l-value" do

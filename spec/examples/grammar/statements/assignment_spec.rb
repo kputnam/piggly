@@ -15,15 +15,6 @@ module Piggly
         node.find{|e| e.named? :rval }.should be_a(Parser::Nodes::Expression)
       end
 
-      it "doesn't require a space after the := symbol (GH #8)" do
-        node = parse(:statement, "a :=10;")
-        node.should be_a(Parser::Nodes::Statement)
-        node.count{|e| e.is_a? Parser::Nodes::Assignment }.should == 1
-        node.count{|e| e.is_a? Parser::Nodes::Assignable }.should == 1
-        node.find{|e| e.named? :lval }.should be_a(Parser::Nodes::Assignable)
-        node.find{|e| e.named? :rval }.should be_a(Parser::Nodes::Expression)
-      end
-
       it "must end with a semicolon" do
         lambda { parse_some(:statement, 'a := 10') }.should raise_error
         lambda { parse(:statement, 'a := 10') }.should raise_error

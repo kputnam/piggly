@@ -23,21 +23,21 @@ module Piggly
       it "can be a comment" do
         node, rest = parse_some(:expressionUntilSemiColon, "/* comment */;")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 1
+        node.count{|e| e.comment? }.should == 1
 
         node, rest = parse_some(:expressionUntilSemiColon, "-- comment\n;")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 1
+        node.count{|e| e.comment? }.should == 1
       end
 
       it "can be a string" do
         node, rest = parse_some(:expressionUntilSemiColon, "'string';")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.string? }.should == 1
 
         node, rest = parse_some(:expressionUntilSemiColon, "$$ string $$;")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.string? }.should == 1
       end
 
       it "can be an arithmetic expression" do
@@ -57,7 +57,7 @@ module Piggly
           WHERE value IS /*NOT*/ NULL;
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 4
+        node.count{|e| e.comment? }.should == 4
       end
 
       it "can be an expression with strings and comments embedded" do
@@ -69,8 +69,8 @@ module Piggly
             /* 4. farewell comment in tail */;
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 4
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.comment? }.should == 4
+        node.count{|e| e.string? }.should == 1
       end
 
       it "can be an expression with strings embedded" do
@@ -82,7 +82,7 @@ module Piggly
             AND created_at = '2001-01-01';
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 2
+        node.count{|e| e.string? }.should == 2
       end
 
       it "combines trailing whitespace into 'tail' node" do
@@ -103,7 +103,7 @@ module Piggly
             AND length(value) > 10 -- 3. this comment in tail doesn't contain any 'string's
             /* 4. farewell comment in tail */;
         SQL
-        node.tail.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 2
+        node.tail.count{|e| e.comment? }.should == 2
       end
     end
 
@@ -128,11 +128,11 @@ module Piggly
       it "can be a string" do
         node, rest = parse_some(:expressionUntilThen, "'string' THEN")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.string? }.should == 1
 
         node, rest = parse_some(:expressionUntilThen, "$$ string $$ THEN")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.string? }.should == 1
       end
 
       it "can be an arithmetic expression" do
@@ -152,7 +152,7 @@ module Piggly
           WHERE value IS /*NOT*/ NULL THEN
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 4
+        node.count{|e| e.comment? }.should == 4
       end
 
       it "can be an expression with strings and comments embedded" do
@@ -164,8 +164,8 @@ module Piggly
             /* 4. farewell comment in tail */ THEN
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 4
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.comment? }.should == 4
+        node.count{|e| e.string? }.should == 1
       end
 
       it "can be an expression with strings embedded" do
@@ -177,7 +177,7 @@ module Piggly
             AND created_at = '2001-01-01' THEN
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 2
+        node.count{|e| e.string? }.should == 2
       end
 
       it "combines trailing whitespace into 'tail' node" do
@@ -198,7 +198,7 @@ module Piggly
             AND length(value) > 10 -- 3. this comment in tail doesn't contain any 'string's
             /* 4. farewell comment in tail */THEN
         SQL
-        node.tail.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 2
+        node.tail.count{|e| e.comment? }.should == 2
       end
     end
 
@@ -223,11 +223,11 @@ module Piggly
       it "can be a string" do
         node, rest = parse_some(:expressionUntilLoop, "'string' LOOP")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.string? }.should == 1
 
         node, rest = parse_some(:expressionUntilLoop, "$$ string $$ LOOP")
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.string? }.should == 1
       end
 
       it "can be an arithmetic expression" do
@@ -247,7 +247,7 @@ module Piggly
           WHERE value IS /*NOT*/ NULL LOOP
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 4
+        node.count{|e| e.comment? }.should == 4
       end
 
       it "can be an expression with strings and comments embedded" do
@@ -259,8 +259,8 @@ module Piggly
             /* 4. farewell comment in tail */ LOOP
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 4
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 1
+        node.count{|e| e.comment? }.should == 4
+        node.count{|e| e.string? }.should == 1
       end
 
       it "can be an expression with strings embedded" do
@@ -272,7 +272,7 @@ module Piggly
             AND created_at = '2001-01-01' LOOP
         SQL
         node.should be_a(Parser::Nodes::Expression)
-        node.count{|e| e.is_a?(Parser::Nodes::TString) }.should == 2
+        node.count{|e| e.string? }.should == 2
       end
 
       it "combines trailing whitespace into 'tail' node" do
@@ -293,7 +293,7 @@ module Piggly
             AND length(value) > 10 -- 3. this comment in tail doesn't contain any 'string's
             /* 4. farewell comment in tail */LOOP
         SQL
-        node.tail.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 2
+        node.tail.count{|e| e.comment? }.should == 2
       end
     end
 

@@ -49,7 +49,7 @@ module Piggly
         rest.should == " comments */"
 
         node, rest = parse_some(:tComment, "-- nested -- line comments")
-        node.count{|e| e.is_a?(Parser::Nodes::TComment) }.should == 1
+        node.count{|e| e.comment? }.should == 1
         rest.should == ''
       end
     end

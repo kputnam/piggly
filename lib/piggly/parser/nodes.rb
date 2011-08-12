@@ -46,6 +46,18 @@ class NodeClass
   def for?; false end
   def while?; false end
   def style; nil end
+  def comment?; false end
+  def whitespace?; false end
+  def token?; false end
+  def string?; false end
+  def datatype?; false end
+  def identifier?; false end
+  def assignment?; false end
+  def sql?; false end
+
+  def statement?; false; end
+  def if?; false; end
+  def else?; false; end
 
   def indent(method = nil)
     if method and respond_to?(method)
@@ -69,6 +81,10 @@ module Piggly
 
       # ...;
       class Statement < NodeClass
+        def statement?
+          true
+        end
+
         def terminal?
           false
         end
@@ -121,6 +137,10 @@ module Piggly
 
       # IF boolean-cond THEN body
       class If < Branch
+        def if?
+          true
+        end
+
         def terminal?
           false
         end
@@ -128,6 +148,10 @@ module Piggly
 
       # ELSE body END
       class Else < NodeClass
+        def else?
+          true
+        end
+
         def terminal?
           false
         end
@@ -209,6 +233,9 @@ module Piggly
 
       # lval := rval
       class Assignment < Statement
+        def assignment?
+          true
+        end
       end
 
       # Lval of assignment (rval is an Expression)
@@ -217,6 +244,10 @@ module Piggly
 
       class Sql < Expression
         def style; "tQ"; end
+
+        def sql?
+          true
+        end
 
         def tag(prefix = nil, id = nil)
           unless defined? @tag_id
@@ -248,9 +279,16 @@ module Piggly
         def terminal?
           false
         end
+
+        def whitespace?
+          true
+        end
       end
 
       class Token < Terminal
+        def token?
+          true
+        end
       end
 
       class TKeyword < Token
@@ -269,14 +307,23 @@ module Piggly
 
       class TIdentifier < Token
         def style; "tI"; end
+        def identifier?
+          true
+        end
       end
 
       class TDatatype < Token
         def style; "tD"; end
+        def datatype?
+          true
+        end
       end
 
       class TString < Token
         def style; "tS"; end
+        def string?
+          true
+        end
       end
 
       class TDollarQuoteMarker < Token
@@ -285,6 +332,9 @@ module Piggly
 
       class TComment < Token
         def style; "tC"; end
+        def comment?
+          true
+        end
       end
 
       class TLabel < Token
