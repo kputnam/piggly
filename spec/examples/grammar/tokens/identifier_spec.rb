@@ -7,7 +7,7 @@ module Piggly
     describe "identifiers" do
       it "cannot be a keyword" do
         GrammarHelper::KEYWORDS.test_each do |s|
-          lambda{ parse(:tIdentifier, s) }.should raise_error
+          lambda{ parse(:tIdentifier, s); puts s }.should raise_error
         end
       end
 

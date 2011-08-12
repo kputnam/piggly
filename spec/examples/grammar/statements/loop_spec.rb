@@ -41,6 +41,18 @@ module Piggly
           cond.source_text.should == "EXECUTE 'SELECT * FROM pg_user.LOOP;' "
           cond.should be_a(Parser::Nodes::Sql)
         end
+
+        it "GH #18" do
+          statement =
+            "FOR r IN EXECUTE 'SELECT * FROM ' || quote_ident(schema) || 'pg_user;' LOOP END LOOP;"
+
+          node = parse(:stmtForLoop, statement)
+          node.should be_a(Parser::Nodes::Statement)
+
+          cond = node.find{|e| e.named?(:cond) }
+          cond.source_text.should == "EXECUTE 'SELECT * FROM ' || quote_ident(schema) || 'pg_user;' "
+          cond.should be_a(Parser::Nodes::Sql)
+        end
       end
 
       describe "while loops" do

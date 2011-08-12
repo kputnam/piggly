@@ -19,14 +19,13 @@ module Piggly
 
     COMMENTS = ["abc defghi", "abc -- abc", "quote's", "a 'str'"]
 
-    SQLWORDS = %w[select insert update delete drop alter
-                  commit begin rollback set start vacuum]
+    SQLWORDS = %w[select insert update delete drop alter commit set start]
 
-    KEYWORDS = %w[as := = alias begin by close constant continue
+    KEYWORDS = %w[as := = alias begin by constant continue
                   cursor debug declare diagnostics else elsif elseif
-                  end exception execute exit fetch for from get if
-                  in info insert into is log loop move not notice
-                  null open or perform raise rename result_oid return
+                  end exception execute exit for from get if
+                  in info insert into is log loop not notice
+                  null or raise rename result_oid return
                   reverse row_count scroll strict then to type warning
                   when while]
 
