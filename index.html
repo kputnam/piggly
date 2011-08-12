@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>Piggly PL/pgSQL Code Coverage</title>
+	
+	<style type="text/css">
+		body {
+		  font-family: Helvetica, Arial, FreeSans;
+      margin: 0;
+  		color: #fff;
+      background-color: #eee;
+    }
+		h1 { font-family: Times New Roman, Times; font-size: 3.8em; color: #fff; margin-bottom: 3px; }
+		h1 .small { font-size: 0.4em; }
+		h1 a { text-decoration: none }
+		h2 { font-size: 1.5em; color: #0053bb; }
+    h3 { text-align: center; color: #0053bb; }
+    a  { color: #0053bb; }
+
+		pre      { padding: 15px;}
+		pre.cmd  { border: 1px solid #000; background: #555; color: #fff; }
+		pre.code { border: 1px solid #000; background: #555; color: #fff; }
+		tt       { border: 1px solid #000; background: #555; color: #fff; }
+
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+
+    #container {
+      margin: 25px auto;
+      padding: 50px;
+      width: 700px;
+      border: 1px solid #000;
+      background-color: #6bb0ff;
+    }
+
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+	</style>
+	
+</head>
+
+<body>
+  <a href="http://github.com/kputnam/piggly"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+
+    <div class="download">
+      <a href="http://github.com/kputnam/piggly/zipball/master"><img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/kputnam/piggly/tarball/master"><img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    </div>
+
+    <h1><a href="http://github.com/kputnam/piggly">piggly</a>
+      <span class="small">by <a href="http://github.com/kputnam">kputnam</a></span></h1>
+
+    <div class="description">
+      PostgreSQL PL/pgSQL stored-procedure code coverage for Ruby
+    </div>
+
+    <p>Piggly is a tool to track code coverage of PostgreSQL's PL/pgSQL stored procedures.
+       Code coverage helps you identify untested parts of your code, which makes testing
+       easier. You write tests against your stored procedures and run them with piggly.</p>
+    
+    <h2>Example</h2>
+    <p>See the <a href="reports/index.html">sample coverage report</a>. Mouse-over the <b>bold</b>
+       code regions to see the tooltips.</p>
+
+    <h2>Usage</h2>
+
+    <p>Your stored procedures must already be loaded in the database. Configure your database
+    connection in a file named config/database.yml relative to where you want to run piggly. You
+    can also specify the -d PATH to an existing configuration file. The contents of the file
+    follow ActiveRecord conventions:
+
+<pre class="code">
+piggly:
+  adapter: postgresql
+  database: cookbook
+  username: kputnam
+  password: secret
+  host: localhost
+</pre>
+
+    <p>Note the connection is expected to be named piggly but you may specify the <tt>-k DATABASE</tt>
+    option to use a different connection name (eg -k development in Rails). See also
+    <tt>example/config/database.yml</tt>.
+
+    <p>Now you are ready to recompile and install your stored procedures.</p>
+
+<pre class="code">
+$ piggly trace
+compiling 5 procedures
+Compiling scramble
+Compiling scramble
+Compiling numberedargs
+Compiling snippets
+Compiling iterate
+tracing 5 procedures
+</pre>
+
+    <p>This caches the original version (without instrumentation) in <tt>piggly/cache</tt> so you can
+    restore them later. Piggly will only recompile procedures that it thinks has changed in the database
+    since it last made a copy in <tt>piggly/cache</tt>.</p>
+
+    <p><strong>Important</strong>: piggly fetches your code from the database and replaces it (in the
+    database) with the instrumented code. If you run piggly trace twice consecutively, the second time
+    will cause an error because you are trying to instrument the same code twice. You need to run piggly
+    untrace or restore your original stored procedures manually before you can trace them again.</p>
+
+    <p>Now you're ready to execute your tests. Make sure your connection is configured to log
+    <tt>RAISE WARNING</tt> messages to a file -- or you can log them to STDERR and redirect that to a
+    file. For instance you might run:</p>
+
+<pre class="code">
+$ ant test 2> messages.txt
+$ make test 2> messages.txt
+etc.
+</pre>
+
+    <p>To build the coverage report, have piggly read that file in by executing piggly report &lt; messages.txt, or piggly report -f messages.txt. You don't actually need the intermediate file, you can pipe your test suite directly in like ant test 2&gt;&amp;1 | piggly report.</p>
+
+    <p>Once the report is built you can open it in <a href="reports/">piggly/reports/index.html.</a></p>
+
+    <h2>Install</h2>
+    <p>You can install piggly from RubyGems by running:
+      <pre class="cmd">$ gem install piggly</pre>
+    </p>
+
+    <h2>Download</h2>
+    <p>You can clone the project with <a href="http://git-scm.com">Git</a> by running:
+      <pre class="cmd">$ git clone git://github.com/kputnam/piggly</pre>
+    </p>
+
+    <h2>License</h2>
+    <code>
+      Copyright (c) 2010 Kyle Putnam
+
+      <p>Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      <p>The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+    </code>
+
+    <h2>Authors</h2>
+    <p>Kyle Putnam (putnam.kyle at gmail)</p>
+
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/kputnam/piggly">kputnam/piggly</a>
+    </div>
+
+  </div>
+
+  
+</body>
+</html>
