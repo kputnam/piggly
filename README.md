@@ -1,6 +1,6 @@
 # Piggly - PostgreSQL PL/pgSQL stored-procedure code coverage for Ruby
 
-![Screenshot](http://kputnam.github.com/piggly/example.png)
+![Screenshot](http://kputnam.github.com/piggly/images/example.png)
 
 ## Purpose
 
