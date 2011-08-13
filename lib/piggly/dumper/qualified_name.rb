@@ -9,7 +9,7 @@ module Piggly
       end
 
       def shorten
-        self.class.new(@names.last)
+        self.class.new(*@names.slice(1..-1))
       end
 
       # @return [String]
@@ -23,7 +23,11 @@ module Piggly
 
       # @return [String]
       def to_s
-        @names.join(".")
+        if schema == "pg_catalog"
+          @names.slice(1..-1).join(".")
+        else
+          @names.join(".")
+        end
       end
 
       def ==(qn)
