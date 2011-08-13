@@ -83,22 +83,110 @@ module Piggly
     end
 
     describe "label" do
-      context "when procedure name is unique" do
-        it "specifies procedure name"
+      def q(*ns)
+        Dumper::QualifiedName.new(*ns)
       end
 
-      context "when procedure name is not unique" do
-        context "but procedure name and namespace are unique" do
-          it "specifies procedure name and namespace"
-        end
+      before do
+        @procedure = mock(:oid  => 1,
+                          :name => q("public", "foo"),
+                          :type => q("private", "int"),
+                          :arg_modes => ["in", "in"],
+                          :arg_names => [],
+                          :arg_types => [q("private", "int"), q("private", "varchar")])
+      end
 
-        context "and when procedure name and namespace are not unique" do
-          context "but procedure name and argument types are unique" do
-            it "specifies procedure name and argument types"
+      context "when name is unique" do
+        context "and there is only one schema" do
+          before do
+            @index.stub(:procedures =>
+              [ @procedure,
+                mock(:oid  => 2,
+                     :name => q("public", "bar"),
+                     :type => q("private", "int"),
+                     :arg_modes => ["in"],
+                     :arg_names => [],
+                     :arg_types => []) ])
           end
 
-          context "and when procedure name and argument types are not unique" do
-            it "specifies procedure name, namespace, and argument types"
+          it "specifies schema.name" do
+            @index.label(@procedure).should == "foo"
+          end
+        end
+
+        context "and there is more than one schema" do
+          before do
+            @index.stub(:procedures =>
+              [ @procedure,
+                mock(:oid  => 2,
+                     :name => q("schema", "foo"),
+                     :type => q("private", "int"),
+                     :arg_modes => ["in"],
+                     :arg_names => [],
+                     :arg_types => []) ])
+          end
+
+          it "specifies schema.name" do
+            @index.label(@procedure).should == "public.foo"
+          end
+        end
+      end
+
+      context "when name is not unique" do
+        context "and schema.name is unique" do
+          before do
+            @index.stub(:procedures =>
+              [ @procedure,
+                mock(:oid  => 2,
+                     :name => q("schema", "foo"),
+                     :type => q("private", "int"),
+                     :arg_modes => ["in"],
+                     :arg_names => [],
+                     :arg_types => []) ])
+          end
+
+          it "specifies schema.name" do
+            @index.label(@procedure).should == "public.foo"
+          end
+        end
+
+        context "and schema.name is not unique" do
+          context "but argument types are unique" do
+            before do
+              @index.stub(:procedures =>
+                [ @procedure,
+                  mock(:oid  => 2,
+                       :name => q("public", "foo"),
+                       :type => q("private", "int"),
+                       :arg_modes => ["in"],
+                       :arg_names => [],
+                       :arg_types => []) ])
+            end
+
+            it "specifies schema.name(types)" do
+              @index.label(@procedure).should ==
+                "foo(private.int, private.varchar)"
+            end
+          end
+
+          context "and argument types are not unique" do
+            context "but argument modes are unique" do
+              before do
+                @index.stub(:procedures =>
+                  [ @procedure,
+                    mock(:oid  => 2,
+                         :name => q("public", "foo"),
+                         :type => q("private", "int"),
+                         :arg_modes => ["out", "out"],
+                         :arg_names => [],
+                         :arg_types => [q("private", "int"), q("private", "varchar")]) ])
+              end
+
+              it "specifies schema.name(types and modes)" do
+                @index.label(@procedure).should ==
+                  "foo(in private.int, in private.varchar)"
+              end
+            end
           end
         end
       end

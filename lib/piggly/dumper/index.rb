@@ -55,44 +55,39 @@ module Piggly
       # Returns the shortest human-readable label that distinctly identifies
       # the given procedure from the other procedures in the index
       def label(procedure)
-        name = procedure.name
-        type = procedure.type
+        others =
+          procedures.reject{|p| p.oid == procedure.oid }
 
-        others    = procedures.reject{|p| p.oid == procedure.oid }
-        samenames = others.select{|p| p.name == name }
+        same =
+          others.all?{|p| p.name.schema == procedure.name.schema }
 
-        if samenames.none?
-          name.shorten.to_s
-        else
-          # same name and namespace
-          samespaces = samenames.select{|p| p.name.namespace == name.namespace }
-          if samespaces.none?
-            name.to_s
+        name =
+          if same
+            procedure.name.shorten
           else
-            # same name and return type
-            sametypes = samenames.select{|p| p.type == type }
+            procedure.name
+          end
 
-            if sametypes.none?
-              "#{type} #{name.shorten}"
-            else
-              # same name, namespace, and return type
-              if samespaces.none?{|p| p.type == type }
-                "#{type} #{name}"
-              else
-                # ignore OUT arguments
-                args = procedure.arg_types.zip(procedure.arg_modes).
-                  select{|_, m| m != "out" }.map{|x| x.first }.join(", ")
+        samenames =
+          others.select{|p| p.name == procedure.name }
 
-                if samenames.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{name.shorten} (#{args})"
-                elsif samespaces.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{name} (#{args})"
-                elsif sametypes.none?{|p| p.arg_types == procedure.arg_types }
-                  "#{type} #{name.shorten} (#{args})"
-                else
-                  "#{type} #{name} (#{args})"
-                end
-              end
+        if samenames.empty?
+          # Name is unique enough
+          name.to_s
+        else
+          sameargs =
+            samenames.select{|p| p.arg_types == procedure.arg_types }
+
+          if sameargs.empty?
+            # Name and arg types are unique enough
+            "#{name}(#{procedure.arg_types.join(", ")})"
+          else
+            samemodes =
+              sameargs.select{|p| p.arg_modes == procedure.arg_modes }
+
+            if samemodes.empty?
+              # Name, arg types, and arg modes are unique enough
+              "#{name}(#{procedure.arg_modes.zip(procedure.arg_types).map{|a,b| "#{a} #{b}" }.join(", ")})"
             end
           end
         end

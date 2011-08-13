@@ -181,13 +181,13 @@ module Piggly
         connection.query(<<-SQL).map{|x| from_hash(x) }
           select
             pro.oid,
-            nsname.nspname    as namens,
+            nschema.nspname   as nschema,
             pro.proname       as name,
             pro.proisstrict   as strict,
             pro.prosecdef     as secdef,
             pro.provolatile   as volatility,
             pro.proretset     as setof,
-            nstype.nspname    as typens,
+            rschema.nspname   as tschema,
             ret.typname       as type,
             pro.prosrc        as source,
             array_to_string(pro.proargmodes, ',')  as arg_modes,
@@ -205,10 +205,10 @@ module Piggly
             end             as arg_types
           from pg_proc as pro,
                pg_type as ret,
-               pg_namespace as nsname,
-               pg_namespace as nstype
-          where pro.pronamespace = nsname.oid
-            and ret.typnamespace = nstype.oid
+               pg_namespace as nschema,
+               pg_namespace as rschema
+          where pro.pronamespace = nschema.oid
+            and ret.typnamespace = rschema.oid
             and pro.proname not like 'piggly_%'
             and pro.prorettype = ret.oid
             and pro.prolang = (select oid from pg_language where lanname = 'plpgsql')
@@ -225,11 +225,11 @@ module Piggly
       def from_hash(hash)
         new(hash["source"],
             hash["oid"],
-            q(hash["namens"], hash["name"]),
+            q(hash["nschema"], hash["name"]),
             hash["strict"] == "t",
             hash["secdef"] == "t",
             hash["setof"]  == "t",
-            q(hash["typens"], shorten(hash["type"])),
+            q(hash["tschema"], shorten(hash["type"])),
             volatility(hash["volatility"]),
             hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) },
             hash["arg_names"].to_s.split(",").map{|x| q(x.strip) },
@@ -253,7 +253,7 @@ module Piggly
         @names.map{|name| '"' + name + '"' }.join(".")
       end
 
-      def namespace
+      def schema
         @names.first if @names.length > 1
       end
 
