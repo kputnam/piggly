@@ -244,8 +244,8 @@ grammar Piggly
 
   rule varDeclaration
     name:tIdentifier tSpace ( kwCONSTANT tSpace )?
-    type:tType ( tSpace kwNOT tSpace kwNULL )?
-               ( tSpace kwASSIGN tSpace? rval:expressionUntilSemiColon )?
+    type:tType ( tSpace  kwNOT tSpace kwNULL )?
+               ( tSpace? kwASSIGN tSpace? rval:expressionUntilSemiColon )?
     tSpace?
     ';' tSpace?
   end
@@ -342,10 +342,11 @@ grammar Piggly
   end
 
   rule lValue
-      tIdentifier sub:('[' expressionUntilClosingBracket ']')+ next:('.' lValue)+ <Piggly::Parser::Nodes::Assignable>
-    / tIdentifier sub:('[' expressionUntilClosingBracket ']')+ <Piggly::Parser::Nodes::Assignable>
-    / tIdentifier next:('.' lValue)+ <Piggly::Parser::Nodes::Assignable>
-    / tIdentifier x:'' <Piggly::Parser::Nodes::Assignable>
+    tIdentifier
+      ( '[' expressionUntilClosingBracket ']' )*
+      ( [.] lValue )*
+
+    <Piggly::Parser::Nodes::Assignable>
   end
 
   ## BASIC TOKENS
