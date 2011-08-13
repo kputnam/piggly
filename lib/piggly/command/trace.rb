@@ -24,6 +24,9 @@ module Piggly
           else
             abort "no stored procedures in the cache matched your criteria"
           end
+        elsif config.dry_run?
+          puts procedures.map{|p| p.signature }
+          exit 0
         end
 
         trace(config, procedures)
@@ -59,11 +62,13 @@ module Piggly
       #   @return [Config]
       def configure(argv, config = Config.new)
         p = OptionParser.new do |o|
+          o.on("-t", "--dry-run",           "only print the names of matching procedures", &o_dry_run(config))
+          o.on("-s", "--select PATTERN",    "select procedures matching PATTERN", &o_select(config))
+          o.on("-r", "--reject PATTERN",    "ignore procedures matching PATTERN", &o_reject(config))
           o.on("-c", "--cache-root PATH",   "local cache directory", &o_cache_root(config))
           o.on("-o", "--report-root PATH",  "report output directory", &o_report_root(config))
           o.on("-d", "--database PATH",     "read database adapter settings from YAML/JSON file", &o_database_yml(config))
           o.on("-k", "--connection NAME",   "use connection adapter NAME", &o_connection_name(config))
-          o.on("-n", "--name PATTERN",      "trace stored procedures matching PATTERN", &o_filter(config))
           o.on("-V", "--version",           "show version", &o_version(config))
           o.on("-h", "--help",              "show this message") { abort o.to_s }
         end

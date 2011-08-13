@@ -54,7 +54,7 @@ module Piggly
 
       # @return [String]
       def signature
-        "#{@name.shorten}(#{@arg_types.map{|t| t.shorten }.join(", ")})"
+        "#{@name}(#{@arg_modes.zip(@arg_types).map{|m,t| "#{m} #{t}" }.join(", ")})"
       end
 
       # @return [String]
@@ -90,6 +90,11 @@ module Piggly
 
       def skeleton?
         true
+      end
+
+      def ==(other)
+        other.is_a?(self.class) and 
+          other.identifier == identifier
       end
     end
 

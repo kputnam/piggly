@@ -33,6 +33,10 @@ module Piggly
           instance_variable_get("@#{name}") || hash[name]
         end
 
+        define_method("#{name}?") do
+          instance_variable_get("@#{name}") || hash[name]
+        end
+
         define_method("#{name}=") do |value|
           instance_variable_set("@#{name}", value)
         end
@@ -48,6 +52,7 @@ module Piggly
       :connection_name  => "piggly",
       :trace_prefix     => "PIGGLY",
       :accumulate       => false,
+      :dry_run          => false,
       :filters          => []
 
     alias accumulate? accumulate

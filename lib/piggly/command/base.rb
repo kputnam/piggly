@@ -66,7 +66,22 @@ module Piggly
         if config.filters.empty?
           index.procedures
         else
-          config.filters.inject(Set.new){|s, f| s | index.procedures.select(&f) }
+          head, _ = config.filters
+
+          start =
+            case head.first
+            when :+; []
+            when :-; index.procedures
+            end
+
+          config.filters.inject(start) do |s, pair|
+            case pair.first
+            when :+
+              s | index.procedures.select(&pair.last)
+            when :-
+              s.reject(&pair.last)
+            end
+          end
         end
       end
 
@@ -98,13 +113,33 @@ module Piggly
         lambda { puts "piggly #{VERSION} #{VERSION::RELEASE_DATE}"; exit! }
       end
 
-      def o_filter(config)
+      def o_dry_run(config)
+        lambda { config.dry_run = true }
+      end
+
+      def o_select(config)
         lambda do |x|
-          if m = x.match(%r{^/([^/]+)/$})
-            config.filters << lambda{|p| p.name.match(m.captures.first) }
-          else
-            config.filters << lambda{|p| p.name === x }
-          end
+          filter =
+            if m = x.match(%r{^/([^/]+)/$})
+              lambda{|p| p.name.to_s.match(m.captures.first) }
+            else
+              lambda{|p| p.name.to_s === x }
+            end
+
+          config.filters << [:+, filter]
+        end
+      end
+
+      def o_reject(config)
+        lambda do |x|
+          filter =
+            if m = x.match(%r{^/([^/]+)/$})
+              lambda{|p| p.name.to_s.match(m.captures.first) }
+            else
+              lambda{|p| p.name.to_s === x }
+            end
+
+          config.filters << [:-, filter]
         end
       end
     end
