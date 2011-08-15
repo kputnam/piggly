@@ -37,8 +37,9 @@ these events and generates prettified source code that is annotated with coverag
 
 ## Requirements
 
-* [Treetop] [2]
-* The [ruby-pg driver] [3], and to run the examples, ActiveRecord
+* [Treetop] [2]: `gem install treetop`
+* The [ruby-pg driver] [3]: `gem install pg`
+* The examples require ActiveRecord: `gem install active-record`
 
 ## How to Install
 
@@ -140,8 +141,8 @@ Once the report is built you can open it in `piggly/reports/index.html`.
     restoring 5 procedures
     OK, view /home/kputnam/wd/piggly/example/piggly/reports/index.html
 
-    $ ls -alh piggly/reports/index.html
-    -rw-r--r-- 1 kputnam kputnam 1.4K 2010-04-28 11:21 piggly/reports/index.html
+    $ ls -alh example/reports/index.html
+    -rw-r--r-- 1 kputnam kputnam 1.4K 2010-04-28 11:21 example/reports/index.html
 
 ## Bugs & Issues
 
