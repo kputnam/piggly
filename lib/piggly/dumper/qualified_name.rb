@@ -14,7 +14,11 @@ module Piggly
 
       # @return [String]
       def quote
-        @names.map{|name| '"' + name + '"' }.join(".")
+        if @names.first == "pg_catalog"
+          shorten.quote
+        else
+          @names.map{|name| quote_id(name) }.join(".")
+        end
       end
 
       def schema
@@ -32,6 +36,12 @@ module Piggly
 
       def ==(qn)
         names == qn.names
+      end
+
+    protected
+
+      def quote_id(name)
+        (name =~ /^[a-z0-9_]+$/) ? name : '"' + name + '"'
       end
     end
 
