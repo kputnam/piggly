@@ -44,8 +44,8 @@ module Piggly
 
     protected
 
-      def quote_id(name)
-        (name =~ /^[a-z0-9_]+$/) ? name : '"' + name + '"'
+      def quote_id(id)
+        (id =~ /^[a-z0-9\[\]_]+$/) ? id : '"' + id + '"'
       end
     end
 
