@@ -8,32 +8,36 @@ module Piggly
         @names = [name, *names].select{|x| x }
       end
 
+      # @return [QualifiedName]
       def shorten
         self.class.new(*@names.slice(1..-1))
       end
 
       # @return [String]
-      def quote
-        if @names.first == "pg_catalog"
-          shorten.quote
-        else
-          @names.map{|name| quote_id(name) }.join(".")
-        end
-      end
-
       def schema
         @names.first if @names.length > 1
       end
 
       # @return [String]
+      def quote
+        to_a.map{|name| quote_id(name) }.join(".")
+      end
+
+      # @return [String]
       def to_s
-        if schema == "pg_catalog"
-          @names.slice(1..-1).join(".")
+        to_a.join(".")
+      end
+
+      # @return [Array<String>]
+      def to_a
+        if @names.first == "pg_catalog"
+          @names.slice(1..-1)
         else
-          @names.join(".")
+          @names
         end
       end
 
+      # @return [Boolean]
       def ==(qn)
         names == qn.names
       end
