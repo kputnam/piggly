@@ -65,7 +65,7 @@ class NodeClass
       send(method).text_value[/\n[\t ]*\z/]
     else
       text_value[/\n[\t ]*\z/]
-    end
+    end || ""
   end
 
   # True if node is called `label` by the parent node
