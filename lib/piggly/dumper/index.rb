@@ -63,9 +63,9 @@ module Piggly
 
         name =
           if same
-            procedure.name.shorten
+            procedure.name.name
           else
-            procedure.name
+            procedure.name.to_s
           end
 
         samenames =

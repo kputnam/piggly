@@ -52,28 +52,6 @@ module Piggly
          "v" => "volatile",
          "s" => "stable"
 
-      # Make the system calatog type name more human readable
-      # @return [QualifiedName]
-      def shorten(name)
-        # This drops the schema (not good), but right now the
-        # caller doesn't ever provide the schema anyway.
-        case name
-        when /^character varying(.*)/ then "varchar#{$1}"
-        when /^character(.*)/         then "char#{$1}"
-        when /"char"(.*)/   then "char#{$1}"
-        when /^integer(.*)/ then "int#{$1}"
-        when /^int4(.*)/    then "int#{$1}"
-        when /^int8(.*)/    then "bigint#{$1}"
-        when /^float4(.*)/  then "float#{$1}"
-        when /^boolean(.*)/ then "bool#{$1}"
-        else name
-        end
-      end
-
-      def q(name, *names)
-        QualifiedName.new(name, *names)
-      end
-
       def mode(mode)
         MODES[mode]
       end
@@ -133,15 +111,15 @@ module Piggly
       def from_hash(hash)
         new(hash["source"],
             hash["oid"],
-            q(hash["nschema"], hash["name"]),
+            QualifiedName.new(hash["nschema"], hash["name"]),
             hash["strict"] == "t",
             hash["secdef"] == "t",
             hash["setof"]  == "t",
-            q(hash["tschema"], shorten(hash["type"])),
+            QualifiedType.new(hash["tschema"], hash["type"]),
             volatility(hash["volatility"]),
             hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) },
-            hash["arg_names"].to_s.split(",").map{|x| q(x.strip) },
-            hash["arg_types"].to_s.split(",").map{|x| q(shorten(x.strip)) })
+            hash["arg_names"].to_s.split(",").map{|x| QualifiedName.new(nil, x.strip) },
+            hash["arg_types"].to_s.split(",").map{|x| QualifiedType.new(nil, x.strip) })
       end
     end
 

@@ -21,7 +21,7 @@ module Piggly
       # @return [String]
       def arguments
         @arg_types.zip(@arg_names, @arg_modes).map do |type, name, mode|
-          "#{mode + " " if mode}#{name.quote + " " if name}#{type}"
+          "#{mode + " " if mode}#{name.quote + " " if name}#{type.quote}"
         end.join(", ")
       end
 

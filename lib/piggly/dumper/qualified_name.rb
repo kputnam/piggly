@@ -2,50 +2,33 @@ module Piggly
   module Dumper
 
     class QualifiedName
-      attr_reader :names
+      attr_reader :schema, :name
 
-      def initialize(name, *names)
-        @names = [name, *names].select{|x| x }
-      end
-
-      # @return [QualifiedName]
-      def shorten
-        self.class.new(*@names.slice(1..-1))
-      end
-
-      # @return [String]
-      def schema
-        @names.first if @names.length > 1
+      def initialize(schema, name)
+        @schema, @name = schema, name
       end
 
       # @return [String]
       def quote
-        to_a.map{|name| quote_id(name) }.join(".")
+        if @schema
+          '"' + @schema + '"."' + @name + '"'
+        else
+          '"' + @name + '"'
+        end
       end
 
       # @return [String]
       def to_s
-        to_a.join(".")
-      end
-
-      # @return [Array<String>]
-      def to_a
-        if @names.first == "pg_catalog"
-          @names.slice(1..-1)
+        if @schema
+          @schema + "." + @name
         else
-          @names
+          @name
         end
       end
 
       # @return [Boolean]
-      def ==(qn)
-        names == qn.names
-      end
-
-    protected
-
-      def quote_id(id)
-        (id =~ /^[a-z0-9\[\]_]+$/) ? id : '"' + id + '"'
+      def ==(other)
+        self.to_s == other.to_s
       end
     end
 
