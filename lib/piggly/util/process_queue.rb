@@ -33,6 +33,35 @@ module Piggly
       alias add queue
 
       def execute
+        # Test if fork is supported
+        forkable =
+          begin
+            Process.wait(Process.fork { exit! 60 })
+            raise unless $?.exitstatus.to_i == 60
+            true
+          rescue
+            false
+          end
+
+        if forkable
+          concurrently
+        else
+          serially
+        end
+      end
+
+    protected
+
+      def serially
+        $stderr.puts "ProcessQueue running serially"
+
+        while block = @items.shift
+          block.call
+        end
+      end
+
+      def concurrently
+        $stderr.puts "ProcessQueue running concurrently"
         active = 0
 
         # enable enterprise ruby feature
@@ -45,7 +74,7 @@ module Piggly
           end
 
           # use exit! to avoid auto-running any test suites
-          pid = Process.fork do
+          Process.fork do
             begin
               block.call
               exit! 0
