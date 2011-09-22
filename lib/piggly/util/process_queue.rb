@@ -39,7 +39,7 @@ module Piggly
             Process.wait(Process.fork { exit! 60 })
             raise unless $?.exitstatus.to_i == 60
             true
-          rescue
+          rescue Exception
             false
           end
 
