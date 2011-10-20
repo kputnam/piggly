@@ -85,12 +85,12 @@ Now you are ready to recompile and install your stored procedures.
     tracing 5 procedures
 
 This caches the original version (without instrumentation) in `piggly/cache` so you can restore them
-later. Piggly will only recompile procedures that it thinks has changed in the database since it last
+later. Piggly will only recompile procedures that have changed in the database since it last
 made a copy in `piggly/cache`.
 
 *Important*: piggly fetches your code from the database and replaces it (in the database) with the
 instrumented code. If you run `piggly trace` twice consecutively, the second time will cause an error
-because you are trying to instrument the same code twice. You need to run `piggly untrace` or restore
+because you are trying to re-instrument code that has already been instrumented. You need to run `piggly untrace` or restore
 your original stored procedures manually before you can trace them again.
 
 Now you're ready to execute your tests. Make sure your connection is configured to log `RAISE WARNING`
