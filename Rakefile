@@ -1,3 +1,11 @@
+begin
+  require "rubygems"
+  require "bundler/setup"
+rescue LoadError
+  warn "couldn't load bundler:"
+  warn "  #{$!}"
+end
+
 begin # rspec-2
   require "rspec/core/rake_task"
   RSpec::Core::RakeTask.new do |t|
@@ -22,9 +30,4 @@ rescue LoadError => first
   end
 end
 
-require 'rake/gempackagetask'
-load './piggly.gemspec'
-Rake::GemPackageTask.new(Piggly.gemspec) do |pkg|
-  pkg.need_tar = false
-  pkg.need_zip = false
-end
+task :default => :spec
