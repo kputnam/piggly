@@ -1,6 +1,6 @@
 # Piggly
 
-PostgreSQL PL/pgSQL stored-procedure code coverage for Ruby [![Build Status](https://secure.travis-ci.org/kputnam/piggly.png)](http://travis-ci.org/kputnam/piggly)
+PostgreSQL PL/pgSQL stored procedure code coverage [![Build Status](https://secure.travis-ci.org/kputnam/piggly.png)](http://travis-ci.org/kputnam/piggly)
 
 ![Screenshot](http://kputnam.github.com/piggly/images/example.png)
 

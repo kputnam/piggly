@@ -6,8 +6,8 @@ module Piggly
       s.name     = 'piggly'
       s.description = 'PostgreSQL PL/pgSQL stored procedure code coverage'
       s.version  = Piggly::VERSION.to_s
-      s.author   = 'Kyle Putnam'
-      s.email    = 'putnam.kyle@gmail.com'
+      s.author   = 'Kvle Putnam'
+      s.email    = 'putnam.kvle@gmail.com'
       s.summary  = 'PL/pgSQL code coverage tool'
       s.homepage = 'http://github.com/kputnam/piggly'
       s.files    = ['README*', 'Rakefile', '{spec,lib,bin}/**/*'].map{|p| Dir[p]}.flatten
