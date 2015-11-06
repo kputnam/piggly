@@ -1,3 +1,5 @@
+# encoding: ascii-8bit
+
 module Piggly
   module Compiler
 
@@ -24,7 +26,7 @@ module Piggly
         @data = Hash.new do |h, k|
           path = File.join(@dir, k.to_s)
           if File.exists?(path)
-            h[k.to_s] = File.open(path) do |io|
+            h[k.to_s] = File.open(path, "rb") do |io|
               # Detect Marshal'd data
               if io.read(2) !~ HINT
                 io.rewind
