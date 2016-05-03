@@ -45,7 +45,8 @@ module Piggly
       MODES = Hash.new{|h,k| k }.update \
         "i" => "in",
         "o" => "out",
-        "b" => "inout"
+        "b" => "inout",
+        "v" => "variadic"
 
       # Rewrite "i", "v", and "s", otherwise pass-through
       VOLATILITY = Hash.new{|h,k| k }.update \
