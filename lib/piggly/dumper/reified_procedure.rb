@@ -31,7 +31,8 @@ module Piggly
       # @return [SkeletonProcedure]
       def skeleton
         SkeletonProcedure.new(@oid, @name, @strict, @secdef, @setof, @type,
-                              @volatility, @arg_modes, @arg_names, @arg_types)
+                              @volatility, @arg_modes, @arg_names, @arg_types,
+                              @arg_defaults)
       end
 
       def skeleton?
@@ -60,6 +61,17 @@ module Piggly
         VOLATILITY[mode]
       end
 
+      def defaults(exprs, count, total)
+        exprs = exprs.split(", ")
+        nreqd = total - count
+
+        if nreqd > 0 and exprs.length == count
+          Array.new(nreqd) + exprs
+        else
+          raise "Couldn't parse default arguments"
+        end
+      end
+
       # Returns a list of all PL/pgSQL stored procedures in the current database
       #
       # @return [Array<ReifiedProcedure>]
@@ -76,19 +88,20 @@ module Piggly
             rschema.nspname   as tschema,
             ret.typname       as type,
             pro.prosrc        as source,
-            array_to_string(pro.proargmodes, ',')  as arg_modes,
-            array_to_string(pro.proargnames, ',')  as arg_names,
-
-            case
-            when proallargtypes is not null then
-              -- use proalltypes array if its non-null
-              array_to_string(array(select format_type(proallargtypes[k], null)
-                                    from generate_series(array_lower(proallargtypes, 1),
-                                                         array_upper(proallargtypes, 1)) as k), ',')
-            else
-              -- fallback to oidvector proargtypes
-              oidvectortypes(pro.proargtypes)
-            end             as arg_types
+            pro.pronargs      as arg_count,
+            array_to_string(pro.proargmodes, ',') as arg_modes,
+            array_to_string(pro.proargnames, ',') as arg_names,
+            case when proallargtypes is not null then
+                   -- use proalltypes array if its non-null
+                   array_to_string(array(select format_type(proallargtypes[k], null)
+                                         from generate_series(array_lower(proallargtypes, 1),
+                                                              array_upper(proallargtypes, 1)) as k), ',')
+                 else
+                   -- fallback to oidvector proargtypes
+                   oidvectortypes(pro.proargtypes)
+                 end as arg_types,
+            pro.pronargdefaults as arg_defaults_count,
+            coalesce(pg_get_expr(pro.proargdefaults, 0), '') as arg_defaults
           from pg_proc as pro,
                pg_type as ret,
                pg_namespace as nschema,
@@ -119,7 +132,8 @@ module Piggly
             volatility(hash["volatility"]),
             hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) },
             hash["arg_names"].to_s.split(",").map{|x| QualifiedName.new(nil, x.strip) },
-            hash["arg_types"].to_s.split(",").map{|x| QualifiedType.new(nil, x.strip) })
+            hash["arg_types"].to_s.split(",").map{|x| QualifiedType.new(nil, x.strip) },
+            defaults(hash["arg_defaults"], hash["arg_defaults_count"].to_i, hash["arg_count"].to_i))
       end
     end
 

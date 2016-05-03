@@ -10,9 +10,9 @@ module Piggly
       attr_reader :oid, :name, :type, :arg_types, :arg_modes, :arg_names,
         :strict, :type, :setof, :volatility, :secdef, :identifier
 
-      def initialize(oid, name, strict, secdef, setof, type, volatility, arg_modes, arg_names, arg_types)
-        @oid, @name, @strict, @secdef, @type, @volatility, @setof, @arg_modes, @arg_names, @arg_types =
-          oid, name, strict, secdef, type, volatility, setof, arg_modes, arg_names, arg_types
+      def initialize(oid, name, strict, secdef, setof, type, volatility, arg_modes, arg_names, arg_types, arg_defaults)
+        @oid, @name, @strict, @secdef, @type, @volatility, @setof, @arg_modes, @arg_names, @arg_types, @arg_defaults =
+          oid, name, strict, secdef, type, volatility, setof, arg_modes, arg_names, arg_types, arg_defaults
 
         @identifier = Digest::MD5.hexdigest(signature)
       end
@@ -20,8 +20,8 @@ module Piggly
       # Returns source text for argument list
       # @return [String]
       def arguments
-        @arg_types.zip(@arg_names, @arg_modes).map do |type, name, mode|
-          "#{mode + " " if mode}#{name.quote + " " if name}#{type.quote}"
+        @arg_types.zip(@arg_names, @arg_modes, @arg_defaults).map do |type, name, mode, default|
+          "#{mode + " " if mode}#{name.quote + " " if name}#{type.quote}#{" DEFAULT " + default if default}"
         end.join(", ")
       end
 
