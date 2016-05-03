@@ -205,8 +205,15 @@ module Piggly
         end
       end
 
-      # FOR boolean-cond LOOP body END
+      # FOR var IN expr LOOP body END
       class ForLoop < Loop
+        def for?
+          true
+        end
+      end
+
+      # FOREACH var IN ARRAY expr LOOP body END
+      class ForEachLoop < Loop
         def for?
           true
         end

@@ -36,6 +36,7 @@ grammar Piggly
           / stmtLoop
           / stmtWhileLoop
           / stmtForLoop
+          / stmtForEachLoop
           / stmtExit
           / stmtContinue
           / stmtReturn
@@ -140,6 +141,34 @@ grammar Piggly
       body:statement*
     kwEND tSpace kwLOOP
       tSpace? ';' <Piggly::Parser::Nodes::WhileLoop>
+  end
+
+  rule stmtForEachLoop
+    label_open:tLabelDefinition tSpace
+    kwFOREACH tSpace tIdentifier tSpace
+    kwIN tSpace kwARRAY
+      condSpace:tSpace
+      cond:expressionUntilLoop
+    kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+      doneStub:stubNode
+    kwEND tSpace kwLOOP
+      ( tSpace label_close:tLabel <Piggly::Parser::Nodes::TLabel> )?
+      tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::ForEachLoop>
+    /
+    kwFOREACH tSpace tIdentifier tSpace
+    kwIN tSpace kwARRAY
+      condSpace:tSpace
+      cond:expressionUntilLoop
+    kwLOOP
+      bodySpace:tSpace
+      bodyStub:stubNode
+      body:statement*
+      doneStub:stubNode
+    kwEND tSpace kwLOOP
+      tSpace? ';' exitStub:stubNode <Piggly::Parser::Nodes::ForEachLoop>
   end
 
   rule stmtForLoop
@@ -464,11 +493,11 @@ grammar Piggly
     #   CONTINUE WHEN cond;
     #   EXIT WHEN cond;
 
-    kwWHEN / kwAS / kwASSIGN / kwALIAS / kwBEGIN / kwBY / kwCASE
+    kwWHEN / kwAS / kwASSIGN / kwALIAS / kwBEGIN / kwBY / kwCASE / kwARRAY
     / kwCONSTANT / kwCONTINUE / kwCURSOR / kwDEBUG / kwDECLARE / kwDEFAULT
     / kwDIAGNOSTICS / kwELSE / kwELSIF / kwEND / kwEXCEPTION / kwEXECUTE / kwEXIT
     / kwFOR / kwFROM / kwGET / kwIF / kwIN / kwINFO / kwINSERT / kwINTO
-    / kwIS / kwLOG / kwLOOP / kwNOT / kwNOTICE / kwNULL
+    / kwIS / kwLOG / kwLOOP / kwNOT / kwNOTICE / kwNULL / kwFOREACH
     / kwOR / kwRAISE / kwRENAME / kwRESULTOID / kwRETURN
     / kwREVERSE / kwROWCOUNT / kwSCROLL / kwSTRICT / kwTHEN / kwTO / kwTYPE
     / kwWARNING / kwWHILE
@@ -489,6 +518,10 @@ grammar Piggly
 
   rule kwALIAS
     'alias' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
+  rule kwARRAY
+    'array' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
   rule kwBEGIN
@@ -557,6 +590,10 @@ grammar Piggly
 
   rule kwFOR
     'for' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
+  rule kwFOREACH
+    'foreach' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
   rule kwFROM
