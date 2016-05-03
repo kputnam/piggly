@@ -33,7 +33,7 @@ these events and generates prettified source code that is annotated with coverag
 
 ## Limitations
 
-* Not all PL/pgSQL grammar is currently supported, but this is easily addressed
+* Not all PL/pgSQL grammar is currently supported, but the grammar is easy to modify
 * Cannot parse nested dollar-quoted strings, eg $A$ ... $B$ ... $B$ ... $A$
 * SQL statements are not instrumented, so their branches (COALESCE, WHERE-clauses, etc) aren't tracked
 
@@ -41,7 +41,7 @@ these events and generates prettified source code that is annotated with coverag
 
 * [Treetop] [2]: `gem install treetop`
 * The [ruby-pg driver] [3]: `gem install pg`
-* The examples require ActiveRecord: `gem install active-record`
+* The examples require ActiveRecord: `gem install activerecord`
 
 ## How to Install
 
@@ -49,9 +49,9 @@ To install the latest from github:
 
     $ git clone git://github.com/kputnam/piggly.git
     $ cd piggly
-    $ rake spec
+    $ bundle install
+    $ bundle exec rake spec
 
-    $ gem install pg treetop
     $ rake gem
     $ gem install pkg/*.gem --no-rdoc --no-ri
 
@@ -72,10 +72,15 @@ a file named `config/database.yml` relative to where you want to run piggly. You
       password: secret
       host: localhost
 
+Here we'll add some stored procedures to the database we described above:
+
+    $ cat example/proc/*.sql | psql -U kputnam -h localhost cookbook
+
 Note the connection is expected to be named `piggly` but you may specify the `-k DATABASE` option to
 use a different connection name (eg `-k development` in Rails).  See also `example/config/database.yml`.
 
-Now you are ready to recompile and install your stored procedures.
+Now you are ready to recompile and install your stored procedures. This reads the configuration from 
+`./config/database.yml` relative to the current working directory.
 
     $ piggly trace
     compiling 5 procedures
@@ -90,10 +95,10 @@ This caches the original version (without instrumentation) in `piggly/cache` so 
 later. Piggly will only recompile procedures that have changed in the database since it last
 made a copy in `piggly/cache`.
 
-*Important*: piggly fetches your code from the database and replaces it (in the database) with the
+*WARNING*: piggly fetches your code from the database and replaces it (in the database) with the
 instrumented code. If you run `piggly trace` twice consecutively, the second time will cause an error
-because you are trying to re-instrument code that has already been instrumented. You need to run `piggly untrace` or restore
-your original stored procedures manually before you can trace them again.
+because you are trying to re-instrument code that has already been instrumented. You need to run
+`piggly untrace` or restore your original stored procedures manually before you can trace them again.
 
 Now you're ready to execute your tests. Make sure your connection is configured to log `RAISE WARNING`
 messages to a file -- or you can log them to `STDERR` and redirect that to a file. For instance you
@@ -112,6 +117,7 @@ Once the report is built you can open it in `piggly/reports/index.html`.
 ## Running the Examples
 
     $ cd piggly
+    $ bundle install
     $ cat example/README
     ...
 

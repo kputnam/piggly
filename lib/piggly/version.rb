@@ -1,10 +1,10 @@
 module Piggly
   module VERSION
-    MAJOR = 1
-    MINOR = 3
+    MAJOR = 2
+    MINOR = 0
     TINY  = 0
 
-    RELEASE_DATE = "2011-05-18"
+    RELEASE_DATE = "2016-05-03"
   end
 
   class << VERSION
