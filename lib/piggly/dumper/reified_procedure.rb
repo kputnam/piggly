@@ -66,7 +66,7 @@ module Piggly
         exprs = exprs.split(", ")
         nreqd = total - count
 
-        if nreqd > 0 and exprs.length == count
+        if nreqd >= 0 and exprs.length == count
           Array.new(nreqd) + exprs
         else
           raise "Couldn't parse default arguments"
