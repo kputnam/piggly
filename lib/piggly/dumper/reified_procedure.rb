@@ -63,7 +63,8 @@ module Piggly
       end
 
       def defaults(exprs, count, total)
-        exprs = exprs.split(", ")
+        exprs = if exprs.nil? then [] else exprs.split(", ") end
+
         nreqd = total - count
 
         if nreqd >= 0 and exprs.length == count
