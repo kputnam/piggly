@@ -46,7 +46,8 @@ module Piggly
         "i" => "in",
         "o" => "out",
         "b" => "inout",
-        "v" => "variadic"
+        "v" => "variadic",
+        "t" => "out"
 
       # Rewrite "i", "v", and "s", otherwise pass-through
       VOLATILITY = Hash.new{|h,k| k }.update \
