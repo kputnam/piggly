@@ -42,6 +42,7 @@ grammar Piggly
           / stmtReturn
           / stmtRaise
           / stmtExecSql
+          / stmtWithAsSelectSql
           / stmtNull
           / stmtGetDiag )
     tail:tSpace? <Piggly::Parser::Nodes::Statement>
@@ -255,10 +256,12 @@ grammar Piggly
     sqlKeyword tSpace expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Sql>
   end
 
+  rule stmtWithAsSelectSql
+    kwWITH tSpace tIdentifier tSpace kwAS expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Sql>
+  end
+
   rule stmtGetDiag
-    kwGET tSpace
-    kwPERFORM tSpace
-    notImplemented
+    kwGET tSpace kwSTACKED tSpace kwDIAGNOSTICS tSpace expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Expression>
   end
 
   rule stmtNull
@@ -500,7 +503,7 @@ grammar Piggly
     / kwIS / kwLOG / kwLOOP / kwNOT / kwNOTICE / kwNULL / kwFOREACH
     / kwOR / kwRAISE / kwRENAME / kwRESULTOID / kwRETURN
     / kwREVERSE / kwROWCOUNT / kwSCROLL / kwSTRICT / kwTHEN / kwTO / kwTYPE
-    / kwWARNING / kwWHILE
+    / kwWARNING / kwWHILE / kwWITH
   end
 
   # this terminates keywords
@@ -692,6 +695,10 @@ grammar Piggly
     'scroll' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
+  rule kwSTACKED
+    'stacked' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
   rule kwSTRICT
     'strict' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
@@ -718,6 +725,10 @@ grammar Piggly
 
   rule kwWHILE
     'while' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
+  rule kwWITH
+    'with' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
 end
