@@ -369,9 +369,9 @@ grammar Piggly
     '' <Piggly::Parser::Nodes::StubNode>
   end
 
-  rule notImplemented
-    '' <Piggly::Parser::Nodes::NotImplemented>
-  end
+  #rule notImplemented
+  #  '' <Piggly::Parser::Nodes::NotImplemented>
+  #end
 
   rule lValue
     tIdentifier

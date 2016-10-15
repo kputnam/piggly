@@ -35,8 +35,8 @@ module Piggly
            columns = @arg_types.zip(@arg_names,@arg_modes)
                                .select{ |i| i[2] == 't'}
                                .map do |type,name,mode|
-                "#{name.quote} #{type}"
-            end.join(",")
+                "#{name} #{type}"
+            end.join(", ")
                            
            "table(#{columns})"
         else

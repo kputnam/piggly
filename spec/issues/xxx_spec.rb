@@ -25,31 +25,23 @@ module Piggly
         end
         SQL
 
-        node = parse(:start,body)
+        node = parse(:start,body.strip)
 
       end
 
-     it "can parse WHEN <> AS <> SELECT <> SQL query" do
-       body = 'WHEN
-          n AS (SELECT first_name FROM users WHERE id > 1000)
-        SELECT * FROM people WHERE people.first_name = n.first_name;'
-
-       node = parse(:stmtWhenAsSelectSql, body)
-       node.count{|e| e.sql? }.should == 1
-     end
-
-    it "can parse a procedure with WHEN AS SELECT" do
-      body = <<-SQL
+     it "can parse WITH <> AS <> SELECT <> SQL query" do
+       body = <<-SQL
         declare
         begin
-          WHEN
-            n AS (SELECT first_name FROM users WHERE id > 1000)
-          SELECT * FROM people WHERE people.first_name = n.first_name;
-        end
-      SQL
+            WITH n AS (SELECT first_name FROM users WHERE id > 1000)
+            SELECT * FROM people WHERE people.first_name = n.first_name;
 
-      node = parse(:start,body)
-      node.count{|e| e.sql?}.should == 1
-    end
+	    RETURN 1;
+        end
+       SQL
+puts "$$$#{body.strip.downcase}$$$"
+       node = parse(:start, body.strip.downcase)
+       node.count{|e| e.sql? }.should == 1
+     end
   end
 end
