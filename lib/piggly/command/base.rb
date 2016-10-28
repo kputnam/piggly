@@ -68,18 +68,26 @@ module Piggly
         else
           head, _ = config.filters
 
-          start =
-            case head.first
-            when :+; []
-            when :-; index.procedures
-            end
+          start = index.procedures
 
           config.filters.inject(start) do |s, pair|
             case pair.first
-            when :+
-              s | index.procedures.select(&pair.last)
-            when :-
-              s.reject(&pair.last)
+              when :+
+                puts "Selecting procedures"
+                o = s.select(&pair.last)
+                puts "Selected #{ o.count} procedures"
+                puts "Selected:"
+                o.each do |x| puts x.name end
+		puts "---"
+                o
+              when :-
+                puts "Rejecting procedures"
+                o = s.reject(&pair.last)
+                puts "Rejected #{s.count - o.count} procedures"
+                puts "Rejected:"
+                ((o-s)|(s-o)).each do |x| puts x.name end
+                puts "---"
+                o
             end
           end
         end
@@ -110,11 +118,11 @@ module Piggly
       end
 
       def o_version(config)
-        lambda { puts "piggly #{VERSION} #{VERSION::RELEASE_DATE}"; exit! }
+        lambda {|x| puts "piggly #{VERSION} #{VERSION::RELEASE_DATE}"; exit! }
       end
 
       def o_dry_run(config)
-        lambda { config.dry_run = true }
+        lambda {|x| config.dry_run = true }
       end
 
       def o_select(config)

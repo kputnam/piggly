@@ -22,6 +22,7 @@ module Piggly
         cache = CacheDir.new(cache_path(procedure.source_path(@config)))
 
         if stale?(procedure)
+          begin
           $stdout.puts "Compiling #{procedure.name}"
           tree = Parser.parse(IO.read(procedure.source_path(@config)))
           tree = tree.force! if tree.respond_to?(:thunk?)
@@ -30,6 +31,17 @@ module Piggly
           code = traverse(tree, procedure.oid, tags)
 
           cache.replace(:tree => tree, :code => code, :tags => tags)
+          rescue RuntimeError => e
+            $stdout.puts <<-EXMSG
+            ****
+            Error compiling procedure #{procedure.name}
+            Source: #{procedure.source_path(@config)}
+            Exception Message:
+            #{e.message}
+            ****
+            EXMSG
+          end
+
         end
 
         cache
@@ -49,10 +61,10 @@ module Piggly
             # IF(test) becomes IF(piggly_cond(TAG, test)) instead of IFpiggly_cond(TAG, (test))
             pre, cond = node.cond.expr.text_value.match(/\A(\(?[\t\n\r ]*)(.+)\z/m).captures
             node.cond.source_text = ""
-            
+
             tags << node.cond.tag(oid)
 
-            node.condStub.source_text  = "#{pre}piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, (#{cond}))"
+            node.condStub.source_text  = "#{pre}public.piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, (#{cond}))"
             node.condStub.source_text << traverse(node.cond.tail, oid, tags) # preserve trailing whitespace
           end
 
@@ -63,17 +75,17 @@ module Piggly
 
               # Hack to simulate a loop conditional statement in stmtForLoop and stmtLoop.
               # signal condition is true when body is executed, and false when exit stub is reached
-              node.bodyStub.source_text  = "perform piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, true);#{node.indent(:bodySpace)}"
-              node.bodyStub.source_text << "perform piggly_branch($PIGGLY$#{node.body.tag_id}$PIGGLY$);#{node.indent(:bodySpace)}"
+              node.bodyStub.source_text  = "perform public.piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, true);#{node.indent(:bodySpace)}"
+              node.bodyStub.source_text << "perform public.piggly_branch($PIGGLY$#{node.body.tag_id}$PIGGLY$);#{node.indent(:bodySpace)}"
 
               if node.respond_to?(:doneStub)
                 # Signal the end of an iteration was reached
-                node.doneStub.source_text  = "#{node.indent(:bodySpace)}perform piggly_signal($PIGGLY$#{node.cond.tag_id}$PIGGLY$, $PIGGLY$@$PIGGLY$);"
+                node.doneStub.source_text  = "#{node.indent(:bodySpace)}perform public.piggly_signal($PIGGLY$#{node.cond.tag_id}$PIGGLY$, $PIGGLY$@$PIGGLY$);"
                 node.doneStub.source_text << node.body.indent
               end
 
               # Signal the loop terminated
-              node.exitStub.source_text  = "\n#{node.indent}perform piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, false);"
+              node.exitStub.source_text  = "\n#{node.indent}perform public.piggly_cond($PIGGLY$#{node.cond.tag_id}$PIGGLY$, false);"
             elsif node.respond_to?(:body)
               # Unconditional branches (or blocks)
               #   BEGIN ... END;
@@ -81,7 +93,7 @@ module Piggly
               #   CONTINUE label;
               #   EXIT label;
               tags << node.body.tag(oid)
-              node.bodyStub.source_text = "perform piggly_branch($PIGGLY$#{node.body.tag_id}$PIGGLY$);#{node.indent(:bodySpace)}"
+              node.bodyStub.source_text = "perform public.piggly_branch($PIGGLY$#{node.body.tag_id}$PIGGLY$);#{node.indent(:bodySpace)}"
             end
           end
 
