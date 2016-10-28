@@ -42,7 +42,6 @@ grammar Piggly
           / stmtReturn
           / stmtRaise
           / stmtExecSql
-          / stmtWithAsSelectSql
           / stmtNull
           / stmtGetDiag )
     tail:tSpace? <Piggly::Parser::Nodes::Statement>
@@ -254,10 +253,6 @@ grammar Piggly
 
   rule stmtExecSql
     sqlKeyword tSpace expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Sql>
-  end
-
-  rule stmtWithAsSelectSql
-    kwWITH tSpace tIdentifier tSpace kwAS expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Sql>
   end
 
   rule stmtGetDiag
@@ -485,7 +480,8 @@ grammar Piggly
     / 'create'
     / 'set'
     / 'start'
-    / 'notify' ) ![a-z0-9] <Piggly::Parser::Nodes::TKeyword>
+    / 'notify'
+    / 'with' ) ![a-z0-9] <Piggly::Parser::Nodes::TKeyword>
   end
 
   rule keyword
