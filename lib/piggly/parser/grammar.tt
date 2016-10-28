@@ -364,9 +364,9 @@ grammar Piggly
     '' <Piggly::Parser::Nodes::StubNode>
   end
 
-  #rule notImplemented
-  #  '' <Piggly::Parser::Nodes::NotImplemented>
-  #end
+  rule notImplemented
+    '' <Piggly::Parser::Nodes::NotImplemented>
+  end
 
   rule lValue
     tIdentifier
@@ -499,7 +499,7 @@ grammar Piggly
     / kwIS / kwLOG / kwLOOP / kwNOT / kwNOTICE / kwNULL / kwFOREACH
     / kwOR / kwRAISE / kwRENAME / kwRESULTOID / kwRETURN
     / kwREVERSE / kwROWCOUNT / kwSCROLL / kwSTRICT / kwTHEN / kwTO / kwTYPE
-    / kwWARNING / kwWHILE / kwWITH
+    / kwWARNING / kwWHILE
   end
 
   # this terminates keywords
@@ -721,10 +721,6 @@ grammar Piggly
 
   rule kwWHILE
     'while' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
-  end
-
-  rule kwWITH
-    'with' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
 end
