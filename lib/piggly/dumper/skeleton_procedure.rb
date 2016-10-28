@@ -8,40 +8,21 @@ module Piggly
     class SkeletonProcedure
 
       attr_reader :oid, :name, :type, :arg_types, :arg_modes, :arg_names,
-        :strict, :type, :setof, :volatility, :secdef, :identifier, :table_return
+        :strict, :type, :setof, :volatility, :secdef, :identifier
 
       def initialize(oid, name, strict, secdef, setof, type, volatility, arg_modes, arg_names, arg_types, arg_defaults)
         @oid, @name, @strict, @secdef, @type, @volatility, @setof, @arg_modes, @arg_names, @arg_types, @arg_defaults =
           oid, name, strict, secdef, type, volatility, setof, arg_modes, arg_names, arg_types, arg_defaults
 
         @identifier = Digest::MD5.hexdigest(signature)
-	#Check if the procedure is returning a table.
-        @table_return = @arg_modes.include?('t') && @setof && @type == 'record' 
       end
 
       # Returns source text for argument list
       # @return [String]
       def arguments
-        @arg_types.zip(@arg_names, @arg_modes, @arg_defaults)
-                  .reject{|i| i[2] == 't'} #mode 't' are columns for RETURNS TABLE
-                  .map do |type, name, mode, default|
-           "#{mode + " " if mode}#{name.quote + " " if name}#{type}#{" DEFAULT " + default if default}"
+        @arg_types.zip(@arg_names, @arg_modes, @arg_defaults).map do |type, name, mode, default|
+          "#{mode + " " if mode}#{name.quote + " " if name}#{type.quote}#{" DEFAULT " + default if default}"
         end.join(", ")
-      end
-
-      # Returns the return definition
-      def returns
-        if @table_return then
-           columns = @arg_types.zip(@arg_names,@arg_modes)
-                               .select{ |i| i[2] == 't'}
-                               .map do |type,name,mode|
-                "#{name} #{type}"
-            end.join(", ")
-                           
-           "table(#{columns})"
-        else
-           "#{setof}#{type.quote}"
-        end
       end
 
       # Returns source text for return type
@@ -66,7 +47,7 @@ module Piggly
       # @return [String]
       def definition(body)
         [%[create or replace function #{name.quote} (#{arguments})],
-         %[ returns #{returns} as $__PIGGLY__$],
+         %[ returns #{setof}#{type.quote} as $__PIGGLY__$],
          body,
          %[$__PIGGLY__$ language plpgsql #{strictness} #{security} #{@volatility}]].join("\n")
       end
