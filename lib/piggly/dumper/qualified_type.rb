@@ -42,7 +42,7 @@ module Piggly
         # group by ret.typname, format_type(ret.oid, null)
         # order by format_type(ret.oid, null);
         case name
-        when /(.*)\[\]/                     then "_#{normalize($1)}"
+        when /(.*)\[\]/                     then "#{normalize($1)}[]"
         when '"any"'                        then "any"
         when "bigint"                       then "int8"
         when "bit varying"                  then "varbit"
