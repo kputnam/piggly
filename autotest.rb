@@ -26,12 +26,12 @@ while sleep 2 do
       STDOUT.reopen(File::NULL)
       Process.waitpid(spawn 'explorer', 'spec.html')
     else
-      Process.waitpid(spawn do
+      Process.waitpid(fork do
         STDOUT.reopen('spec.html')
         exec 'ruby', '-I', 'spec', '-S', 'rspec', '-fh', *rerun
       end)
 
-      Process.waitpid(spawn do
+      Process.waitpid(fork do
         STDERR.reopen('/dev/null')
         STDOUT.reopen('/dev/null')
        #exec "opera", "-noraise", "-activetab", "spec.html" }
