@@ -17,18 +17,27 @@ while sleep 2 do
     
     $stdout.puts "Changes:\n  " + rerun.join("\n  ")
     $stdout.write "Forking spec..."
-    
-    Process.waitpid(fork do
-      STDOUT.reopen('spec.html')
-      exec 'ruby', '-I', 'spec', '-S', 'rspec', '-fh', *rerun
-    end)
 
-    Process.waitpid(fork do
-      STDERR.reopen('/dev/null')
-      STDOUT.reopen('/dev/null')
-     #exec "opera", "-noraise", "-activetab", "spec.html" }
-      exec "open", "spec.html"
-    end)
+    if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+      STDOUT.reopen('spec.html')
+      Process.waitpid (spawn 'ruby', '-I', 'spec', '-S', 'rspec', '-fh', *rerun)
+
+      STDERR.reopen(File::NULL)
+      STDOUT.reopen(File::NULL)
+      Process.waitpid(spawn 'explorer', 'spec.html')
+    else
+      Process.waitpid(fork do
+        STDOUT.reopen('spec.html')
+        exec 'ruby', '-I', 'spec', '-S', 'rspec', '-fh', *rerun
+      end)
+
+      Process.waitpid(fork do
+        STDERR.reopen('/dev/null')
+        STDOUT.reopen('/dev/null')
+       #exec "opera", "-noraise", "-activetab", "spec.html" }
+        exec "open", "spec.html"
+      end)
+    end
 
     $stdout.puts "done"
   end

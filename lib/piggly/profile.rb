@@ -99,7 +99,7 @@ module Piggly
         if m = pattern.match(message)
           ping(m.captures[0], m.captures[1])
         else
-          stderr.puts(message)
+          stderr.puts("unknown trace: #{message}")
         end
       end
     end

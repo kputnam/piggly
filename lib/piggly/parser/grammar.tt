@@ -256,9 +256,7 @@ grammar Piggly
   end
 
   rule stmtGetDiag
-    kwGET tSpace
-    kwPERFORM tSpace
-    notImplemented
+    kwGET tSpace kwSTACKED tSpace kwDIAGNOSTICS tSpace expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Expression>
   end
 
   rule stmtNull
@@ -482,7 +480,8 @@ grammar Piggly
     / 'create'
     / 'set'
     / 'start'
-    / 'notify' ) ![a-z0-9] <Piggly::Parser::Nodes::TKeyword>
+    / 'notify'
+    / 'with' ) ![a-z0-9] <Piggly::Parser::Nodes::TKeyword>
   end
 
   rule keyword
@@ -690,6 +689,10 @@ grammar Piggly
 
   rule kwSCROLL
     'scroll' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
+  rule kwSTACKED
+    'stacked' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
   rule kwSTRICT
