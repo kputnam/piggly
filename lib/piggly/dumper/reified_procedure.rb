@@ -132,10 +132,18 @@ module Piggly
             hash["setof"]  == "t",
             QualifiedType.new(hash["tschema"], hash["type"]),
             volatility(hash["volatility"]),
-            hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) },
+            coalesce(hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) }, ["in"]*hash["arg_count"].to_i),
             hash["arg_names"].to_s.split(",").map{|x| QualifiedName.new(nil, x.strip) },
             hash["arg_types"].to_s.split(",").map{|x| QualifiedType.new(nil, x.strip) },
             defaults(hash["arg_defaults"], hash["arg_defaults_count"].to_i, hash["arg_count"].to_i))
+      end
+
+      def coalesce(value, default)
+        if [nil, "", []].include?(value)
+          default
+        else
+          value
+        end
       end
     end
 
