@@ -10,7 +10,7 @@ module Piggly
         cmd, argv = command(argv)
 
         if cmd.nil?
-          abort "usage: #{$0} {test|report|trace|untrace} --help"
+          abort "usage: #{$0} {report|trace|untrace} --help"
         else
           cmd.main(argv)
         end
@@ -25,7 +25,6 @@ module Piggly
 
         case head.downcase
         when "report";  [Report,  tail]
-        when "test";    [Test,    tail]
         when "trace";   [Trace,   tail]
         when "untrace"; [Untrace, tail]
         end
