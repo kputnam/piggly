@@ -42,14 +42,14 @@ module Piggly
 
       def quote
         if @schema
-          '"' + @schema + '"."' + @name + '"' + @array
+          '"' + @schema + '"."' + normalize(@name) + '"' + @array
         else
-          '"' + @name + '"' + @array
+          '"' + normalize(@name) + '"' + @array
         end
       end
 
       def to_s
-        if @schema and !%w[public pg_catalog].include?(@schema)
+        unless [nil, "", "pg_catalog"].include?(@schema)
           @schema + "." + readable(@name) + @array
         else
           readable(@name) + @array
@@ -63,6 +63,10 @@ module Piggly
     protected
 
       def normalize(name)
+        unless [nil, "", "pg_catalog"].include?(@schema)
+          return name
+        end
+
         # select format_type(ret.oid, null), ret.typname
         # from pg_type as ret
         # where ret.typname <> format_type(ret.oid, null)
