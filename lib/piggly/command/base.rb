@@ -16,8 +16,6 @@ module Piggly
         end
       end
 
-    private
-
       # @return [(Class, Array<String>)]
       def command(argv)
         return if argv.empty?
@@ -67,26 +65,16 @@ module Piggly
         else
           head, _ = config.filters
 
-          start = index.procedures
+          start =
+            case head.first
+            when :+; []
+            when :-; index.procedures
+            end
 
           config.filters.inject(start) do |s, pair|
             case pair.first
-              when :+
-                puts "Selecting procedures"
-                o = s.select(&pair.last)
-                puts "Selected #{ o.count} procedures"
-                puts "Selected:"
-                o.each do |x| puts x.name end
-		puts "---"
-                o
-              when :-
-                puts "Rejecting procedures"
-                o = s.reject(&pair.last)
-                puts "Rejected #{s.count - o.count} procedures"
-                puts "Rejected:"
-                ((o-s)|(s-o)).each do |x| puts x.name end
-                puts "---"
-                o
+            when :+; s | index.procedures.select(&pair.last)
+            when :-; s.reject(&pair.last)
             end
           end
         end
