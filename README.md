@@ -23,7 +23,7 @@ these events and generates prettified source code that is annotated with coverag
 
 ## Features
 
-* Readable and easily-navigable reports (see [example] [5])
+* Readable and easily-navigable reports (see [example](http://kputnam.github.com/piggly/reports/index.html))
 * Language agnostic - write your tests in Ruby, Python, Java, SQL scripts etc
 * Branch, block, and loop coverage analysis
 * Instrumenting source-to-source compiler
@@ -39,8 +39,8 @@ these events and generates prettified source code that is annotated with coverag
 
 ## Requirements
 
-* [Treetop] [2]: `gem install treetop`
-* The [ruby-pg driver] [3]: `gem install pg`
+* [Treetop](http://github.com/nathansobo/treetop): `gem install treetop`
+* The [ruby-pg driver](http://bitbucket.org/ged/ruby-pg/): `gem install pg`
 * The examples require ActiveRecord: `gem install activerecord`
 
 ## How to Install
@@ -154,10 +154,4 @@ Once the report is built you can open it in `piggly/reports/index.html`.
 
 ## Bugs & Issues
 
-Please report any issues or feature requests on the [github tracker] [4].
-
-  [1]: http://github.com/relevance/rcov/
-  [2]: http://github.com/nathansobo/treetop
-  [3]: http://bitbucket.org/ged/ruby-pg/
-  [4]: http://github.com/kputnam/piggly/issues
-  [5]: http://kputnam.github.com/piggly/reports/index.html
+Please report any issues or feature requests on the [github tracker](http://github.com/kputnam/piggly/issues).
