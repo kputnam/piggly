@@ -4,8 +4,7 @@ module Piggly
   describe "github issue #32" do
 
     # note: both -r always subtracts and -s always adds
-    # from left-to-right (first-to-last), so -r Y -s Y
-    # or -s Y -r Y undo each other and have no effect.
+    # from left-to-right.
     #
     # if the first filter is -s, then the set starts empty
     # and -s adds to it.
