@@ -13,7 +13,6 @@ module Piggly
     # if the first filter is -r, then the set starts with
     # all procedures and -r removes from it.
 
-
     def result(args)
       index = double("index", :procedures => [
                 double("public.a", :name => "public.a"),
@@ -21,8 +20,6 @@ module Piggly
                 double("public.c", :name => "public.c"),
                 double("public.d", :name => "public.d")])
       config = Command::Trace.configure(args.dup)
-      p config.object_id, config.filters.object_id
-
       result = Command::Trace.filter(config, index)
       result.map(&:name).sort
     end
@@ -52,7 +49,7 @@ module Piggly
       it "adds matching procs" do
         result(args).should == [
           "public.b",
-          "public.d"] #
+          "public.d"]
       end
     end
 
@@ -63,7 +60,7 @@ module Piggly
         result(args).should == [
           "public.a",
           "public.b",
-          "public.d"] #
+          "public.d"]
       end
     end
 
