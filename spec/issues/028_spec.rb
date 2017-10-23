@@ -4,14 +4,14 @@ module Piggly
   describe "github issue #28" do
     include GrammarHelper
 
-    it "can parse the a GET DIAGNOSTICS expression" do
+    it "can parse a GET STACKED DIAGNOSTICS statement" do
       body = 'GET STACKED DIAGNOSTICS text_var1 = MESSAGE_TEXT, text_var2 = PG_EXCEPTION_DETAIL, text_var3 = PG_EXCEPTION_HINT;'
 
       node = parse(:statement, body)
       node.should be_statement
     end
 
-    it "can parse a procedure with GET DIAGNOSTICS" do
+    it "can parse a procedure with GET STACKED DIAGNOSTICS" do
       body = <<-SQL
       DECLARE
         text_var1 text;
