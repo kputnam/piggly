@@ -115,7 +115,7 @@ table.summary td.fail  { font-weight: bold; color: #f00; }
 table.summary td.count { max-width: 50px;  min-width: 50px;  text-align: center; }
 table.summary td.pct   { max-width: 100px; min-width: 100px; }
 
-table.summary td.pct td.num   { padding: 0; max-width: 50px; min-width: 50px; text-align: right; border: 0; }
+table.summary td.pct td.num   { padding: 0; max-width: 50px; min-width: 50px; text-align: right; border: 0; font-size: 10px; }
 table.summary td.pct td.graph { padding: 0; max-width: 50px; min-width: 50px; text-align: right; border: 0; }
 
 table.graph td.uncovered { border: 0; padding: 0; }
