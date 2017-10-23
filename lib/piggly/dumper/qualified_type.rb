@@ -1,6 +1,26 @@
 module Piggly
   module Dumper
 
+    # used for RETURN TABLE(...)
+    class RecordType
+      attr_reader :types, :names, :modes, :defaults
+
+      def initialize(types, names, modes, defaults)
+        @types, @names, @modes, @defaults =
+          types, names, modes, defaults
+      end
+
+      def quote
+        "table (#{@types.zip(@names, @modes, @defaults).map do |type, name, mode, default|
+          "#{name.quote + " " if name}#{type.quote}#{" default " + default if default}"
+        end.join(", ")})"
+      end
+
+      def table?
+        true
+      end
+    end
+
     class QualifiedType
       attr_reader :schema, :name
 
@@ -34,6 +54,10 @@ module Piggly
 
       def initialize(schema, name, array)
         @schema, @name, @array = schema, name, array
+      end
+
+      def table?
+        false
       end
 
       def shorten

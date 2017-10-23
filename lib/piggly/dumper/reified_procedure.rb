@@ -7,9 +7,20 @@ module Piggly
     #
     class ReifiedProcedure < SkeletonProcedure
 
-      def initialize(source, *args)
-        super(*args)
+      def initialize(source, oid, name, strict, secdef, setof, type, volatility, arg_modes, arg_names, arg_types, arg_defaults)
         @source = source.strip
+
+        if type.name == "record" and type.schema == "pg_catalog" and arg_modes.include?("t")
+          prefix       = arg_modes.take_while{|m| m != "t" }.length
+          type         = RecordType.new(arg_types[prefix..-1], arg_names[prefix..-1], arg_modes[prefix..-1], arg_defaults[prefix..-1])
+          arg_modes    = arg_modes[0, prefix]
+          arg_types    = arg_types[0, prefix]
+          arg_names    = arg_names[0, prefix]
+          arg_defaults = arg_defaults[0, prefix]
+          setof        = false
+        end
+
+        super(oid, name, strict, secdef, setof, type, volatility, arg_modes, arg_names, arg_types, arg_defaults)
       end
 
       # @return [String]
@@ -132,10 +143,13 @@ module Piggly
             hash["setof"]  == "t",
             QualifiedType.parse(hash["tschema"].to_s, hash["type"].to_s),
             volatility(hash["volatility"]),
-            coalesce(hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) }, ["in"]*hash["arg_count"].to_i),
+            coalesce(hash["arg_modes"].to_s.split(",").map{|x| mode(x.strip) },
+                     ["in"]*hash["arg_count"].to_i),
             hash["arg_names"].to_s.split(",").map{|x| QualifiedName.new(nil, x.strip) },
             hash["arg_types"].to_s.split(",").map{|x| QualifiedType.parse(x.strip) },
-            defaults(hash["arg_defaults"], hash["arg_defaults_count"].to_i, hash["arg_count"].to_i))
+            defaults(hash["arg_defaults"],
+                     hash["arg_defaults_count"].to_i,
+                     hash["arg_count"].to_i))
       end
 
       def coalesce(value, default)
