@@ -56,6 +56,7 @@ module Piggly
       :filters
 
     alias accumulate? accumulate
+    alias dry_run? dry_run
 
     def path(*args)
       self.class.path(*args)
