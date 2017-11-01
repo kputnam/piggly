@@ -25,6 +25,32 @@ module Piggly
             node.count{|e| e.is_a?(Parser::Nodes::Raise) }.should == 1
           end
         end
+
+        it "doesn't require a message" do
+          node = parse(:statement, "RAISE EXCEPTION;")
+          node.count{|e| e.is_a?(Parser::Nodes::Throw) }.should == 1
+          node.count{|e| e.is_a?(Parser::Nodes::Raise) }.should == 0
+        end
+
+        it "doesn't require a message" do
+          %w(WARNING LOG INFO NOTICE DEBUG).each do |event|
+            node = parse(:statement, "RAISE #{event};")
+            node.count{|e| e.is_a?(Parser::Nodes::Throw) }.should == 0
+            node.count{|e| e.is_a?(Parser::Nodes::Raise) }.should == 1
+          end
+        end
+
+        it "has default level of EXCEPTION" do
+          node = parse(:statement, "RAISE 'message';")
+          node.count{|e| e.is_a?(Parser::Nodes::Throw) }.should == 1
+          node.count{|e| e.is_a?(Parser::Nodes::Raise) }.should == 0
+        end
+
+        it "doesn't require a level or message" do
+          node = parse(:statement, "RAISE;")
+          node.count{|e| e.is_a?(Parser::Nodes::Throw) }.should == 1
+          node.count{|e| e.is_a?(Parser::Nodes::Raise) }.should == 0
+        end
       end
 
       describe "catch" do

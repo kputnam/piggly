@@ -238,17 +238,16 @@ grammar Piggly
   end
 
   rule stmtRaise
-    bodyStub:stubNode
-    body:(kwRAISE tSpace level:kwEXCEPTION tSpace expr:expressionUntilSemiColon) ';' <Piggly::Parser::Nodes::Throw>
-    /
     kwRAISE tSpace
     level:( kwWARNING
           / kwNOTICE
           / kwINFO
           / kwLOG
           / kwDEBUG )
-    tSpace
-    expr:expressionUntilSemiColon ';' <Piggly::Parser::Nodes::Raise>
+    ( tSpace expr:expressionUntilSemiColon )? ';' <Piggly::Parser::Nodes::Raise>
+    /
+    bodyStub:stubNode
+    body:(kwRAISE ( tSpace level:kwEXCEPTION tSpace? )? expr:expressionUntilSemiColon) ';' <Piggly::Parser::Nodes::Throw>
   end
 
   rule stmtExecSql
