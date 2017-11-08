@@ -271,7 +271,7 @@ grammar Piggly
   rule varDeclaration
     name:tIdentifier tSpace ( kwCONSTANT tSpace )?
     type:tType ( tSpace  kwNOT tSpace kwNULL )?
-               ( tSpace? kwASSIGN tSpace? rval:expressionUntilSemiColon )?
+               ( tSpace? (kwASSIGN / kwDEFAULT) tSpace? rval:expressionUntilSemiColon )?
     tSpace?
     ';' tSpace?
   end
@@ -356,7 +356,7 @@ grammar Piggly
   end
 
   rule dollarQuoteMarker
-    '$' tag:( [a-z\200-\377_] [a-z\200-\377_0-9]* )? '$' <Piggly::Parser::Nodes::TDollarQuoteMarker>
+    '$' tag:( [a-z\w_] [a-z\w_0-9]* )? '$' <Piggly::Parser::Nodes::TDollarQuoteMarker>
   end
 
   rule stubNode
@@ -392,7 +392,7 @@ grammar Piggly
 
   rule tIdentifier
     ( '"' [^"]+ '"' )+ <Piggly::Parser::Nodes::TIdentifier>
-    / !keyword ( [a-z\200-\377_] [a-z\200-\377_0-9$]* ) <Piggly::Parser::Nodes::TIdentifier>
+    / !keyword ( [a-z\w_] [a-z\w_0-9$]* ) <Piggly::Parser::Nodes::TIdentifier>
   end
 
   # not context sensitive so opening and closing tag might not match
@@ -404,10 +404,10 @@ grammar Piggly
 
   # beware this is quite broad and might match things it shouldn't
   rule tType
-    [a-z\200-\377_]
+    [a-z\w_]
     ( '(' rType ')' /
       '[' rType ']' /
-      [a-z\200-\377_0-9$%]+ '.'? /
+      [a-z\w_0-9$%]+ '.'? /
       ws !( kwAS / kwNOT / kwASSIGN / kwDEFAULT ) )* <Piggly::Parser::Nodes::TDatatype>
   end
 
