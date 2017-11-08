@@ -45,17 +45,18 @@ module Piggly
   end
 
   class Config
-    config_accessor \
-      :cache_root       => File.expand_path("#{Dir.pwd}/piggly/cache"),
-      :report_root      => File.expand_path("#{Dir.pwd}/piggly/reports"),
-      :database_yml     => nil,
-      :connection_name  => "piggly",
-      :trace_prefix     => "PIGGLY",
-      :accumulate       => false,
-      :dry_run          => false,
-      :filters          => []
+    attr_accessor \
+      :cache_root,
+      :report_root,
+      :database_yml,
+      :connection_name,
+      :trace_prefix,
+      :accumulate,
+      :dry_run,
+      :filters
 
     alias accumulate? accumulate
+    alias dry_run? dry_run
 
     def path(*args)
       self.class.path(*args)
@@ -63,6 +64,17 @@ module Piggly
 
     def mkpath(*args)
       self.class.mkpath(*args)
+    end
+
+    def initialize
+      @cache_root       = File.expand_path("#{Dir.pwd}/piggly/cache")
+      @report_root      = File.expand_path("#{Dir.pwd}/piggly/reports")
+      @database_yml     = nil
+      @connection_name  = "piggly"
+      @trace_prefix     = "PIGGLY"
+      @accumulate       = false
+      @dry_run          = false
+      @filters          = []
     end
   end
 end

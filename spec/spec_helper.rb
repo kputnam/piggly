@@ -7,10 +7,6 @@ end
 require "ostruct"
 require File.expand_path("#{File.dirname(__FILE__)}/../lib/piggly")
 
-#Dir[File.join(File.dirname(__FILE__), 'mocks', '*')].each do |m|
-#  require File.expand_path(m)
-#end
-
 # load runtime dependencies
 Piggly::Parser.parser
 

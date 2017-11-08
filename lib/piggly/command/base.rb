@@ -10,13 +10,11 @@ module Piggly
         cmd, argv = command(argv)
 
         if cmd.nil?
-          abort "usage: #{$0} {test|report|trace|untrace} --help"
+          abort "usage: #{$0} {report|trace|untrace} --help"
         else
           cmd.main(argv)
         end
       end
-
-    private
 
       # @return [(Class, Array<String>)]
       def command(argv)
@@ -25,7 +23,6 @@ module Piggly
 
         case head.downcase
         when "report";  [Report,  tail]
-        when "test";    [Test,    tail]
         when "trace";   [Trace,   tail]
         when "untrace"; [Untrace, tail]
         end
@@ -68,26 +65,16 @@ module Piggly
         else
           head, _ = config.filters
 
-          start = index.procedures
+          start =
+            case head.first
+            when :+; []
+            when :-; index.procedures
+            end
 
           config.filters.inject(start) do |s, pair|
             case pair.first
-              when :+
-                puts "Selecting procedures"
-                o = s.select(&pair.last)
-                puts "Selected #{ o.count} procedures"
-                puts "Selected:"
-                o.each do |x| puts x.name end
-		puts "---"
-                o
-              when :-
-                puts "Rejecting procedures"
-                o = s.reject(&pair.last)
-                puts "Rejected #{s.count - o.count} procedures"
-                puts "Rejected:"
-                ((o-s)|(s-o)).each do |x| puts x.name end
-                puts "---"
-                o
+            when :+; s | index.procedures.select(&pair.last)
+            when :-; s.reject(&pair.last)
             end
           end
         end

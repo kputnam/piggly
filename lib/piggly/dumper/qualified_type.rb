@@ -1,30 +1,82 @@
 module Piggly
   module Dumper
 
+    # used for RETURN TABLE(...)
+    class RecordType
+      attr_reader :types, :names, :modes, :defaults
+
+      def initialize(types, names, modes, defaults)
+        @types, @names, @modes, @defaults =
+          types, names, modes, defaults
+      end
+
+      def quote
+        "table (#{@types.zip(@names, @modes, @defaults).map do |type, name, mode, default|
+          "#{name.quote + " " if name}#{type.quote}#{" default " + default if default}"
+        end.join(", ")})"
+      end
+
+      def table?
+        true
+      end
+    end
+
     class QualifiedType
       attr_reader :schema, :name
 
-      def initialize(schema, name)
-        @schema, @name = schema, normalize(name)
+      def self.parse(name, rest = nil)
+        if rest.to_s == ""
+          schema = nil
+        else
+          schema = name
+          name   = rest
+        end
+
+        case name
+        when /(.*)\[\]$/
+          name  = $1
+          array = "[]"
+        else
+          array = ""
+        end
+
+        if schema.to_s == ""
+          fst, snd = name.split(".", 2)
+          if snd.nil?
+            new(nil, fst, array)
+          else
+            new(fst, snd, array)
+          end
+        else
+          new(schema, name, array)
+        end
+      end
+
+      def initialize(schema, name, array)
+        @schema, @name, @array = schema, name, array
+      end
+
+      def table?
+        false
       end
 
       def shorten
-        self.class.new(nil, @name)
+        self.class.new(nil, @name, @array)
       end
 
       def quote
         if @schema
-          '"' + @schema + '"."' + @name + '"'
+          '"' + @schema + '"."' + normalize(@name) + '"' + @array
         else
-          '"' + @name + '"'
+          '"' + normalize(@name) + '"' + @array
         end
       end
 
       def to_s
-        if @schema and !%w[public pg_catalog].include?(@schema)
-          @schema + "." + readable(@name)
+        unless [nil, "", "pg_catalog"].include?(@schema)
+          @schema + "." + readable(@name) + @array
         else
-          readable(@name)
+          readable(@name) + @array
         end
       end
 
@@ -35,6 +87,10 @@ module Piggly
     protected
 
       def normalize(name)
+        unless [nil, "", "pg_catalog"].include?(@schema)
+          return name
+        end
+
         # select format_type(ret.oid, null), ret.typname
         # from pg_type as ret
         # where ret.typname <> format_type(ret.oid, null)
@@ -42,7 +98,6 @@ module Piggly
         # group by ret.typname, format_type(ret.oid, null)
         # order by format_type(ret.oid, null);
         case name
-        when /(.*)\[\]/                     then "#{normalize($1)}[]"
         when '"any"'                        then "any"
         when "bigint"                       then "int8"
         when "bit varying"                  then "varbit"

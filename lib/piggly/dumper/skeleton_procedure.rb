@@ -8,11 +8,12 @@ module Piggly
     class SkeletonProcedure
 
       attr_reader :oid, :name, :type, :arg_types, :arg_modes, :arg_names,
-        :strict, :type, :setof, :volatility, :secdef, :identifier
+        :strict, :setof, :volatility, :secdef, :identifier
 
       def initialize(oid, name, strict, secdef, setof, type, volatility, arg_modes, arg_names, arg_types, arg_defaults)
         @oid, @name, @strict, @secdef, @type, @volatility, @setof, @arg_modes, @arg_names, @arg_types, @arg_defaults =
           oid, name, strict, secdef, type, volatility, setof, arg_modes, arg_names, arg_types, arg_defaults
+
 
         @identifier = Digest::MD5.hexdigest(signature)
       end
@@ -21,26 +22,26 @@ module Piggly
       # @return [String]
       def arguments
         @arg_types.zip(@arg_names, @arg_modes, @arg_defaults).map do |type, name, mode, default|
-          "#{mode + " " if mode}#{name.quote + " " if name}#{type.quote}#{" DEFAULT " + default if default}"
+          "#{mode + " " if mode}#{name.quote + " " if name}#{type.quote}#{" default " + default if default}"
         end.join(", ")
       end
 
       # Returns source text for return type
       # @return [String]
       def setof
-        @setof ? "setof " : ""
+        @setof ? "setof " : nil
       end
 
       # Returns source text for strictness
       # @return [String]
       def strictness
-        @strict ? "strict" : ""
+        @strict ? "strict" : nil
       end
 
       # Returns source text for security
       # @return [String]
       def security
-        @secdef ? "security definer" : ""
+        @secdef ? "security definer" : nil
       end
 
       # Returns source SQL function definition statement

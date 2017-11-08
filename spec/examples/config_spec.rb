@@ -17,15 +17,15 @@ describe Config do
   end
 
   it "has default values" do
-    @config.cache_root = nil
+  # @config.cache_root = nil
     @config.cache_root.should_not be_nil
     @config.cache_root.should =~ /cache$/
 
-    @config.report_root = nil
+  # @config.report_root = nil
     @config.report_root.should_not be_nil
     @config.report_root.should =~ /reports$/
 
-    @config.trace_prefix = nil
+  # @config.trace_prefix = nil
     @config.trace_prefix.should_not be_nil
     @config.trace_prefix.should == 'PIGGLY'
   end

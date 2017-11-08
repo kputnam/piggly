@@ -73,7 +73,19 @@ module Piggly
 
         string << arguments << " )"
         string << "\n<span class='tK'>RETURNS#{procedure.setof ? ' SETOF' : ''}</span>"
-        string << " <span class='tD'>#{procedure.type.shorten}</span>"
+
+        if procedure.type.table?
+          fields = procedure.type.types.zip(procedure.type.names).map do |rtype, rname|
+            rname = "<span class='tI'>#{rname}</span>\t"
+            rtype = "<span class='tD'>#{rtype}</span>"
+            "#{rname}#{rtype}"
+          end.join(",\n\t")
+
+          string << " <span class='tK'>TABLE</span> (\n\t" << fields << " )"
+        else
+          string << " <span class='tD'>#{procedure.type.shorten}</span>"
+        end
+
         string << "\n  <span class='tK'>SECURITY DEFINER</span>" if procedure.secdef
         string << "\n  <span class='tK'>STRICT</span>" if procedure.strict
         string << "\n  <span class='tK'>#{procedure.volatility.upcase}</span>"
