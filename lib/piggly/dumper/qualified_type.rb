@@ -28,7 +28,7 @@ module Piggly
         if rest.to_s == ""
           schema = nil
         else
-          schema = name
+          schema = unquote(name)
           name   = rest
         end
 
@@ -43,13 +43,17 @@ module Piggly
         if schema.to_s == ""
           fst, snd = name.split(".", 2)
           if snd.nil?
-            new(nil, fst, array)
+            new(nil, unquote(fst), array)
           else
-            new(fst, snd, array)
+            new(unquote(fst), unquote(snd), array)
           end
         else
-          new(schema, name, array)
+          new(schema, unquote(name), array)
         end
+      end
+
+      def self.unquote(s)
+        s[/^"(.*)"$/, 1] || s
       end
 
       def initialize(schema, name, array)
