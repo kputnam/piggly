@@ -14,6 +14,7 @@ module Piggly
           tag :html do
             tag :head do
               tag :title, "Piggly PL/pgSQL Code Coverage"
+              tag :meta, :charset => "utf-8"
               tag :link, :rel => "stylesheet", :type => "text/css", :href => "piggly.css"
               tag :script, "<!-- -->", :type => "text/javascript", :src => "sortable.js"
             end

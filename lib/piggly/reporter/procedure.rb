@@ -18,30 +18,37 @@ module Piggly
             tag :html, :xmlns => "http://www.w3.org/1999/xhtml" do
               tag :head do
                 tag :title, "Code Coverage: #{procedure.name}"
+                tag :meta, :charset => "utf-8"
                 tag :link, :rel => "stylesheet", :type => "text/css", :href => "piggly.css"
                 tag :script, "<!-- -->", :type => "text/javascript", :src => "highlight.js"
               end
 
               tag :body do
-                aggregate(procedure.name, @profile.summary(procedure))
-
-                tag :div, :class => "listing" do
-                  tag :table do
-                    tag :tr do
-                      tag :td, "&nbsp;", :class => "signature"
-                      tag :td, signature(procedure), :class => "signature"
-                    end
-
-                    tag :tr do
-                      tag :td, data[:lines].to_a.map{|n| %[<a href="#L#{n}" id="L#{n}">#{n}</a>] }.join("\n"), :class => "lines"
-                      tag :td, data[:html], :class => "code"
-                    end
-                  end
+                tag :div, :class => "header" do
+                  aggregate(procedure.name, @profile.summary(procedure))
                 end
 
-                toc(@profile[procedure])
+                tag :div, :class => "container" do
+                  tag :div, :class => "listing" do
+                    tag :table do
+                      tag :tr do
+                        tag :td, "&nbsp;", :class => "signature"
+                        tag :td, signature(procedure), :class => "signature"
+                      end
+
+                      tag :tr do
+                        tag :td, data[:lines].to_a.map{|n| %[<a href="#L#{n}" id="L#{n}">#{n}</a>] }.join("\n"), :class => "lines"
+                        tag :td, data[:html], :class => "code"
+                      end
+                    end
+                  end
+
+                  toc(@profile[procedure])
+                end
 
                 timestamp
+
+                tag :a, "Return to index", :href => "index.html", :class => "return"
               end
             end
           end
@@ -95,9 +102,9 @@ module Piggly
 
       def toc(tags)
         todo = tags.reject{|t| t.complete? }
-        
+
         tag :div, :class => 'toc' do
-          tag :a, 'Index', :href => 'index.html'
+          tag :strong, 'Notes'
 
           tag :ol do
             todo.each do |t|
