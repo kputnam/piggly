@@ -6,50 +6,84 @@ body
 {
   color: #000;
   background-color: #fff;
-  padding: 50px;
+  margin: 50px;
 }
 
 a img { border: 0; }
 
-div.timestamp
+.timestamp
 {
   clear: both;
   font-family: "Consolas", "DejaVu Sans Mono", "Monaco", "Nimbus Mono L", "Courier New";
   font-style: italic;
   font-size: 9pt;
+  display: inline-block;
 }
 
-div.toc
-{
-  width: 200px;
-  height: 150px;
-  border: 1px solid #c00;
-  background-color: #fdd;
-  padding: 5px;
-  position: fixed;
-  overflow: auto;
-  bottom: 10px;
-  right: 10px;
+.return {
   font-family: "Tahoma", "Trebuchet MS", "Arial", sans-serif;
+  font-size: 9pt;
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 10px;
 }
-div.toc ol { margin-left: 1.6em; }
-div.toc  a { color: #c00; }
-div.toc li { font-size: 75%; }
-div.toc li.branch { }
-div.toc li.block  { }
-div.toc li.loop   { }
+
+
+.container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  align-content: flex-start;
+  padding-bottom: 1rem;
+}
+
+.toc
+{
+  font-family: "Tahoma", "Trebuchet MS", "Arial", sans-serif;
+  order: 2;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 180px;
+  padding-top: 10px;
+  padding-left: 10px;
+}
+
+.toc-fixed {
+  position: fixed;
+  width: 180px;
+  max-width: 180px;
+  top: 0;
+  right: 50px;
+  max-height: 100vh;
+  overflow-y: scroll;
+}
+.toc-fixed ol { padding-bottom: 2rem; }
+.toc ol { margin-left: 1.6em; }
+.toc  a { color: #c00; }
+.toc li { font-size: 90%; margin-bottom: 0.5rem; line-height: 1.0; }
+/*
+.toc li.branch { }
+.toc li.block  { }
+.toc li.loop   { }
+*/
 
 /* main container for line numbers and code */
-div.listing
+.listing
 {
   background-color: #f9f9f9;
   border: 1px solid silver;
-  margin: 0 0 1.5em 0;
-  overflow: auto;
+  overflow-x: auto;
+  order: 1;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 100%;
 }
+.listing-fixed { margin-right: 190px; }
 
-div.listing table { border-collapse: collapse; }
-div.listing td.signature
+.listing table { border-collapse: collapse; }
+.listing td.signature
 {
   vertical-align: top;
   padding: 2px 4px;
