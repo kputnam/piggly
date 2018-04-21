@@ -53,6 +53,7 @@ module Piggly
       end
 
       def self.unquote(s)
+        return s if s.nil?
         s[/^"(.*)"$/, 1] || s
       end
 
