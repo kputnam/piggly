@@ -271,9 +271,21 @@ grammar Piggly
   end
 
   rule varDeclaration
+    varDeclarationMisc / varDeclarationCursor
+  end
+
+  rule varDeclarationMisc
     name:tIdentifier tSpace ( kwCONSTANT tSpace )?
-    type:tType ( tSpace  kwNOT tSpace kwNULL )?
-               ( tSpace? kwASSIGN tSpace? rval:expressionUntilSemiColon )?
+    type:tType ( tSpace  kwCOLLATE name:tIdentifier )?
+               ( tSpace  kwNOT tSpace kwNULL )?
+               ( tSpace? ( kwASSIGN / kwDEFAULT ) tSpace? rval:expressionUntilSemiColon )?
+    tSpace?
+    ';' tSpace?
+  end
+
+  rule varDeclarationCursor
+    name:tIdentifier tSpace ( ( kwNO tSpace )? kwSCROLL tSpace )? kwCURSOR tSpace
+      rval:expressionUntilSemiColon
     tSpace?
     ';' tSpace?
   end
@@ -494,7 +506,7 @@ grammar Piggly
     #   EXIT WHEN cond;
 
     kwWHEN / kwAS / kwASSIGN / kwALIAS / kwBEGIN / kwBY / kwCASE / kwARRAY
-    / kwCONSTANT / kwCONTINUE / kwCURSOR / kwDEBUG / kwDECLARE / kwDEFAULT
+    / kwCOLLATE / kwCONSTANT / kwCONTINUE / kwCURSOR / kwDEBUG / kwDECLARE / kwDEFAULT
     / kwDIAGNOSTICS / kwELSE / kwELSIF / kwEND / kwEXCEPTION / kwEXECUTE / kwEXIT
     / kwFOR / kwFROM / kwGET / kwIF / kwIN / kwINFO / kwINSERT / kwINTO
     / kwIS / kwLOG / kwLOOP / kwNOT / kwNOTICE / kwNULL / kwFOREACH
@@ -534,6 +546,10 @@ grammar Piggly
 
   rule kwCASE
     'case' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
+  rule kwCOLLATE
+    'collate' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
   rule kwCONSTANT
@@ -638,6 +654,10 @@ grammar Piggly
 
   rule kwNEXT
     'next' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
+  end
+
+  rule kwNO
+    'no' ![a-z0-9_] <Piggly::Parser::Nodes::TKeyword>
   end
 
   rule kwNOT
