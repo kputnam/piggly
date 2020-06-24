@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION snippets(a integer, b boolean) RETURNS SETOF pg_names
 DECLARE
   x               varchar(20);
   n               integer := 403;
+  m               integer DEFAULT 404;
   i               integer;
   ys              integer[] := '{}';
   result          text;
@@ -11,6 +12,7 @@ DECLARE
   myself          pg_proc%ROWTYPE;
   shareCount      integer := 99999999;
   count           integer;
+  local_a         text COLLATE "en_US";
 BEGIN
 
   -- IF-THEN
