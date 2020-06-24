@@ -23,7 +23,7 @@ GEM
     pg (0.18.4)
     polyglot (0.3.5)
     power_assert (0.2.6)
-    rake (11.1.2)
+    rake (12.3.3)
     rspec (2.8.0)
       rspec-core (~> 2.8.0)
       rspec-expectations (~> 2.8.0)
