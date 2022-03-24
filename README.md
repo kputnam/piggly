@@ -1,8 +1,8 @@
 # Piggly
 
-PostgreSQL PL/pgSQL stored procedure code coverage [![Build Status](https://secure.travis-ci.org/kputnam/piggly.png)](http://travis-ci.org/kputnam/piggly)
+Code coverage reports for PostgreSQL PL/pgSQL stored procedures
 
-![Screenshot](http://kputnam.github.com/piggly/images/example.png)
+![Screenshot](https://kputnam.github.io/piggly/images/example.png)
 
 ## Purpose
 
@@ -23,7 +23,7 @@ these events and generates prettified source code that is annotated with coverag
 
 ## Features
 
-* Readable and easily-navigable reports (see [example](http://kputnam.github.com/piggly/reports/index.html))
+* Readable and easily-navigable reports (see [example](http://kputnam.github.io/piggly/reports/index.html))
 * Language agnostic - write your tests in Ruby, Python, Java, SQL scripts etc
 * Branch, block, and loop coverage analysis
 * Instrumenting source-to-source compiler
